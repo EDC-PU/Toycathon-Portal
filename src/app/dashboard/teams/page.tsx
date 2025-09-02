@@ -80,6 +80,9 @@ export default function TeamPage() {
         setLoading(true);
         try {
             const teamRef = doc(db, "teams", team.id);
+            
+            // Note: We are not unlinking members here as it would require a backend function
+            // for security reasons. The app should handle stale teamId references gracefully.
             await deleteDoc(teamRef);
             
             toast({
