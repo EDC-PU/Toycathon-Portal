@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp, getDoc, collection, query, where, getDocs, DocumentData } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, collection, query, where, getDocs, DocumentData, orderBy } from "firebase/firestore";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
@@ -23,6 +23,8 @@ import Link from "next/link";
 
 const submissionSchema = z.object({
   teamId: z.string({ required_error: "Please select a team." }),
+  categoryId: z.string({ required_error: "Please select a category." }),
+  themeId: z.string({ required_error: "Please select a theme." }),
   ideaTitle: z.string().min(5, "Title must be at least 5 characters."),
   ideaDescription: z.string().min(20, "Description must be at least 20 characters."),
   videoLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
@@ -34,13 +36,20 @@ interface Team extends DocumentData {
     teamId: string;
 }
 
+interface FirestoreDocument extends DocumentData {
+    id: string;
+    name: string;
+}
+
 export default function SubmissionPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [teams, setTeams] = useState<Team[]>([]);
-    const [isFetchingTeams, setIsFetchingTeams] = useState(true);
+    const [categories, setCategories] = useState<FirestoreDocument[]>([]);
+    const [themes, setThemes] = useState<FirestoreDocument[]>([]);
+    const [isFetching, setIsFetching] = useState(true);
 
 
     const form = useForm<z.infer<typeof submissionSchema>>({
@@ -58,7 +67,8 @@ export default function SubmissionPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                setIsFetchingTeams(true);
+                setIsFetching(true);
+                
                 const teamsQuery = query(collection(db, "teams"), where("creatorUid", "==", currentUser.uid));
                 const teamsSnapshot = await getDocs(teamsQuery);
                 const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
@@ -67,8 +77,16 @@ export default function SubmissionPage() {
                 if (fetchedTeams.length === 1) {
                     form.setValue("teamId", fetchedTeams[0].id);
                 }
-                
-                setIsFetchingTeams(false);
+
+                const categoriesQuery = query(collection(db, "categories"), orderBy("name"));
+                const categoriesSnapshot = await getDocs(categoriesQuery);
+                setCategories(categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreDocument)));
+
+                const themesQuery = query(collection(db, "themes"), orderBy("name"));
+                const themesSnapshot = await getDocs(themesQuery);
+                setThemes(themesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreDocument)));
+
+                setIsFetching(false);
             } else {
                 router.push('/login');
             }
@@ -90,6 +108,8 @@ export default function SubmissionPage() {
                         ideaTitle: "",
                         ideaDescription: "",
                         videoLink: "",
+                        categoryId: undefined,
+                        themeId: undefined,
                     });
                 }
             }
@@ -105,11 +125,10 @@ export default function SubmissionPage() {
 
         setIsLoading(true);
         try {
-            // Use the selected team's firestore ID as the document ID in submissions
             const submissionRef = doc(db, "submissions", values.teamId); 
             await setDoc(submissionRef, {
                 ...values,
-                userId: user.uid, // Keep track of who submitted
+                userId: user.uid,
                 submittedAt: serverTimestamp(),
             }, { merge: true });
 
@@ -130,8 +149,8 @@ export default function SubmissionPage() {
         }
     };
 
-    if (isFetchingTeams) {
-        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching your teams...</div>;
+    if (isFetching) {
+        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching data...</div>;
     }
     
     if (teams.length === 0) {
@@ -193,6 +212,58 @@ export default function SubmissionPage() {
                                     </FormItem>
                                 )}
                             />
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="categoryId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Category</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedTeamId || categories.length === 0}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {categories.map(cat => (
+                                                        <SelectItem key={cat.id} value={cat.id}>
+                                                            {cat.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="themeId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Theme</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedTeamId || themes.length === 0}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a theme" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {themes.map(theme => (
+                                                        <SelectItem key={theme.id} value={theme.id}>
+                                                            {theme.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
 
                             <FormField
                                 control={form.control}

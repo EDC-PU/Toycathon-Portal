@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Users, CheckSquare, LogOut, Megaphone, FileText } from 'lucide-react';
+import { Home, User, Users, CheckSquare, LogOut, Megaphone, FileText, Tag } from 'lucide-react';
 import { Button } from './ui/button';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -21,6 +21,7 @@ const navLinks = [
 
 const adminNavLinks = [
     { href: '/dashboard/announcements', label: 'Announcements', icon: Megaphone },
+    { href: '/dashboard/categories', label: 'Categories & Themes', icon: Tag },
 ];
 
 interface DashboardSidebarProps {
@@ -80,7 +81,7 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
                     </h2>
                     <div className="space-y-1">
                         {adminNavLinks.map((link) => {
-                            const isActive = pathname === link.href;
+                            const isActive = pathname.startsWith(link.href);
                             return (
                                 <Link key={link.href} href={link.href}>
                                 <Button
