@@ -469,9 +469,14 @@ function AssessmentCriteriaSection() {
 
         <div className="mt-8">
           <Card className="rounded-lg bg-accent text-accent-foreground p-6 shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between p-0">
-              <h3 className="text-3xl font-bold">Awards</h3>
-              <Trophy className="w-16 h-16 text-gray-800/50" />
+            <CardHeader className="p-0">
+              <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-3xl font-bold">Awards</h3>
+                     <p className="font-semibold text-gray-700 mt-2">🏅 Top teams will receive prize amounts in recognition of their outstanding ideas.</p>
+                  </div>
+                  <Trophy className="w-16 h-16 text-gray-800/50" />
+              </div>
             </CardHeader>
             <CardContent className="p-0 mt-4">
               <ul className="space-y-2 list-disc pl-5 text-gray-700">
@@ -480,6 +485,7 @@ function AssessmentCriteriaSection() {
                 <li>Support to file IP for selected toy design</li>
                 <li>Linkage with toy industry to scale up selected toy design</li>
               </ul>
+               <p className="mt-4 font-semibold text-gray-700">From concept to commercialization — we’re here to help your ideas grow into real-world success stories 💡.</p>
             </CardContent>
           </Card>
         </div>
