@@ -22,7 +22,7 @@ export default function Header() {
       <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between">
         <Link href="/" className="flex items-center gap-2" prefetch={false}>
           <Blocks className="h-6 w-6 text-primary" />
-          <span className="font-headline font-bold text-teal-green">Toycathon 2025</span>
+          <span className="font-headline font-bold text-primary">Toycathon 2025</span>
         </Link>
         
         <nav className="hidden items-center gap-6 md:flex">
@@ -53,7 +53,7 @@ export default function Header() {
             <div className="flex flex-col gap-6 p-6">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <Blocks className="h-6 w-6 text-primary" />
-                    <span className="font-headline font-bold text-teal-green">Toycathon 2025</span>
+                    <span className="font-headline font-bold text-primary">Toycathon 2025</span>
                 </Link>
                 <nav className="flex flex-col gap-4">
                     {navLinks.map((link) => (

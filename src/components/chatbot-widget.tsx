@@ -70,7 +70,7 @@ export default function ChatbotWidget() {
       </SheetTrigger>
       <SheetContent className="flex flex-col p-0">
         <SheetHeader className="p-6 pb-2">
-          <SheetTitle className="font-headline text-teal-green">Toycathon Assistant</SheetTitle>
+          <SheetTitle className="font-headline text-primary">Toycathon Assistant</SheetTitle>
           <SheetDescription>
             Ask me anything about the Vadodara Toycathon 2025!
           </SheetDescription>

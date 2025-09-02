@@ -4,7 +4,7 @@ import type { SVGProps } from 'react';
 function PiercLogo(props: SVGProps<SVGSVGElement>) {
     return (
       <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40">
-        <text x="50" y="25" fontFamily="Space Grotesk, sans-serif" fontSize="20" fontWeight="bold" textAnchor="middle" fill="currentColor">
+        <text x="50" y="25" fontFamily="Montserrat, sans-serif" fontSize="20" fontWeight="bold" textAnchor="middle" fill="currentColor">
           PIERC
         </text>
       </svg>
@@ -14,7 +14,7 @@ function PiercLogo(props: SVGProps<SVGSVGElement>) {
   function ParulUniversityLogo(props: SVGProps<SVGSVGElement>) {
     return (
       <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
-        <text x="100" y="25" fontFamily="Space Grotesk, sans-serif" fontSize="16" fontWeight="bold" textAnchor="middle" fill="currentColor">
+        <text x="100" y="25" fontFamily="Montserrat, sans-serif" fontSize="16" fontWeight="bold" textAnchor="middle" fill="currentColor">
           PARUL UNIVERSITY
         </text>
       </svg>
@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="container mx-auto max-w-7xl px-4 py-8 md:px-6">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex flex-col items-center md:items-start">
-                <p className="font-headline text-lg font-bold text-teal-green">Vadodara Toycathon 2025</p>
+                <p className="font-headline text-lg font-bold text-primary">Vadodara Toycathon 2025</p>
                 <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} All rights reserved.</p>
             </div>
           <div className="flex items-center gap-8">

@@ -97,23 +97,20 @@ const rules = [
 
 function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-white dark:bg-gray-950">
+    <section className="relative w-full overflow-hidden bg-background">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white via-teal-50/50 to-yellow-50/50 dark:from-gray-950 dark:via-teal-950/20 dark:to-yellow-950/20" />
         <div 
-          className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-teal-100/40 opacity-20 blur-3xl dark:bg-teal-900/50" 
-          style={{ transform: 'translate3d(0, 0, 0)' }}
+          className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/20 opacity-30 blur-3xl"
         />
         <div 
-          className="absolute -top-1/2 right-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-yellow-100/40 opacity-20 blur-3xl dark:bg-yellow-900/50"
-          style={{ transform: 'translate3d(0, 0, 0)' }}
+          className="absolute -top-1/2 right-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-accent/20 opacity-30 blur-3xl"
         />
       </div>
       <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
         <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
-            <span className="block" style={{color: '#14b8a6'}}>VADODARA</span>
+            <span className="text-primary">VADODARA</span>
             <span className="mt-2 block">
-                <span style={{color: '#f59e0b'}}>TOYCATHON</span> <span style={{color: '#ef4444'}}>2025</span>
+                <span className="text-accent">TOYCATHON</span> <span className="text-destructive">2025</span>
             </span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-700 dark:text-gray-300 md:text-xl">
@@ -138,10 +135,10 @@ function HeroSection() {
 
 function AboutSection() {
   return (
-    <section id="about" className="w-full bg-secondary/50 py-12 md:py-24">
+    <section id="about" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto grid max-w-7xl items-center gap-8 px-4 md:grid-cols-2 md:px-6">
         <div>
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-teal-green md:text-4xl">About the Toycathon</h2>
+          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About the Toycathon</h2>
           <p className="mt-4 text-muted-foreground">
             The Vadodara Toycathon is a prestigious national competition that invites innovators, students, and startups to conceptualize and create new toys and games rooted in Indian culture and values. It&apos;s a platform to showcase creativity and contribute to the burgeoning Indian toy industry.
           </p>
@@ -167,10 +164,10 @@ function AboutSection() {
 
 function ThemesSection() {
   return (
-    <section id="themes" className="w-full py-12 md:py-24">
+    <section id="themes" className="w-full bg-secondary/50 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-teal-green md:text-4xl">Event Themes</h2>
+          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Themes</h2>
           <p className="mt-4 text-muted-foreground">
             Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
           </p>
@@ -193,10 +190,10 @@ function ThemesSection() {
 
 function TimelineSection() {
   return (
-    <section id="timeline" className="w-full bg-secondary/50 py-12 md:py-24">
+    <section id="timeline" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-teal-green md:text-4xl">Important Dates</h2>
+          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Important Dates</h2>
           <p className="mt-4 text-muted-foreground">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
@@ -227,10 +224,10 @@ function TimelineSection() {
 
 function RulesSection() {
   return (
-    <section id="rules" className="w-full py-12 md:py-24">
+    <section id="rules" className="w-full bg-secondary/50 py-12 md:py-24">
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
-                <h2 className="font-headline text-3xl font-bold tracking-tight text-teal-green md:text-4xl">Rules & Guidelines</h2>
+                <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Rules & Guidelines</h2>
                 <p className="mt-4 text-muted-foreground">
                     Please read the rules carefully before registering.
                 </p>
