@@ -1,3 +1,5 @@
+"use client";
+
 import ProfileForm from '@/components/profile-form';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
