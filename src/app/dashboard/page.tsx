@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
@@ -199,6 +199,54 @@ export default function DashboardPage() {
                     </Button>
                 </CardContent>
             </Card>
+
+             <Card>
+                <CardHeader>
+                    <CardTitle>Contact Information</CardTitle>
+                    <CardDescription>Need help? Reach out to the event organizers.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <h4 className="font-semibold mb-2 text-primary">For any Query</h4>
+                        <div className="space-y-2 text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4" />
+                                <span>Manish Jain - 9131445130</span>
+                            </div>
+                             <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4" />
+                                <span>Kartik Ram - 9594355271</span>
+                            </div>
+                             <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4" />
+                                <span>Smitha Reddy - 8121734431</span>
+                            </div>
+                        </div>
+                    </div>
+                     <div>
+                        <h4 className="font-semibold mb-2 text-primary">Reach out to us</h4>
+                        <div className="space-y-2 text-muted-foreground">
+                            <div className="flex items-start gap-2">
+                                <Pin className="h-4 w-4 mt-1 flex-shrink-0" />
+                                <span>
+                                    Parul Innovation and Entrepreneurship Research Centre
+                                    <br />
+                                    BBA building, ground floor, Parul University 
+                                    <br />
+                                    P.O. Limda, Ta. Waghodia, Dist. Vadodara-391760
+                                    <br/>
+                                    Gujarat State, India.
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Mail className="h-4 w-4" />
+                                <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
     );
 }

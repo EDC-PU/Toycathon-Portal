@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Facebook, Instagram, Linkedin, Mail, Phone } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail, Phone, Pin } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 
@@ -32,14 +32,14 @@ export default function Footer() {
 
             <div className="flex flex-col items-center text-sm">
                 <h3 className="font-semibold text-foreground">Contact Us</h3>
-                <div className="mt-4 space-y-2 text-center">
-                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <div className="mt-4 space-y-2 text-center text-muted-foreground">
+                    <div className="flex items-center justify-center gap-2">
                         <Mail className="h-4 w-4" />
                         <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
                     </div>
-                     <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                     <div className="flex items-center justify-center gap-2">
                         <Phone className="h-4 w-4" />
-                        <span>+91 12345 67890</span>
+                        <span>Manish Jain - 9131445130</span>
                     </div>
                 </div>
             </div>

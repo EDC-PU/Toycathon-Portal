@@ -14,7 +14,9 @@ import {
   Calendar,
   Flag,
   Lightbulb,
+  Mail,
   Palette,
+  Phone,
   Puzzle,
   Rocket,
   Trophy,
@@ -486,6 +488,59 @@ function AssessmentCriteriaSection() {
   );
 }
 
+function ContactSection() {
+    return (
+        <section id="contact" className="w-full bg-background py-12 md:py-24">
+            <div className="container mx-auto max-w-7xl px-4 md:px-6">
+                <div className="mx-auto max-w-4xl text-center">
+                     <SectionHeading color="primary">Contact Us</SectionHeading>
+                     <p className="mt-4 text-muted-foreground text-center">
+                        Have any questions? Feel free to reach out to us.
+                    </p>
+                </div>
+
+                <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+                    <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
+                        <CardHeader className="p-0">
+                            <CardTitle className="text-primary">For any Query contact</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0 mt-4 space-y-2">
+                           <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <p>Manish Jain - 9131445130</p>
+                           </div>
+                            <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <p>Kartik Ram - 9594355271</p>
+                           </div>
+                           <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <p>Smitha Reddy - 8121734431</p>
+                           </div>
+                             <div className="flex items-center gap-2 pt-2">
+                                <Mail className="h-4 w-4 text-muted-foreground" />
+                                <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
+                            </div>
+                        </CardContent>
+                    </Card>
+                     <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
+                        <CardHeader className="p-0">
+                            <CardTitle className="text-primary">Reach out to us</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0 mt-4 space-y-1 text-muted-foreground">
+                           <p className="font-semibold text-foreground">Parul Innovation and Entrepreneurship Research Centre</p>
+                           <p>BBA building, ground floor, Parul University</p>
+                           <p>P.O. Limda, Ta. Waghodia,</p>
+                           <p>Dist. Vadodara-391760, Gujarat State, India.</p>
+                           <p className="pt-2"><a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Website: https://www.pierc.org/</a></p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </section>
+    );
+}
+
 
 export default function Home() {
   return (
@@ -498,6 +553,7 @@ export default function Home() {
       <RulesSection />
       <PhasesSection />
       <AssessmentCriteriaSection />
+      <ContactSection />
     </>
   );
 }
