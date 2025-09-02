@@ -18,9 +18,6 @@ export default function DashboardLayout({
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Simplified profile check. We primarily care that they have a document.
-  // Teachers might not have student-specific fields but can access the dashboard.
-  // Students joining a team will be forced to the profile page until complete.
   const isProfileSufficient = (profileData: any) => {
     return !!profileData;
   }
@@ -33,7 +30,6 @@ export default function DashboardLayout({
         setIsAdmin(userIsAdmin);
         setUser(currentUser);
 
-        // Admins can always access the dashboard
         if (userIsAdmin) {
            setLoading(false);
            return;
@@ -44,13 +40,10 @@ export default function DashboardLayout({
 
         if (docSnap.exists()) {
           const profileData = docSnap.data();
-          // If profile is sufficient (i.e., exists), they can access the dashboard.
-          // The profile page itself handles redirection if they need to fill more details.
           if (!isProfileSufficient(profileData)) {
              router.push('/profile');
           }
         } else {
-          // If no user document exists at all, they must create it.
           router.push('/profile');
         }
 

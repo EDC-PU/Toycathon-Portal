@@ -1,4 +1,3 @@
-
 "use client";
 
 import { auth, db } from '@/lib/firebase';
@@ -10,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Copy, PlusCircle, Users, Tag, Trash2 } from 'lucide-react';
+import { Copy, PlusCircle, Users, Tag, Trash2, Edit } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -35,6 +34,8 @@ export default function TeamPage() {
     const [teamMembers, setTeamMembers] = useState<{ [key: string]: TeamMember[] }>({});
     const [loading, setLoading] = useState(true);
 
+    const deadline = new Date('2025-09-30T23:59:59');
+    const canEdit = new Date() < deadline;
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -78,10 +79,6 @@ export default function TeamPage() {
 
         setLoading(true);
         try {
-            // For security, client-side code should not unlink members from a team.
-            // This operation should ideally be handled by a Cloud Function with admin privileges.
-            // We will only delete the team document. The members will still have a teamId
-            // but it will point to a non-existent team. The app should handle this gracefully.
             const teamRef = doc(db, "teams", team.id);
             await deleteDoc(teamRef);
             
@@ -90,7 +87,6 @@ export default function TeamPage() {
                 description: `"${team.teamName}" has been successfully deleted.`,
             });
 
-            // Refresh the list of teams
             if(user) {
                 fetchTeams(user.uid);
             }
@@ -166,9 +162,16 @@ export default function TeamPage() {
                                     </CardTitle>
                                     <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
                                 </div>
-                                <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                     <Button asChild variant="outline" size="icon" disabled={!canEdit} title={canEdit ? 'Edit Team' : 'Editing is disabled after the deadline'}>
+                                        <Link href={`/dashboard/teams/edit/${team.id}`}>
+                                            <Edit className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                    <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (
@@ -206,5 +209,3 @@ export default function TeamPage() {
         </div>
     );
 }
-
-    
