@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,11 +17,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, User, updateProfile } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   teamName: z.string().min(2, "Team name must be at least 2 characters."),
@@ -29,8 +30,13 @@ const formSchema = z.object({
   college: z.string().min(3, "College name is required."),
 });
 
-export default function ProfileForm() {
+interface ProfileFormProps {
+  onProfileComplete?: () => void;
+}
+
+export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
     const { toast } = useToast();
+    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +59,6 @@ export default function ProfileForm() {
                 if (docSnap.exists()) {
                     form.reset(docSnap.data());
                 } else {
-                    // For Google Sign-in users, pre-fill some fields
                     if (currentUser.displayName) {
                         form.setValue('leaderName', currentUser.displayName);
                     }
@@ -76,7 +81,6 @@ export default function ProfileForm() {
 
         setIsLoading(true);
         try {
-            // Update firebase auth profile
             await updateProfile(user, {
               displayName: values.leaderName
             });
@@ -91,6 +95,13 @@ export default function ProfileForm() {
                 title: "Profile Updated!",
                 description: "Your team information has been saved.",
             });
+            
+            if (onProfileComplete) {
+                onProfileComplete();
+            } else {
+                router.push('/dashboard/profile');
+            }
+
         } catch (error) {
              toast({
                 title: "Error",

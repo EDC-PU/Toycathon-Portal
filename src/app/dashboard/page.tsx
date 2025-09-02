@@ -1,3 +1,4 @@
+
 "use client";
 
 import { auth, db } from '@/lib/firebase';
@@ -8,7 +9,8 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Copy, Users, XCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
     teamName: string;
@@ -16,10 +18,12 @@ interface UserProfile {
     leaderPhone: string;
     college: string;
     email: string;
+    uid: string;
 }
 
 export default function DashboardPage() {
     const router = useRouter();
+    const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
@@ -31,69 +35,112 @@ export default function DashboardPage() {
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    const profileData = docSnap.data() as UserProfile;
-                     if (profileData.teamName && profileData.leaderName && profileData.leaderPhone && profileData.college) {
-                        setProfile(profileData);
-                    } else {
-                        router.push('/profile');
-                    }
-                } else {
-                    router.push('/profile');
+                    setProfile(docSnap.data() as UserProfile);
                 }
-            } else {
-                router.push('/login');
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, []);
+
+    const getJoiningLink = () => {
+        if (!profile) return '';
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        return `${origin}/register?teamId=${profile.uid}`;
+    };
+
+    const copyJoiningLink = () => {
+        const link = getJoiningLink();
+        navigator.clipboard.writeText(link);
+        toast({
+            title: 'Copied to clipboard!',
+            description: 'You can now share the link with your team members.'
+        });
+    }
 
     if (loading) {
-        return <div className="container mx-auto flex min-h-[calc(100vh-14rem)] items-center justify-center">Loading...</div>;
+        return <div className="flex items-center justify-center">Loading...</div>;
     }
 
     if (!profile) {
-        return <div className="container mx-auto flex min-h-[calc(100vh-14rem)] items-center justify-center">Redirecting...</div>;
+        return <div className="flex items-center justify-center">Could not load profile.</div>;
     }
 
+
     return (
-        <div className="container mx-auto max-w-4xl py-12 px-4">
-             <div className="text-center mb-8">
-                <h1 className="font-headline text-4xl font-bold tracking-tight text-primary">Welcome, {profile.leaderName}!</h1>
-                <p className="mt-2 text-muted-foreground">This is your dashboard. Here you can manage your team and submission.</p>
+        <div className="space-y-8">
+             <div className="text-left">
+                <h1 className="text-4xl font-bold tracking-tight text-primary">Welcome, {profile.leaderName}!</h1>
+                <p className="mt-2 text-muted-foreground">This is your command center for the Toycathon.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <Card>
                     <CardHeader>
-                        <CardTitle>Your Team: {profile.teamName}</CardTitle>
-                        <CardDescription>College: {profile.college}</CardDescription>
+                        <CardTitle>Registration Status</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <p><strong>Leader:</strong> {profile.leaderName}</p>
-                        <p><strong>Email:</strong> {profile.email}</p>
-                        <p><strong>Phone:</strong> {profile.leaderPhone}</p>
-                         <Button asChild variant="outline" className="mt-4">
-                            <Link href="/profile">Edit Profile</Link>
-                        </Button>
+                    <CardContent className="flex items-center gap-4">
+                        <CheckCircle className="h-10 w-10 text-green-500" />
+                        <div>
+                            <p className="font-semibold">Registered</p>
+                            <p className="text-sm text-muted-foreground">Your team is registered.</p>
+                        </div>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Submit Your Idea</CardTitle>
-                        <CardDescription>Ready to submit your toy idea? Click below!</CardDescription>
+                        <CardTitle>Idea Submission</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground mb-4">
-                           The submission portal is not open yet. Check back later!
-                        </p>
-                        <Button disabled>
-                           Go to Submission <ArrowRight className="ml-2" />
-                        </Button>
+                    <CardContent className="flex items-center gap-4">
+                       <Clock className="h-10 w-10 text-yellow-500" />
+                       <div>
+                            <p className="font-semibold">Pending</p>
+                            <p className="text-sm text-muted-foreground">Submission portal opens soon.</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Team: {profile.teamName}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex items-center gap-4">
+                        <Users className="h-10 w-10 text-primary" />
+                        <div>
+                            <p className="font-semibold">{profile.college}</p>
+                            <Button asChild variant="link" className="p-0 h-auto">
+                                <Link href="/dashboard/team">Manage Team</Link>
+                            </Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Invite Your Team</CardTitle>
+                    <CardDescription>Share this link with your friends to have them join your team.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row items-center gap-4">
+                    <input type="text" readOnly value={getJoiningLink()} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" />
+                    <Button onClick={copyJoiningLink} className="w-full sm:w-auto">
+                        <Copy className="mr-2" />
+                        Copy Link
+                    </Button>
+                </CardContent>
+            </Card>
+
+             <Card>
+                <CardHeader>
+                    <CardTitle>Submit Your Idea</CardTitle>
+                    <CardDescription>Ready to submit your toy idea? The portal isn't open yet, but it will be soon!</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button disabled>
+                       Go to Submission <ArrowRight className="ml-2" />
+                    </Button>
+                </CardContent>
+            </Card>
         </div>
     );
 }
