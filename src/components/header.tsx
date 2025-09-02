@@ -23,12 +23,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
-              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
+              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={180} height={41} className="h-10 w-auto object-contain" />
           </a>
           <a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer">
-              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={80} height={32} className="h-8 w-auto object-contain" />
+              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={100} height={41} className="h-10 w-auto object-contain" />
           </a>
         </div>
         

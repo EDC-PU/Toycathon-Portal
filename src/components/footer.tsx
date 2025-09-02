@@ -10,7 +10,7 @@ export default function Footer() {
                 <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} All rights reserved.</p>
             </div>
           <div className="flex items-center gap-8">
-            <p className="text-sm font-semibold text-muted-foreground">In collaboration with:</p>
+            <p className="text-sm font-semibold text-muted-foreground">Organised by:</p>
             <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer" className="text-foreground transition-opacity hover:opacity-80">
                 <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
             </a>
