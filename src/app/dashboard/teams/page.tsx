@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Copy, PlusCircle, Users } from 'lucide-react';
+import { Copy, PlusCircle, Users, Tag } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -18,6 +18,7 @@ interface Team extends DocumentData {
     id: string;
     teamName: string;
     leaderName: string;
+    teamId: string; // The new serial team ID
 }
 
 interface TeamMember {
@@ -126,9 +127,12 @@ export default function TeamPage() {
                             <CardHeader>
                                 <CardTitle className="flex justify-between items-start">
                                     <span className="text-primary">{team.teamName}</span>
-                                     <span className="text-base font-medium text-muted-foreground">Leader: {team.leaderName}</span>
+                                     <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground bg-secondary px-2 py-1 rounded-md">
+                                        <Tag className="h-4 w-4" />
+                                        <span>{team.teamId}</span>
+                                     </div>
                                 </CardTitle>
-                                <CardDescription>Members Joined: {teamMembers[team.id]?.length || 0} / 5</CardDescription>
+                                <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 5</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (
@@ -137,7 +141,7 @@ export default function TeamPage() {
                                         <div key={member.uid} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
                                             <div className="flex items-center gap-4">
                                                 <Avatar>
-                                                    <AvatarImage src={member.photoURL} alt={member.displayName} />
+                                                    <AvatarImage src={member.photoURL || undefined} alt={member.displayName} />
                                                     <AvatarFallback>{getInitials(member.displayName)}</AvatarFallback>
                                                 </Avatar>
                                                 <div>
@@ -166,3 +170,5 @@ export default function TeamPage() {
         </div>
     );
 }
+
+    

@@ -12,14 +12,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, runTransaction } from "firebase/firestore";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 
 const createTeamSchema = z.object({
   teamName: z.string().min(2, "Team name must be at least 2 characters."),
+  instituteType: z.enum(["SCHOOL", "UNIVERSITY"], { required_error: "Please select an institute type." }),
   leaderName: z.string().min(2, "Leader's name must be at least 2 characters."),
   leaderEmail: z.string().email("Please enter a valid email for the team leader."),
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
@@ -61,10 +63,34 @@ export default function CreateTeamPage() {
 
         setIsLoading(true);
         try {
-            await addDoc(collection(db, "teams"), {
-                ...values,
-                creatorUid: user.uid,
-                createdAt: serverTimestamp(),
+            const counterRef = doc(db, "counters", "teamIds");
+            const teamsCollectionRef = collection(db, "teams");
+
+            // Run a transaction to atomically get the next team ID
+            const newTeamRef = await runTransaction(db, async (transaction) => {
+                const counterDoc = await transaction.get(counterRef);
+                
+                const instituteTypeKey = values.instituteType.toLowerCase();
+                let newCount = 1;
+
+                if (counterDoc.exists()) {
+                    newCount = (counterDoc.data()[instituteTypeKey] || 0) + 1;
+                }
+                
+                const paddedCount = String(newCount).padStart(3, '0');
+                const teamId = `VT/${values.instituteType}/${paddedCount}`;
+
+                transaction.set(counterRef, { [instituteTypeKey]: newCount }, { merge: true });
+                
+                const newTeamDocRef = doc(teamsCollectionRef);
+                transaction.set(newTeamDocRef, {
+                    ...values,
+                    teamId: teamId,
+                    creatorUid: user.uid,
+                    createdAt: serverTimestamp(),
+                });
+
+                return newTeamDocRef;
             });
 
             toast({
@@ -112,6 +138,36 @@ export default function CreateTeamPage() {
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="instituteType"
+                                render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Team's Institute Type</FormLabel>
+                                    <FormControl>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex space-x-4"
+                                    >
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="SCHOOL" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">School</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                            <RadioGroupItem value="UNIVERSITY" />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">University</FormLabel>
+                                        </FormItem>
+                                    </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                              <div className="border-t pt-6 space-y-6">
@@ -170,3 +226,5 @@ export default function CreateTeamPage() {
         </div>
     )
 }
+
+    
