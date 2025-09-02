@@ -130,6 +130,16 @@ function SectionHeading({ children, color }: { children: React.ReactNode, color?
   );
 }
 
+function PlayfulShapes({ className }: { className?: string }) {
+  return (
+    <div className={`flex items-center justify-center space-x-1 ${className}`}>
+      <div className="h-0 w-0 border-t-[20px] border-t-transparent border-r-[35px] border-r-primary border-b-[20px] border-b-transparent"></div>
+      <div className="h-0 w-0 border-t-[20px] border-t-transparent border-r-[35px] border-r-accent border-b-[20px] border-b-transparent"></div>
+      <div className="h-0 w-0 border-t-[20px] border-t-transparent border-r-[35px] border-r-destructive border-b-[20px] border-b-transparent"></div>
+    </div>
+  )
+}
+
 function HeroSection() {
     return (
       <section className="relative w-full overflow-hidden bg-background">
@@ -170,7 +180,8 @@ function HeroSection() {
 
   function AboutSection() {
     return (
-      <section id="about" className="w-full bg-secondary/20 py-12 md:py-24">
+      <section id="about" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
+         <PlayfulShapes className="absolute top-10 left-5 opacity-20 transform -rotate-45" />
         <div className="container mx-auto flex max-w-7xl flex-col items-center gap-16 px-4 md:px-6">
           <div className="grid items-center gap-8 md:grid-cols-2">
             <div className="order-2 md:order-1">
@@ -191,7 +202,8 @@ function HeroSection() {
               ></iframe>
             </div>
           </div>
-          <div className="grid items-center gap-8">
+          <div className="grid items-center gap-8 relative">
+             <PlayfulShapes className="absolute bottom-0 right-5 opacity-20 transform rotate-12" />
             <div>
                <div className="text-center">
                  <SectionHeading color="accent">About PIERC</SectionHeading>
@@ -210,13 +222,13 @@ entrepreneurs and innovators.
 
 function SupportersSection() {
   const supporterLogos = [
-    '/supporter1.jpg',
-    '/supporter2.jpg',
-    '/supporter3.jpg',
-    '/supporter4.jpg',
-    '/supporter5.jpg',
-    '/supporter6.jpg',
-    '/supporter7.jpg',
+    'https://picsum.photos/160/80?random=1',
+    'https://picsum.photos/160/80?random=2',
+    'https://picsum.photos/160/80?random=3',
+    'https://picsum.photos/160/80?random=4',
+    'https://picsum.photos/160/80?random=5',
+    'https://picsum.photos/160/80?random=6',
+    'https://picsum.photos/160/80?random=7',
   ];
 
   return (
@@ -233,6 +245,7 @@ function SupportersSection() {
                 alt={`Supporter logo ${index + 1}`}
                 fill
                 className="object-contain"
+                data-ai-hint="logo"
               />
             </div>
           ))}
@@ -245,11 +258,12 @@ function SupportersSection() {
 
 function ThemesSection() {
   return (
-    <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24">
+    <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
+       <PlayfulShapes className="absolute top-20 right-10 opacity-10 transform rotate-45 scale-150" />
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
             <SectionHeading color="primary">Event Themes</SectionHeading>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-muted-foreground text-center">
             Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
           </p>
         </div>
@@ -275,7 +289,7 @@ function TimelineSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
           <SectionHeading color="accent">Important Dates</SectionHeading>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-muted-foreground text-center">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
         </div>
@@ -303,11 +317,12 @@ function TimelineSection() {
 
 function RulesSection() {
   return (
-    <section id="rules" className="w-full bg-secondary/20 py-12 md:py-24">
+    <section id="rules" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
+        <PlayfulShapes className="absolute bottom-10 left-5 opacity-20 transform -rotate-12" />
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
                 <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
-                <p className="mt-4 text-muted-foreground">
+                <p className="mt-4 text-muted-foreground text-center">
                     Please read the rules carefully before registering.
                 </p>
             </div>
@@ -328,11 +343,13 @@ function RulesSection() {
 
 function PhasesSection() {
   return (
-    <section id="phases" className="w-full bg-background py-12 md:py-24">
+    <section id="phases" className="w-full bg-background py-12 md:py-24 relative overflow-hidden">
+      <PlayfulShapes className="absolute top-1/2 -left-10 opacity-10 transform -rotate-90 scale-125" />
+      <PlayfulShapes className="absolute bottom-20 -right-10 opacity-10 transform rotate-90 scale-125" />
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
             <SectionHeading color="primary">Event Phases</SectionHeading>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-muted-foreground text-center">
             The event has been divided into two exciting phases.
           </p>
         </div>
