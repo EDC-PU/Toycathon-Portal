@@ -6,6 +6,8 @@ import { z } from "zod";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, signInWithGoogle } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +23,7 @@ import { Card, CardContent } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -80,6 +81,21 @@ export default function RegisterForm() {
         },
     });
 
+    const isProfileComplete = (profileData: any) => {
+        return profileData.teamName && profileData.leaderName && profileData.leaderPhone && profileData.college;
+    }
+
+    const handleRedirect = async (user: any) => {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && isProfileComplete(docSnap.data())) {
+            router.push('/dashboard');
+        } else {
+            router.push('/profile');
+        }
+    }
+
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
@@ -100,7 +116,7 @@ export default function RegisterForm() {
                 title: "Registration Successful!",
                 description: "You have been successfully registered.",
             });
-            router.push('/profile');
+            await handleRedirect(user);
         } catch (error: any) {
              toast({
                 title: "Registration Failed",
@@ -117,20 +133,22 @@ export default function RegisterForm() {
         try {
             const userCredential = await signInWithGoogle();
             const user = userCredential.user;
+            const docRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(docRef);
 
-             // Create user document in Firestore if it doesn't exist
-            await setDoc(doc(db, "users", user.uid), {
-                uid: user.uid,
-                displayName: user.displayName,
-                email: user.email,
-            }, { merge: true });
-
+            if (!docSnap.exists()) {
+                await setDoc(docRef, {
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    email: user.email,
+                }, { merge: true });
+            }
 
             toast({
                 title: "Registration Successful!",
                 description: "You have been successfully registered.",
             });
-            router.push('/profile');
+            await handleRedirect(user);
         } catch (error: any) {
              toast({
                 title: "Registration Failed",

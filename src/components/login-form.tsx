@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, signInWithGoogle } from "@/lib/firebase";
+import { auth, db, signInWithGoogle } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { doc, getDoc } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -71,15 +72,30 @@ export default function LoginForm() {
         },
     });
 
+    const isProfileComplete = (profileData: any) => {
+        return profileData.teamName && profileData.leaderName && profileData.leaderPhone && profileData.college;
+    }
+
+    const handleRedirect = async (user: any) => {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && isProfileComplete(docSnap.data())) {
+            router.push('/dashboard');
+        } else {
+            router.push('/profile');
+        }
+    }
+
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            await signInWithEmailAndPassword(auth, values.email, values.password);
+            const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
             toast({
                 title: "Login Successful",
                 description: "Welcome back!",
             });
-            router.push('/profile');
+            await handleRedirect(userCredential.user);
         } catch (error: any) {
              toast({
                 title: "Login Failed",
@@ -94,12 +110,12 @@ export default function LoginForm() {
     async function handleGoogleSignIn() {
         setIsGoogleLoading(true);
         try {
-            await signInWithGoogle();
+            const userCredential = await signInWithGoogle();
             toast({
                 title: "Login Successful",
                 description: "Welcome back!",
             });
-            router.push('/profile');
+            await handleRedirect(userCredential.user);
         } catch (error: any) {
              toast({
                 title: "Login Failed",
