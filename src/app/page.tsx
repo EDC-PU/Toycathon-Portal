@@ -1,4 +1,5 @@
 
+
 import {
   Accordion,
   AccordionContent,
@@ -149,7 +150,7 @@ function HeroSection() {
         <div className="container mx-auto flex max-w-7xl flex-col items-center gap-16 px-4 md:px-6">
           <div className="grid items-center gap-8 md:grid-cols-2">
             <div className="order-2 md:order-1">
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About VADODARA TOYCATHON 2025</h2>
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl text-center md:text-left">About VADODARA TOYCATHON 2025</h2>
               <p className="mt-4 text-muted-foreground text-justify">
                 Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
               </p>
@@ -186,7 +187,7 @@ function ThemesSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Themes</h2>
-          <p className="mt-4 text-muted-foreground text-justify">
+          <p className="mt-4 text-muted-foreground">
             Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
           </p>
         </div>
@@ -212,7 +213,7 @@ function TimelineSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-accent md:text-4xl">Important Dates</h2>
-          <p className="mt-4 text-muted-foreground text-justify">
+          <p className="mt-4 text-muted-foreground">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
         </div>
@@ -244,7 +245,7 @@ function RulesSection() {
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
                 <h2 className="font-headline text-3xl font-bold tracking-tight text-destructive md:text-4xl">Rules & Guidelines</h2>
-                <p className="mt-4 text-muted-foreground text-justify">
+                <p className="mt-4 text-muted-foreground">
                     Please read the rules carefully before registering.
                 </p>
             </div>
@@ -269,7 +270,7 @@ function PhasesSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Phases</h2>
-          <p className="mt-4 text-muted-foreground text-justify">
+          <p className="mt-4 text-muted-foreground">
             The event has been divided into two exciting phases.
           </p>
         </div>
