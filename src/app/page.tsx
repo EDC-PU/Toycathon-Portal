@@ -154,19 +154,9 @@ function HeroSection() {
               ></iframe>
             </div>
           </div>
-          <div className="grid items-center gap-8 md:grid-cols-2">
-            <div className="flex justify-center md:order-2">
-                 <Image
-                    src="https://picsum.photos/600/401"
-                    alt="PIERC Logo"
-                    width={600}
-                    height={401}
-                    className="rounded-xl shadow-lg"
-                    data-ai-hint="innovation center building"
-                />
-            </div>
-            <div className="md:order-1">
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About PIERC</h2>
+          <div className="grid items-center gap-8">
+            <div>
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl text-center">About PIERC</h2>
               <p className="mt-4 text-muted-foreground text-justify">
               Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
 strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring
