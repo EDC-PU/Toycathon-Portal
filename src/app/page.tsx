@@ -144,15 +144,14 @@ function HeroSection() {
                 Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
               </p>
             </div>
-            <div className="flex justify-center">
-                <Image
-                    src="https://picsum.photos/600/400"
-                    alt="Children playing with toys"
-                    width={600}
-                    height={400}
-                    className="rounded-xl shadow-lg"
-                    data-ai-hint="children playing toys"
-                />
+            <div className="relative w-full overflow-hidden rounded-xl shadow-lg" style={{paddingTop: '56.25%'}}>
+              <iframe
+                className="absolute top-0 left-0 h-full w-full"
+                src="https://www.youtube.com/embed/9ELqa04tTUg"
+                title="Vadodara Toycathon 2025 Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
           <div className="grid items-center gap-8 md:grid-cols-2">
