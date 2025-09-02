@@ -16,21 +16,30 @@ export default function DashboardLayout({
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        const tokenResult = await currentUser.getIdTokenResult();
+        const userIsAdmin = !!tokenResult.claims.admin;
+        setIsAdmin(userIsAdmin);
         setUser(currentUser);
-        const docRef = doc(db, 'users', currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const profileData = docSnap.data();
-          if (!profileData.teamName || !profileData.leaderPhone || !profileData.college) {
-            router.push('/profile');
-          }
-        } else {
-          router.push('/profile');
+
+        // Admins don't need to have a complete profile to access the dashboard
+        if (!userIsAdmin) {
+            const docRef = doc(db, 'users', currentUser.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              const profileData = docSnap.data();
+              if (!profileData.teamName || !profileData.leaderPhone || !profileData.college) {
+                router.push('/profile');
+              }
+            } else {
+              router.push('/profile');
+            }
         }
+
       } else {
         router.push('/login');
       }
@@ -54,7 +63,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-secondary/20">
-      <DashboardSidebar />
+      <DashboardSidebar isAdmin={isAdmin} />
       <main className="flex-1 p-4 sm:p-6 md:p-8">{children}</main>
     </div>
   );

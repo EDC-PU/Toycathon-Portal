@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Users, CheckSquare, LogOut } from 'lucide-react';
+import { Home, User, Users, CheckSquare, LogOut, Megaphone } from 'lucide-react';
 import { Button } from './ui/button';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -18,7 +18,15 @@ const navLinks = [
   { href: '/dashboard/status', label: 'Status', icon: CheckSquare },
 ];
 
-export default function DashboardSidebar() {
+const adminNavLinks = [
+    { href: '/dashboard/announcements', label: 'Announcements', icon: Megaphone },
+];
+
+interface DashboardSidebarProps {
+    isAdmin: boolean;
+}
+
+export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -63,6 +71,31 @@ export default function DashboardSidebar() {
             </Link>
           );
         })}
+        {isAdmin && (
+            <>
+                <div className="px-3 py-2">
+                    <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
+                        Admin
+                    </h2>
+                    <div className="space-y-1">
+                        {adminNavLinks.map((link) => {
+                            const isActive = pathname === link.href;
+                            return (
+                                <Link key={link.href} href={link.href}>
+                                <Button
+                                    variant={isActive ? 'secondary' : 'ghost'}
+                                    className="w-full justify-start"
+                                >
+                                    <link.icon className="mr-2 h-4 w-4" />
+                                    {link.label}
+                                </Button>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            </>
+        )}
       </nav>
       <div className="px-4 py-4 border-t">
          <Button

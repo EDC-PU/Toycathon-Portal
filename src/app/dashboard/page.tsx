@@ -3,13 +3,13 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Copy, Users, XCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Copy, Users, Megaphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
@@ -21,12 +21,20 @@ interface UserProfile {
     uid: string;
 }
 
+interface Announcement {
+    id: string;
+    title: string;
+    content: string;
+    createdAt: any;
+}
+
 export default function DashboardPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -37,12 +45,20 @@ export default function DashboardPage() {
                 if (docSnap.exists()) {
                     setProfile(docSnap.data() as UserProfile);
                 }
+                fetchAnnouncements();
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
     }, []);
+
+    const fetchAnnouncements = async () => {
+        const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const fetchedAnnouncements = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Announcement));
+        setAnnouncements(fetchedAnnouncements);
+    }
 
     const getJoiningLink = () => {
         if (!profile) return '';
@@ -74,6 +90,31 @@ export default function DashboardPage() {
                 <h1 className="text-4xl font-bold tracking-tight text-primary">Welcome, {profile.leaderName}!</h1>
                 <p className="mt-2 text-muted-foreground">This is your command center for the Toycathon.</p>
             </div>
+            
+            <Card>
+                <CardHeader className="flex flex-row items-center gap-4">
+                    <Megaphone className="w-8 h-8 text-primary"/>
+                    <div>
+                        <CardTitle>Announcements</CardTitle>
+                        <CardDescription>Latest updates from the Toycathon organizers.</CardDescription>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 max-h-64 overflow-y-auto">
+                    {announcements.length > 0 ? (
+                        announcements.map(ann => (
+                            <div key={ann.id} className="p-3 rounded-lg bg-secondary/50">
+                                <h3 className="font-bold">{ann.title}</h3>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    {ann.createdAt?.toDate().toLocaleDateString()}
+                                </p>
+                                <p className="mt-2 text-sm">{ann.content}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No new announcements right now. Check back later!</p>
+                    )}
+                </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  <Card>
