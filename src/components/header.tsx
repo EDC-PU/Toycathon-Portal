@@ -10,12 +10,8 @@ import Image from 'next/image';
 
 const navLinks = [
   { href: '/#about', label: 'About' },
-  { href: '/#supporters', label: 'Supporters'},
   { href: '/#themes', label: 'Themes' },
   { href: '/#timeline', label: 'Timeline' },
-  { href: '/#rules', label: 'Rules' },
-  { href: '/#phases', label: 'Phases' },
-  { href: '/#assessment', label: 'Assessment' },
 ];
 
 export default function Header() {
