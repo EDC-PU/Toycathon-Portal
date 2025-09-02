@@ -106,6 +106,30 @@ const rules = [
     }
 ]
 
+function SectionHeading({ children, color }: { children: React.ReactNode, color?: 'primary' | 'accent' | 'destructive' | 'foreground' }) {
+    const colors = {
+      primary: 'bg-primary text-primary-foreground',
+      accent: 'bg-accent text-accent-foreground',
+      destructive: 'bg-destructive text-destructive-foreground',
+      foreground: 'bg-foreground text-background'
+    };
+    const lineColors = {
+        primary: 'bg-primary',
+        accent: 'bg-accent',
+        destructive: 'bg-destructive',
+        foreground: 'bg-foreground'
+    }
+  return (
+    <div className="flex items-center justify-center gap-4">
+      <div className={`h-px flex-1 ${lineColors[color || 'primary']}`} />
+      <h2 className={`text-xl font-bold tracking-tight sm:text-2xl md:text-3xl text-center rounded-full px-8 py-3 whitespace-nowrap ${colors[color || 'primary']}`}>
+        {children}
+      </h2>
+      <div className={`h-px flex-1 ${lineColors[color || 'primary']}`} />
+    </div>
+  );
+}
+
 function HeroSection() {
     return (
       <section className="relative w-full overflow-hidden bg-background">
@@ -118,7 +142,7 @@ function HeroSection() {
           />
         </div>
         <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-            <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
+            <h1 className="text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
                 <span className="text-primary">VADODARA</span>
                 <span className="mt-2 block">
                     <span className="text-yellow-400">TOY</span><span className="text-red-500">CA</span><span className="text-yellow-400">THON</span> <span className="text-red-500">2025</span>
@@ -150,7 +174,9 @@ function HeroSection() {
         <div className="container mx-auto flex max-w-7xl flex-col items-center gap-16 px-4 md:px-6">
           <div className="grid items-center gap-8 md:grid-cols-2">
             <div className="order-2 md:order-1">
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl text-center md:text-left">About VADODARA TOYCATHON 2025</h2>
+              <div className="text-center md:text-left">
+                <SectionHeading color="primary">About VADODARA TOYCATHON 2025</SectionHeading>
+              </div>
               <p className="mt-4 text-muted-foreground text-justify">
                 Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
               </p>
@@ -167,7 +193,9 @@ function HeroSection() {
           </div>
           <div className="grid items-center gap-8">
             <div>
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-accent md:text-4xl text-center">About PIERC</h2>
+               <div className="text-center">
+                 <SectionHeading color="accent">About PIERC</SectionHeading>
+               </div>
               <p className="mt-4 max-w-4xl text-muted-foreground text-justify">
               Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
 strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring
@@ -195,7 +223,7 @@ function SupportersSection() {
     <section id="supporters" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Supported By</h2>
+          <SectionHeading color="primary">Supported By</SectionHeading>
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-12">
           {supporterLogos.map((logo, index) => (
@@ -219,8 +247,8 @@ function ThemesSection() {
   return (
     <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Themes</h2>
+        <div className="mx-auto max-w-4xl text-center">
+            <SectionHeading color="primary">Event Themes</SectionHeading>
           <p className="mt-4 text-muted-foreground">
             Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
           </p>
@@ -245,8 +273,8 @@ function TimelineSection() {
   return (
     <section id="timeline" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-accent md:text-4xl">Important Dates</h2>
+        <div className="mx-auto max-w-4xl text-center">
+          <SectionHeading color="accent">Important Dates</SectionHeading>
           <p className="mt-4 text-muted-foreground">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
@@ -278,7 +306,7 @@ function RulesSection() {
     <section id="rules" className="w-full bg-secondary/20 py-12 md:py-24">
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
-                <h2 className="font-headline text-3xl font-bold tracking-tight text-destructive md:text-4xl">Rules & Guidelines</h2>
+                <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
                 <p className="mt-4 text-muted-foreground">
                     Please read the rules carefully before registering.
                 </p>
@@ -302,8 +330,8 @@ function PhasesSection() {
   return (
     <section id="phases" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Phases</h2>
+        <div className="mx-auto max-w-4xl text-center">
+            <SectionHeading color="primary">Event Phases</SectionHeading>
           <p className="mt-4 text-muted-foreground">
             The event has been divided into two exciting phases.
           </p>
@@ -373,9 +401,7 @@ function AssessmentCriteriaSection() {
     <section id="assessment" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Assessment Criteria of <span className="text-primary">VADODARA</span> <span className="text-yellow-400">TOY</span><span className="text-red-500">CA</span><span className="text-yellow-400">THON</span> <span className="text-red-500">2025</span>
-          </h2>
+            <SectionHeading color="foreground">Assessment Criteria</SectionHeading>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
