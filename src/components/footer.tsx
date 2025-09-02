@@ -1,25 +1,4 @@
-import Link from 'next/link';
-import type { SVGProps } from 'react';
-
-function PiercLogo(props: SVGProps<SVGSVGElement>) {
-    return (
-      <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40">
-        <text x="50" y="25" fontFamily="Montserrat, sans-serif" fontSize="20" fontWeight="bold" textAnchor="middle" fill="currentColor">
-          PIERC
-        </text>
-      </svg>
-    );
-  }
-  
-  function ParulUniversityLogo(props: SVGProps<SVGSVGElement>) {
-    return (
-      <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
-        <text x="100" y="25" fontFamily="Montserrat, sans-serif" fontSize="16" fontWeight="bold" textAnchor="middle" fill="currentColor">
-          PARUL UNIVERSITY
-        </text>
-      </svg>
-    );
-  }
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -33,10 +12,10 @@ export default function Footer() {
           <div className="flex items-center gap-8">
             <p className="text-sm font-semibold text-muted-foreground">In collaboration with:</p>
             <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer" className="text-foreground transition-opacity hover:opacity-80">
-                <ParulUniversityLogo className="h-8 w-auto" />
+                <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
             </a>
-            <a href="https://pierc.ac.in/" target="_blank" rel="noopener noreferrer" className="text-foreground transition-opacity hover:opacity-80">
-                <PiercLogo className="h-6 w-auto" />
+            <a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer" className="text-foreground transition-opacity hover:opacity-80">
+                <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={80} height={32} className="h-8 w-auto object-contain" />
             </a>
           </div>
         </div>
