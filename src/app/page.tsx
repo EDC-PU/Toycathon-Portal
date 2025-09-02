@@ -125,7 +125,7 @@ function HeroSection() {
                 </span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-                Unleash Your Inner Toymaker: Where Fun Meets Innovation!
+                Where Fun Meets Innovation!
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button asChild size="lg" className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-primary/30">
