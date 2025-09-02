@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, signInWithGoogle } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { useRouter, useSearchParams } from "next/navigation";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
@@ -68,8 +68,10 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function RegisterForm() {
     const { toast } = useToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const teamId = searchParams.get('teamId');
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -83,17 +85,15 @@ export default function RegisterForm() {
     });
 
     const isProfileComplete = (profileData: any) => {
-        return profileData && profileData.teamName && profileData.leaderPhone && profileData.college && profileData.instituteType && profileData.rollNumber && profileData.yearOfStudy && profileData.age && profileData.gender;
+        return profileData && profileData.leaderPhone && profileData.college;
     }
 
-    const handleRedirect = async (user: any) => {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && isProfileComplete(docSnap.data())) {
-            router.push('/dashboard');
-        } else {
-            router.push('/profile');
+    const handleRedirect = (user: any, teamId?: string | null) => {
+        let path = '/profile';
+        if (teamId) {
+          path = `/profile?teamId=${teamId}`;
         }
+        router.push(path);
     }
 
 
@@ -107,17 +107,22 @@ export default function RegisterForm() {
             });
 
              // Create user document in Firestore
-            await setDoc(doc(db, "users", user.uid), {
+             const userData: any = {
                 uid: user.uid,
                 displayName: values.name,
                 email: values.email,
-            });
+                createdAt: serverTimestamp(),
+            };
+            if (teamId) {
+                userData.teamId = teamId;
+            }
+            await setDoc(doc(db, "users", user.uid), userData);
 
             toast({
                 title: "Registration Successful!",
-                description: "You have been successfully registered.",
+                description: "Let's complete your profile.",
             });
-            await handleRedirect(user);
+            handleRedirect(user, teamId);
         } catch (error: any) {
              toast({
                 title: "Registration Failed",
@@ -138,21 +143,26 @@ export default function RegisterForm() {
             const docSnap = await getDoc(docRef);
 
             if (!docSnap.exists()) {
-                await setDoc(docRef, {
+                const userData: any = {
                     uid: user.uid,
                     displayName: user.displayName,
                     email: user.email,
-                }, { merge: true });
+                    createdAt: serverTimestamp(),
+                };
+                if (teamId) {
+                    userData.teamId = teamId;
+                }
+                await setDoc(docRef, userData, { merge: true });
             }
 
             toast({
-                title: "Registration Successful!",
-                description: "You have been successfully registered.",
+                title: "Sign-in Successful!",
+                description: "Welcome! Let's complete your profile if needed.",
             });
-            await handleRedirect(user);
+            handleRedirect(user, teamId);
         } catch (error: any) {
              toast({
-                title: "Registration Failed",
+                title: "Sign-in Failed",
                 description: error.message || "An unexpected error occurred.",
                 variant: "destructive"
             });
@@ -234,7 +244,7 @@ export default function RegisterForm() {
                     </div>
                 </div>
                  <Button variant="outline" className="w-full" size="lg" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
-                    {isGoogleLoading ? 'Registering...' : <><GoogleIcon className="mr-2 h-5 w-5" /> Google</>}
+                    {isGoogleLoading ? 'Signing In...' : <><GoogleIcon className="mr-2 h-5 w-5" /> Google</>}
                 </Button>
                 <div className="mt-6 text-center text-sm text-muted-foreground">
                     Already have an account?{" "}

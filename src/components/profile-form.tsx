@@ -22,14 +22,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, User, updateProfile } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const formSchema = z.object({
-  teamName: z.string().min(2, "Team name must be at least 2 characters."),
-  leaderName: z.string().min(2, "Leader name must be at least 2 characters."),
+  // teamName: z.string().min(2, "Team name must be at least 2 characters."),
+  leaderName: z.string().min(2, "Your name must be at least 2 characters."),
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
-  college: z.string().min(3, "College name is required."),
+  college: z.string().min(3, "Institution name is required."),
   instituteType: z.enum(["school", "university"], { required_error: "Please select an institute type." }),
   rollNumber: z.string().min(1, "Roll number is required."),
   yearOfStudy: z.string().min(1, "Year of study/standard is required."),
@@ -44,13 +44,15 @@ interface ProfileFormProps {
 export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
     const { toast } = useToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const teamId = searchParams.get('teamId');
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            teamName: "",
+            // teamName: "",
             leaderName: "",
             leaderPhone: "",
             college: "",
@@ -94,16 +96,22 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
               displayName: values.leaderName
             });
 
-            await setDoc(doc(db, "users", user.uid), {
+            const userData: any = {
                 ...values,
                 email: user.email,
                 uid: user.uid,
                 displayName: values.leaderName,
-            }, { merge: true });
+            }
+
+            if(teamId) {
+                userData.teamId = teamId;
+            }
+
+            await setDoc(doc(db, "users", user.uid), userData, { merge: true });
 
             toast({
                 title: "Profile Updated!",
-                description: "Your team information has been saved.",
+                description: "Your information has been saved.",
             });
             
             if (onProfileComplete) {
@@ -126,31 +134,19 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
     return (
         <Card className="mt-8">
             <CardHeader>
-                <CardTitle>Team & Personal Information</CardTitle>
+                <CardTitle>Your Information</CardTitle>
+                <CardDescription>This information is required to participate.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="teamName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Team Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. The Toy Story" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <FormField
                                 control={form.control}
                                 name="leaderName"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Your Name (Team Leader)</FormLabel>
+                                        <FormLabel>Your Name</FormLabel>
                                         <FormControl>
                                             <Input placeholder="John Doe" {...field} />
                                         </FormControl>
@@ -293,7 +289,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                         </div>
 
                         <Button type="submit" className="w-full" size="lg" disabled={isLoading || !user}>
-                           {isLoading ? "Saving..." : "Save Profile"}
+                           {isLoading ? "Saving..." : "Save Information"}
                         </Button>
                     </form>
                 </Form>

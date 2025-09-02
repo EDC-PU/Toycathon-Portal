@@ -7,7 +7,7 @@ export default function DashboardProfilePage() {
     return (
         <div>
             <h1 className="text-3xl font-bold tracking-tight text-primary">Your Profile</h1>
-            <p className="text-muted-foreground mb-8">Manage your team and personal information.</p>
+            <p className="text-muted-foreground mb-8">This is your personal information as a participant or team creator.</p>
             <ProfileForm />
         </div>
     )

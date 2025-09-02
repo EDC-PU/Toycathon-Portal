@@ -9,16 +9,14 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Copy, Users, Megaphone } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
-    teamName: string;
-    leaderName: string;
-    leaderPhone: string;
-    college: string;
+    displayName: string;
     email: string;
     uid: string;
+    // Add other fields from your user profile if needed
 }
 
 interface Announcement {
@@ -30,7 +28,6 @@ interface Announcement {
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
@@ -46,12 +43,14 @@ export default function DashboardPage() {
                     setProfile(docSnap.data() as UserProfile);
                 }
                 fetchAnnouncements();
+            } else {
+                 router.push('/login');
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     const fetchAnnouncements = async () => {
         const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
@@ -60,34 +59,20 @@ export default function DashboardPage() {
         setAnnouncements(fetchedAnnouncements);
     }
 
-    const getJoiningLink = () => {
-        if (!profile) return '';
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-        return `${origin}/register?teamId=${profile.uid}`;
-    };
-
-    const copyJoiningLink = () => {
-        const link = getJoiningLink();
-        navigator.clipboard.writeText(link);
-        toast({
-            title: 'Copied to clipboard!',
-            description: 'You can now share the link with your team members.'
-        });
-    }
 
     if (loading) {
-        return <div className="flex items-center justify-center">Loading...</div>;
+        return <div className="flex h-screen items-center justify-center">Loading...</div>;
     }
 
     if (!profile) {
-        return <div className="flex items-center justify-center">Could not load profile.</div>;
+        return <div className="flex h-screen items-center justify-center">Could not load profile. Please complete your profile.</div>;
     }
 
 
     return (
         <div className="space-y-8">
              <div className="text-left">
-                <h1 className="text-4xl font-bold tracking-tight text-primary">Welcome, {profile.leaderName}!</h1>
+                <h1 className="text-4xl font-bold tracking-tight text-primary">Welcome, {profile.displayName}!</h1>
                 <p className="mt-2 text-muted-foreground">This is your command center for the Toycathon.</p>
             </div>
             
@@ -119,13 +104,15 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Registration Status</CardTitle>
+                        <CardTitle>Your Profile Status</CardTitle>
                     </CardHeader>
                     <CardContent className="flex items-center gap-4">
                         <CheckCircle className="h-10 w-10 text-green-500" />
                         <div>
-                            <p className="font-semibold">Registered</p>
-                            <p className="text-sm text-muted-foreground">Your team is registered.</p>
+                            <p className="font-semibold">Profile Complete</p>
+                            <Button asChild variant="link" className="p-0 h-auto">
+                                <Link href="/dashboard/profile">View/Edit Profile</Link>
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -143,30 +130,30 @@ export default function DashboardPage() {
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Team: {profile.teamName}</CardTitle>
+                        <CardTitle>Manage Teams</CardTitle>
                     </CardHeader>
                     <CardContent className="flex items-center gap-4">
                         <Users className="h-10 w-10 text-primary" />
                         <div>
-                            <p className="font-semibold">{profile.college}</p>
+                           <p className="font-semibold">Create & View Teams</p>
                             <Button asChild variant="link" className="p-0 h-auto">
-                                <Link href="/dashboard/team">Manage Team</Link>
+                                <Link href="/dashboard/teams">Go to Teams</Link>
                             </Button>
                         </div>
                     </CardContent>
                 </Card>
             </div>
             
-            <Card>
+             <Card>
                 <CardHeader>
-                    <CardTitle>Invite Your Team</CardTitle>
-                    <CardDescription>Share this link with your friends to have them join your team.</CardDescription>
+                    <CardTitle>Create a New Team</CardTitle>
+                    <CardDescription>Click here to register a new team for the competition.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-col sm:flex-row items-center gap-4">
-                    <input type="text" readOnly value={getJoiningLink()} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" />
-                    <Button onClick={copyJoiningLink} className="w-full sm:w-auto">
-                        <Copy className="mr-2" />
-                        Copy Link
+                <CardContent>
+                    <Button asChild>
+                       <Link href="/dashboard/teams/create">
+                            <PlusCircle className="mr-2" /> Create Team
+                       </Link>
                     </Button>
                 </CardContent>
             </Card>

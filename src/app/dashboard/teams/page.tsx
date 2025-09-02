@@ -6,12 +6,13 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Copy, PlusCircle, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface Team extends DocumentData {
     id: string;
@@ -50,19 +51,25 @@ export default function TeamPage() {
 
     const fetchTeams = async (creatorId: string) => {
         setLoading(true);
-        const q = query(collection(db, "teams"), where("creatorUid", "==", creatorId));
-        const querySnapshot = await getDocs(q);
-        const fetchedTeams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
-        setTeams(fetchedTeams);
+        try {
+            const q = query(collection(db, "teams"), where("creatorUid", "==", creatorId));
+            const querySnapshot = await getDocs(q);
+            const fetchedTeams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
+            setTeams(fetchedTeams);
 
-        const membersMap: { [key: string]: TeamMember[] } = {};
-        for (const team of fetchedTeams) {
-            const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
-            const membersSnapshot = await getDocs(membersQuery);
-            membersMap[team.id] = membersSnapshot.docs.map(doc => doc.data() as TeamMember);
+            const membersMap: { [key: string]: TeamMember[] } = {};
+            for (const team of fetchedTeams) {
+                const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
+                const membersSnapshot = await getDocs(membersQuery);
+                membersMap[team.id] = membersSnapshot.docs.map(doc => doc.data() as TeamMember);
+            }
+            setTeamMembers(membersMap);
+        } catch (error) {
+            console.error("Error fetching teams:", error);
+            toast({ title: "Error", description: "Could not fetch teams.", variant: "destructive" });
+        } finally {
+            setLoading(false);
         }
-        setTeamMembers(membersMap);
-        setLoading(false);
     }
 
     const getJoiningLink = (teamId: string) => {
@@ -98,35 +105,36 @@ export default function TeamPage() {
                 </div>
                 <Button asChild>
                     <Link href="/dashboard/teams/create">
-                        <PlusCircle className="mr-2" /> Create New Team
+                        <PlusCircle className="mr-2 h-4 w-4" /> Create New Team
                     </Link>
                 </Button>
             </div>
             
             {teams.length === 0 ? (
-                <Card className="text-center p-8">
+                <Card className="text-center p-8 border-dashed">
                     <Users className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-semibold">No teams created yet</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">Get started by creating a new team.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Get started by creating a new team for your students.</p>
                     <Button asChild className="mt-4">
                          <Link href="/dashboard/teams/create">Create New Team</Link>
                     </Button>
                 </Card>
             ) : (
-                <div className="grid gap-6">
+                <div className="grid gap-8">
                     {teams.map(team => (
                         <Card key={team.id}>
                             <CardHeader>
-                                <CardTitle className="flex justify-between items-center">
-                                    <span>{team.teamName}</span>
-                                     <span className="text-sm font-medium text-muted-foreground">Leader: {team.leaderName}</span>
+                                <CardTitle className="flex justify-between items-start">
+                                    <span className="text-primary">{team.teamName}</span>
+                                     <span className="text-base font-medium text-muted-foreground">Leader: {team.leaderName}</span>
                                 </CardTitle>
-                                <CardDescription>Members: {teamMembers[team.id]?.length || 0} / 5</CardDescription>
+                                <CardDescription>Members Joined: {teamMembers[team.id]?.length || 0} / 5</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (
-                                    teamMembers[team.id].map(member => (
-                                        <div key={member.uid} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
+                                    <div className="space-y-4">
+                                    {teamMembers[team.id].map(member => (
+                                        <div key={member.uid} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
                                             <div className="flex items-center gap-4">
                                                 <Avatar>
                                                     <AvatarImage src={member.photoURL} alt={member.displayName} />
@@ -138,18 +146,19 @@ export default function TeamPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    ))
+                                    ))}
+                                    </div>
                                 ) : (
-                                    <p className="text-sm text-muted-foreground">No members have joined this team yet.</p>
+                                    <p className="text-sm text-center py-4 text-muted-foreground">No members have joined this team yet. Share the link below!</p>
                                 )}
                             </CardContent>
-                             <CardContent className="flex flex-col sm:flex-row items-center gap-4 border-t pt-6">
-                                <Input type="text" readOnly value={getJoiningLink(team.id)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" />
-                                <Button onClick={() => copyJoiningLink(team.id)} className="w-full sm:w-auto">
-                                    <Copy className="mr-2" />
+                             <CardFooter className="flex-col sm:flex-row items-center gap-4 border-t pt-6 bg-secondary/20 rounded-b-lg">
+                                <Input type="text" readOnly value={getJoiningLink(team.id)} aria-label="Team joining link" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" />
+                                <Button onClick={() => copyJoiningLink(team.id)} className="w-full sm:w-auto flex-shrink-0">
+                                    <Copy className="mr-2 h-4 w-4" />
                                     Copy Joining Link
                                 </Button>
-                            </CardContent>
+                            </CardFooter>
                         </Card>
                     ))}
                 </div>

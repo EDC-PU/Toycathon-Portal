@@ -14,8 +14,8 @@ import Image from 'next/image';
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
   { href: '/dashboard/profile', label: 'Profile', icon: User },
-  { href: '/dashboard/team', label: 'Team', icon: Users },
-  { href: '/dashboard/status', label: 'Status', icon: CheckSquare },
+  { href: '/dashboard/teams', label: 'Teams', icon: Users },
+  // { href: '/dashboard/status', label: 'Status', icon: CheckSquare }, // Can be re-added later
   { href: '/dashboard/submission', label: 'Submission', icon: FileText },
 ];
 
@@ -59,7 +59,7 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
       </div>
       <nav className="flex-1 px-4 py-4 space-y-2">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+          const isActive = pathname === link.href || (link.href === '/dashboard/teams' && pathname.startsWith('/dashboard/teams'));
           return (
             <Link key={link.href} href={link.href}>
               <Button

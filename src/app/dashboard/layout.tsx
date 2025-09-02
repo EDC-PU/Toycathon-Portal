@@ -18,8 +18,11 @@ export default function DashboardLayout({
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const isProfileComplete = (profileData: any) => {
-    return profileData && profileData.teamName && profileData.leaderPhone && profileData.college && profileData.instituteType && profileData.rollNumber && profileData.yearOfStudy && profileData.age && profileData.gender;
+  // Simplified profile check. We primarily care that they have a document.
+  // Teachers might not have student-specific fields but can access the dashboard.
+  // Students joining a team will be forced to the profile page until complete.
+  const isProfileSufficient = (profileData: any) => {
+    return !!profileData;
   }
 
   useEffect(() => {
@@ -30,18 +33,25 @@ export default function DashboardLayout({
         setIsAdmin(userIsAdmin);
         setUser(currentUser);
 
-        // Admins don't need to have a complete profile to access the dashboard
-        if (!userIsAdmin) {
-            const docRef = doc(db, 'users', currentUser.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              const profileData = docSnap.data();
-              if (!isProfileComplete(profileData)) {
-                router.push('/profile');
-              }
-            } else {
-              router.push('/profile');
-            }
+        // Admins can always access the dashboard
+        if (userIsAdmin) {
+           setLoading(false);
+           return;
+        }
+
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const profileData = docSnap.data();
+          // If profile is sufficient (i.e., exists), they can access the dashboard.
+          // The profile page itself handles redirection if they need to fill more details.
+          if (!isProfileSufficient(profileData)) {
+             router.push('/profile');
+          }
+        } else {
+          // If no user document exists at all, they must create it.
+          router.push('/profile');
         }
 
       } else {
@@ -62,7 +72,7 @@ export default function DashboardLayout({
   }
 
   if (!user) {
-    return null; // or a redirect component
+    return null; // Redirect is handled by the effect
   }
 
   return (
