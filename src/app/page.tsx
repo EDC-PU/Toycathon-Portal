@@ -92,7 +92,7 @@ const timelineEvents = [
 const rules = [
     {
         title: "Team Formation",
-        content: "Teams must consist of 3-5 members. Members can be students from different colleges."
+        content: "A team must consist of one leader and three additional members, for a total of four members. Members can be students from different colleges."
     },
     {
         title: "Originality",
