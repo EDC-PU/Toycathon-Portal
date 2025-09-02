@@ -15,13 +15,17 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   
+  const isProfileComplete = (profileData: any) => {
+    return profileData && profileData.teamName && profileData.leaderPhone && profileData.college && profileData.instituteType && profileData.rollNumber && profileData.yearOfStudy && profileData.age && profileData.gender;
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
         if (currentUser) {
             setUser(currentUser);
             const docRef = doc(db, "users", currentUser.uid);
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists() && docSnap.data().teamName && docSnap.data().leaderPhone && docSnap.data().college) {
+            if (docSnap.exists() && isProfileComplete(docSnap.data())) {
                 router.push('/dashboard');
             }
         } else {
@@ -41,7 +45,7 @@ export default function ProfilePage() {
     <div className="container mx-auto max-w-2xl py-12 px-4">
       <div className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight text-primary">Complete Your Profile</h1>
-        <p className="mt-2 text-muted-foreground">Tell us more about your team to access the dashboard.</p>
+        <p className="mt-2 text-muted-foreground">Tell us more about yourself and your team to access the dashboard.</p>
       </div>
       <ProfileForm onProfileComplete={() => router.push('/dashboard')} />
     </div>

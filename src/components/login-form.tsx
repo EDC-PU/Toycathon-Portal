@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,7 +74,7 @@ export default function LoginForm() {
     });
 
     const isProfileComplete = (profileData: any) => {
-        return profileData.teamName && profileData.leaderName && profileData.leaderPhone && profileData.college;
+        return profileData && profileData.teamName && profileData.leaderPhone && profileData.college && profileData.instituteType && profileData.rollNumber && profileData.yearOfStudy && profileData.age && profileData.gender;
     }
 
     const handleRedirect = async (user: any) => {

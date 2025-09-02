@@ -18,6 +18,10 @@ export default function DashboardLayout({
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const isProfileComplete = (profileData: any) => {
+    return profileData && profileData.teamName && profileData.leaderPhone && profileData.college && profileData.instituteType && profileData.rollNumber && profileData.yearOfStudy && profileData.age && profileData.gender;
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -32,7 +36,7 @@ export default function DashboardLayout({
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
               const profileData = docSnap.data();
-              if (!profileData.teamName || !profileData.leaderPhone || !profileData.college) {
+              if (!isProfileComplete(profileData)) {
                 router.push('/profile');
               }
             } else {
