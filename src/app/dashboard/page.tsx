@@ -136,8 +136,8 @@ export default function DashboardPage() {
                     <CardContent className="flex items-center gap-4">
                        <Clock className="h-10 w-10 text-yellow-500" />
                        <div>
-                            <p className="font-semibold">Pending</p>
-                            <p className="text-sm text-muted-foreground">Submission portal opens soon.</p>
+                            <p className="font-semibold">Open</p>
+                            <p className="text-sm text-muted-foreground">The portal is now open.</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -174,11 +174,13 @@ export default function DashboardPage() {
              <Card>
                 <CardHeader>
                     <CardTitle>Submit Your Idea</CardTitle>
-                    <CardDescription>Ready to submit your toy idea? The portal isn't open yet, but it will be soon!</CardDescription>
+                    <CardDescription>Ready to submit your toy idea? The portal is open!</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Button disabled>
-                       Go to Submission <ArrowRight className="ml-2" />
+                    <Button asChild>
+                       <Link href="/dashboard/submission">
+                            Go to Submission <ArrowRight className="ml-2" />
+                       </Link>
                     </Button>
                 </CardContent>
             </Card>

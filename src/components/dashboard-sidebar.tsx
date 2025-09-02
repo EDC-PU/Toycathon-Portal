@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Users, CheckSquare, LogOut, Megaphone } from 'lucide-react';
+import { Home, User, Users, CheckSquare, LogOut, Megaphone, FileText } from 'lucide-react';
 import { Button } from './ui/button';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -16,6 +16,7 @@ const navLinks = [
   { href: '/dashboard/profile', label: 'Profile', icon: User },
   { href: '/dashboard/team', label: 'Team', icon: Users },
   { href: '/dashboard/status', label: 'Status', icon: CheckSquare },
+  { href: '/dashboard/submission', label: 'Submission', icon: FileText },
 ];
 
 const adminNavLinks = [
