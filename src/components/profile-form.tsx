@@ -27,7 +27,6 @@ const formSchema = z.object({
   leaderName: z.string().min(2, "Leader name must be at least 2 characters."),
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   college: z.string().min(3, "College name is required."),
-  members: z.string().min(10, "Please list your team members.").optional(),
 });
 
 export default function ProfileForm() {
@@ -42,7 +41,6 @@ export default function ProfileForm() {
             leaderName: "",
             leaderPhone: "",
             college: "",
-            members: "",
         },
     });
 
@@ -167,23 +165,6 @@ export default function ProfileForm() {
                             />
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="members"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Team Members</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="List your team members' names, one per line."
-                                            className="min-h-[100px]"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <Button type="submit" className="w-full" size="lg" disabled={isLoading || !user}>
                            {isLoading ? "Saving..." : "Save Profile"}
                         </Button>
