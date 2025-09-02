@@ -175,7 +175,7 @@ function HeroSection() {
           <div className="grid items-center gap-8 md:grid-cols-2">
             <div className="order-2 md:order-1">
               <div className="text-center md:text-left">
-                <SectionHeading color="primary">About VADODARA TOYCATHON 2025</SectionHeading>
+                <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">About VADODARA TOYCATHON 2025</h2>
               </div>
               <p className="mt-4 text-muted-foreground text-justify">
                 Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
