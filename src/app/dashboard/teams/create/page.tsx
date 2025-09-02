@@ -22,6 +22,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 const createTeamSchema = z.object({
   teamName: z.string().min(2, "Team name must be at least 2 characters."),
   instituteType: z.enum(["SCHOOL", "UNIVERSITY"], { required_error: "Please select an institute type." }),
+  instituteName: z.string().min(3, "Institute name must be at least 3 characters."),
   leaderName: z.string().min(2, "Leader's name must be at least 2 characters."),
   leaderEmail: z.string().email("Please enter a valid email for the team leader."),
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
@@ -37,6 +38,7 @@ export default function CreateTeamPage() {
         resolver: zodResolver(createTeamSchema),
         defaultValues: {
             teamName: "",
+            instituteName: "",
             leaderName: "",
             leaderEmail: "",
             leaderPhone: "",
@@ -170,6 +172,19 @@ export default function CreateTeamPage() {
                                 </FormItem>
                                 )}
                             />
+                             <FormField
+                                control={form.control}
+                                name="instituteName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>School/University Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., Parul University" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                              <div className="border-t pt-6 space-y-6">
                                 <h3 className="text-lg font-medium text-foreground">Team Leader&apos;s Details</h3>
                                 <FormField
@@ -226,5 +241,3 @@ export default function CreateTeamPage() {
         </div>
     )
 }
-
-    
