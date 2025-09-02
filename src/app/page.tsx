@@ -28,31 +28,37 @@ const themes = [
     icon: <Puzzle className="h-8 w-8" />,
     title: 'Indian Culture & Heritage',
     description: 'Toys based on Indian traditions, folklore, and history.',
+    color: 'text-primary',
   },
   {
     icon: <Lightbulb className="h-8 w-8" />,
     title: 'STEM & Innovation',
     description: 'Educational toys focusing on science, tech, engineering, and math.',
+    color: 'text-accent',
   },
   {
     icon: <Rocket className="h-8 w-8" />,
     title: 'Divyang Friendly',
     description: 'Toys designed for specially-abled children.',
+    color: 'text-destructive',
   },
   {
     icon: <Users className="h-8 w-8" />,
     title: 'Social & Human Values',
     description: 'Toys that teach empathy, cooperation, and responsibility.',
+    color: 'text-primary',
   },
   {
     icon: <Palette className="h-8 w-8" />,
     title: 'Arts & Crafts',
     description: 'DIY kits and toys that encourage artistic expression.',
+    color: 'text-accent',
   },
   {
     icon: <BookOpen className="h-8 w-8" />,
     title: 'Environment',
     description: 'Eco-friendly toys and games about sustainability.',
+    color: 'text-destructive',
   },
 ];
 
@@ -62,18 +68,21 @@ const timelineEvents = [
     date: 'August 15, 2025',
     title: 'Registration Opens',
     description: 'Teams can start registering for the Toycathon.',
+    color: 'primary',
   },
   {
     icon: <Calendar className="h-5 w-5" />,
     date: 'September 30, 2025',
     title: 'Registration Closes',
     description: 'Final day for team registrations and idea submission.',
+    color: 'accent',
   },
   {
     icon: <Trophy className="h-5 w-5" />,
     date: 'October 15-17, 2025',
     title: 'Grand Finale',
     description: 'The main event where finalists will present their creations.',
+    color: 'destructive',
   },
 ];
 
@@ -157,7 +166,7 @@ function HeroSection() {
           </div>
           <div className="grid items-center gap-8">
             <div>
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl text-center">About PIERC</h2>
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-accent md:text-4xl text-center">About PIERC</h2>
               <p className="mt-4 max-w-4xl text-muted-foreground text-justify">
               Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
 strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring
@@ -184,7 +193,7 @@ function ThemesSection() {
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {themes.map((theme, index) => (
             <Card key={index} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-yellow-400/20 hover:-translate-y-2 bg-secondary/20 border-transparent">
-              <div className="mb-4 text-primary transition-colors duration-300 group-hover:text-yellow-400">
+              <div className={`mb-4 transition-colors duration-300 ${theme.color}`}>
                 {theme.icon}
               </div>
               <h3 className="text-xl font-bold text-foreground">{theme.title}</h3>
@@ -202,7 +211,7 @@ function TimelineSection() {
     <section id="timeline" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Important Dates</h2>
+          <h2 className="font-headline text-3xl font-bold tracking-tight text-accent md:text-4xl">Important Dates</h2>
           <p className="mt-4 text-muted-foreground text-justify">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
@@ -213,12 +222,12 @@ function TimelineSection() {
             <div key={index} className={`relative flex w-full items-center my-8 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
               <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
                 <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-primary border-transparent bg-background shadow-lg">
-                    <p className="font-semibold text-primary">{event.date}</p>
+                    <p className={`font-semibold text-${event.color === 'accent' ? 'yellow-400' : event.color === 'destructive' ? 'red-500' : 'primary'}`}>{event.date}</p>
                     <h3 className="text-lg font-bold">{event.title}</h3>
                     <p className="text-sm text-muted-foreground text-justify">{event.description}</p>
                 </Card>
               </div>
-              <div className="absolute left-1/2 top-1/2 z-10 h-12 w-12 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary text-primary-foreground ring-4 ring-background">
+              <div className={`absolute left-1/2 top-1/2 z-10 h-12 w-12 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 rounded-full bg-${event.color === 'accent' ? 'yellow-400' : event.color === 'destructive' ? 'red-500' : 'primary'} text-primary-foreground ring-4 ring-background`}>
                   {event.icon}
               </div>
             </div>
@@ -234,7 +243,7 @@ function RulesSection() {
     <section id="rules" className="w-full bg-background py-12 md:py-24">
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
-                <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Rules & Guidelines</h2>
+                <h2 className="font-headline text-3xl font-bold tracking-tight text-destructive md:text-4xl">Rules & Guidelines</h2>
                 <p className="mt-4 text-muted-foreground text-justify">
                     Please read the rules carefully before registering.
                 </p>
@@ -267,7 +276,7 @@ function PhasesSection() {
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
           <Card className="bg-background shadow-lg border-transparent">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-primary">Phase - I</CardTitle>
+              <CardTitle className="text-2xl font-bold text-accent">Phase - I</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-justify">
@@ -289,7 +298,7 @@ function PhasesSection() {
           </Card>
           <Card className="bg-background shadow-lg border-transparent">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-primary">Phase - II</CardTitle>
+              <CardTitle className="text-2xl font-bold text-destructive">Phase - II</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-justify">
@@ -335,7 +344,7 @@ function AssessmentCriteriaSection() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Card className="rounded-lg bg-[#ef4444] text-white p-6 shadow-lg">
+          <Card className="rounded-lg bg-destructive text-white p-6 shadow-lg">
             <CardHeader className="flex flex-row items-center gap-4 p-0">
               <div className="rounded-lg bg-white/20 p-3">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -379,7 +388,7 @@ function AssessmentCriteriaSection() {
         </div>
 
         <div className="mt-8">
-          <Card className="rounded-lg bg-yellow-400 text-foreground p-6 shadow-lg">
+          <Card className="rounded-lg bg-accent text-foreground p-6 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between p-0">
               <h3 className="text-3xl font-bold text-gray-800">Awards</h3>
               <Trophy className="w-16 h-16 text-gray-800/50" />
@@ -413,3 +422,5 @@ export default function Home() {
     </>
   );
 }
+
+    
