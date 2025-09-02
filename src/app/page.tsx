@@ -110,9 +110,11 @@ function HeroSection() {
         />
       </div>
       <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-        <h1 className="font-headline text-5xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
-            <span className="block text-teal-500">VADODARA</span>
-            <span className="mt-2 block text-yellow-500">TOYCATHON <span className="text-red-500">2025</span></span>
+        <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
+            <span className="block" style={{color: '#14b8a6'}}>VADODARA</span>
+            <span className="mt-2 block">
+                <span style={{color: '#f59e0b'}}>TOYCATHON</span> <span style={{color: '#ef4444'}}>2025</span>
+            </span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-700 dark:text-gray-300 md:text-xl">
             Where Fun meets Innovation!
