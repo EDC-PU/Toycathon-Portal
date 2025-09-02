@@ -3,6 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email."),
@@ -25,6 +29,8 @@ const formSchema = z.object({
 
 export default function LoginForm() {
     const { toast } = useToast();
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -34,12 +40,24 @@ export default function LoginForm() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
-        toast({
-            title: "Login Attempt",
-            description: "Login functionality is not yet implemented.",
-        });
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        setIsLoading(true);
+        try {
+            await signInWithEmailAndPassword(auth, values.email, values.password);
+            toast({
+                title: "Login Successful",
+                description: "Welcome back!",
+            });
+            router.push('/profile');
+        } catch (error: any) {
+             toast({
+                title: "Login Failed",
+                description: error.message || "An unexpected error occurred.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -54,7 +72,7 @@ export default function LoginForm() {
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="john.doe@example.com" {...field} />
+                                        <Input type="email" placeholder="john.doe@example.com" {...field} disabled={isLoading} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -67,13 +85,15 @@ export default function LoginForm() {
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="••••••••" {...field} />
+                                        <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full" size="lg">Sign In</Button>
+                        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                            {isLoading ? 'Signing In...' : 'Sign In'}
+                        </Button>
                         <div className="text-center text-sm text-muted-foreground">
                             Don&apos;t have an account?{" "}
                             <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">
