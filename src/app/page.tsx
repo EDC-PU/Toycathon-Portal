@@ -96,70 +96,87 @@ const rules = [
 ]
 
 function HeroSection() {
-  return (
-    <section className="relative w-full overflow-hidden bg-background">
-      <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/20 opacity-30 blur-3xl"
-        />
-        <div 
-          className="absolute -top-1/2 right-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-accent/20 opacity-30 blur-3xl"
-        />
-      </div>
-      <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-        <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
-            <span className="text-primary">VADODARA</span>
-            <span className="mt-2 block">
-                <span className="text-accent">TOYCATHON</span> <span className="text-destructive">2025</span>
-            </span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-700 dark:text-gray-300 md:text-xl">
-            Where Fun meets Innovation!
-        </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button asChild size="lg" className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-primary/30">
-            <Link href="/register">
-              Register Now <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="group">
-            <Link href="#rules">
-              View Rules
-            </Link>
-          </Button>
+    return (
+      <section className="relative w-full overflow-hidden bg-background">
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/20 opacity-30 blur-3xl"
+          />
+          <div 
+            className="absolute -top-1/2 right-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-accent/20 opacity-30 blur-3xl"
+          />
         </div>
-      </div>
-    </section>
-  );
-}
+        <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
+            <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
+                <span className="text-primary">VADODARA</span>
+                <span className="mt-2 block">
+                    <span className="text-yellow-500">TOY</span><span className="text-red-500">CA</span><span className="text-yellow-500">THON</span> <span className="text-red-500">2025</span>
+                </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+                Where Fun meets Innovation!
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Button asChild size="lg" className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-primary/30">
+                <Link href="/register">
+                Register Now <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
+                </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="group">
+                <Link href="#rules">
+                View Rules
+                </Link>
+            </Button>
+            </div>
+        </div>
+      </section>
+    );
+  }
 
-function AboutSection() {
-  return (
-    <section id="about" className="w-full bg-background py-12 md:py-24">
-      <div className="container mx-auto grid max-w-7xl items-center gap-8 px-4 md:grid-cols-2 md:px-6">
-        <div>
-          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About the Toycathon</h2>
-          <p className="mt-4 text-muted-foreground">
-            The Vadodara Toycathon is a prestigious national competition that invites innovators, students, and startups to conceptualize and create new toys and games rooted in Indian culture and values. It&apos;s a platform to showcase creativity and contribute to the burgeoning Indian toy industry.
-          </p>
-          <p className="mt-2 text-muted-foreground">
-            Organized in collaboration with Parul University and its incubation center PIERC, this event aims to foster a spirit of innovation and make India a global hub for toy manufacturing.
-          </p>
+  function AboutSection() {
+    return (
+      <section id="about" className="w-full bg-background py-12 md:py-24">
+        <div className="container mx-auto flex max-w-7xl flex-col items-center gap-12 px-4 md:px-6">
+          <div className="grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About VADODARA TOYCATHON 2025</h2>
+              <p className="mt-4 text-muted-foreground">
+                Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
+              </p>
+            </div>
+            <div className="flex justify-center">
+                <Image
+                    src="https://picsum.photos/600/400"
+                    alt="Children playing with toys"
+                    width={600}
+                    height={400}
+                    className="rounded-xl shadow-lg"
+                    data-ai-hint="children playing toys"
+                />
+            </div>
+          </div>
+          <div className="grid items-center gap-8 md:grid-cols-2">
+            <div className="flex justify-center md:order-2">
+                 <Image
+                    src="https://picsum.photos/600/401"
+                    alt="PIERC Logo"
+                    width={600}
+                    height={401}
+                    className="rounded-xl shadow-lg"
+                    data-ai-hint="innovation center building"
+                />
+            </div>
+            <div className="md:order-1">
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About PIERC</h2>
+              <p className="mt-4 text-muted-foreground">
+              Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-center">
-            <Image
-                src="https://picsum.photos/600/400"
-                alt="Children playing with toys"
-                width={600}
-                height={400}
-                className="rounded-xl shadow-lg"
-                data-ai-hint="children playing toys"
-            />
-        </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  }
 
 
 function ThemesSection() {
