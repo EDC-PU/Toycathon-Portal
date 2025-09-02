@@ -10,19 +10,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { auth, db } from "@/lib/firebase";
-import { addDoc, collection, serverTimestamp, doc, runTransaction } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, runTransaction, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 const createTeamSchema = z.object({
   teamName: z.string().min(2, "Team name must be at least 2 characters."),
   instituteType: z.enum(["SCHOOL", "UNIVERSITY"], { required_error: "Please select an institute type." }),
   instituteName: z.string().min(3, "Institute name must be at least 3 characters."),
+  isLeader: z.boolean().default(false).optional(),
   leaderName: z.string().min(2, "Leader's name must be at least 2 characters."),
   leaderEmail: z.string().email("Please enter a valid email for the team leader."),
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
@@ -33,6 +34,7 @@ export default function CreateTeamPage() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [userProfile, setUserProfile] = useState<any>(null);
 
     const form = useForm<z.infer<typeof createTeamSchema>>({
         resolver: zodResolver(createTeamSchema),
@@ -42,20 +44,52 @@ export default function CreateTeamPage() {
             leaderName: "",
             leaderEmail: "",
             leaderPhone: "",
+            isLeader: false,
         },
     });
 
+    const isLeader = form.watch("isLeader");
+
      useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const profile = userDocSnap.data();
+                    setUserProfile(profile);
+                    if (isLeader) {
+                        form.setValue('leaderName', profile.displayName || currentUser.displayName || "");
+                        form.setValue('leaderEmail', currentUser.email || "");
+                        form.setValue('leaderPhone', profile.leaderPhone || "");
+                    }
+                } else {
+                     if (isLeader) {
+                        form.setValue('leaderName', currentUser.displayName || "");
+                        form.setValue('leaderEmail', currentUser.email || "");
+                     }
+                }
             } else {
                 router.push('/login');
             }
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, form, isLeader]);
+
+     useEffect(() => {
+        if (isLeader && user) {
+            form.setValue('leaderName', userProfile?.displayName || user.displayName || '');
+            form.setValue('leaderEmail', user.email || '');
+            form.setValue('leaderPhone', userProfile?.leaderPhone || '');
+        } else {
+             form.setValue('leaderName', '');
+             form.setValue('leaderEmail', '');
+             form.setValue('leaderPhone', '');
+        }
+    }, [isLeader, user, userProfile, form]);
+
 
     const onSubmit = async (values: z.infer<typeof createTeamSchema>) => {
         if (!user) {
@@ -68,7 +102,6 @@ export default function CreateTeamPage() {
             const counterRef = doc(db, "counters", "teamIds");
             const teamsCollectionRef = collection(db, "teams");
 
-            // Run a transaction to atomically get the next team ID
             const newTeamRef = await runTransaction(db, async (transaction) => {
                 const counterDoc = await transaction.get(counterRef);
                 
@@ -86,11 +119,22 @@ export default function CreateTeamPage() {
                 
                 const newTeamDocRef = doc(teamsCollectionRef);
                 transaction.set(newTeamDocRef, {
-                    ...values,
+                    teamName: values.teamName,
+                    instituteType: values.instituteType,
+                    instituteName: values.instituteName,
+                    leaderName: values.leaderName,
+                    leaderEmail: values.leaderEmail,
+                    leaderPhone: values.leaderPhone,
                     teamId: teamId,
                     creatorUid: user.uid,
                     createdAt: serverTimestamp(),
                 });
+
+                // If creator is the leader, add them to the users collection with the teamId
+                if (values.isLeader) {
+                    const userRef = doc(db, "users", user.uid);
+                    transaction.set(userRef, { teamId: newTeamDocRef.id }, { merge: true });
+                }
 
                 return newTeamDocRef;
             });
@@ -189,12 +233,31 @@ export default function CreateTeamPage() {
                                 <h3 className="text-lg font-medium text-foreground">Team Leader&apos;s Details</h3>
                                 <FormField
                                     control={form.control}
+                                    name="isLeader"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                            <FormControl>
+                                                <Checkbox
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none">
+                                                <FormLabel>
+                                                    I am the Team Leader
+                                                </FormLabel>
+                                            </div>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
                                     name="leaderName"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Full Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Student's full name" {...field} />
+                                                <Input placeholder="Student's full name" {...field} disabled={isLeader} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -208,7 +271,7 @@ export default function CreateTeamPage() {
                                         <FormItem>
                                             <FormLabel>Email Address</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="student.email@example.com" {...field} />
+                                                <Input placeholder="student.email@example.com" {...field} disabled={isLeader} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
