@@ -155,7 +155,7 @@ function HeroSection() {
             <h1 className="text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
                 <span className="text-primary">VADODARA</span>
                 <span className="mt-2 block">
-                    <span className="text-yellow-400">TOY</span><span className="text-red-500">CA</span><span className="text-yellow-400">THON</span> <span className="text-red-500">2025</span>
+                    <span className="text-accent">TOY</span><span className="text-destructive">CA</span><span className="text-accent">THON</span> <span className="text-destructive">2025</span>
                 </span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
@@ -269,7 +269,7 @@ function ThemesSection() {
         </div>
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {themes.map((theme, index) => (
-            <Card key={index} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-yellow-400/20 hover:-translate-y-2 bg-background border-transparent">
+            <Card key={index} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
               <div className={`mb-4 transition-colors duration-300 ${theme.color}`}>
                 {theme.icon}
               </div>
@@ -299,12 +299,12 @@ function TimelineSection() {
             <div key={index} className={`relative flex w-full items-center my-8 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
               <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
                 <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-primary border-transparent bg-secondary/20 shadow-lg">
-                    <p className={`font-semibold text-${event.color === 'accent' ? 'yellow-400' : event.color === 'destructive' ? 'red-500' : 'primary'}`}>{event.date}</p>
+                    <p className={`font-semibold text-${event.color}`}>{event.date}</p>
                     <h3 className="text-lg font-bold">{event.title}</h3>
                     <p className="text-sm text-muted-foreground text-justify">{event.description}</p>
                 </Card>
               </div>
-              <div className={`absolute left-1/2 top-1/2 z-10 h-12 w-12 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 rounded-full bg-${event.color === 'accent' ? 'yellow-400' : event.color === 'destructive' ? 'red-500' : 'primary'} text-primary-foreground ring-4 ring-background`}>
+              <div className={`absolute left-1/2 top-1/2 z-10 h-12 w-12 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 rounded-full bg-${event.color} text-primary-foreground ring-4 ring-background`}>
                   {event.icon}
               </div>
             </div>
@@ -466,9 +466,9 @@ function AssessmentCriteriaSection() {
         </div>
 
         <div className="mt-8">
-          <Card className="rounded-lg bg-accent text-foreground p-6 shadow-lg">
+          <Card className="rounded-lg bg-accent text-accent-foreground p-6 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between p-0">
-              <h3 className="text-3xl font-bold text-gray-800">Awards</h3>
+              <h3 className="text-3xl font-bold">Awards</h3>
               <Trophy className="w-16 h-16 text-gray-800/50" />
             </CardHeader>
             <CardContent className="p-0 mt-4">
