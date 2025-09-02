@@ -19,6 +19,7 @@ import {
   Phone,
   Puzzle,
   Rocket,
+  Target,
   Trophy,
   Users,
 } from 'lucide-react';
@@ -343,9 +344,37 @@ function RulesSection() {
   );
 }
 
+function EligibilitySection() {
+  return (
+    <section id="eligibility" className="w-full bg-background py-12 md:py-24 relative overflow-hidden">
+      <div className="container mx-auto max-w-4xl px-4 md:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <SectionHeading color="primary">Eligibility</SectionHeading>
+           <p className="mt-4 text-muted-foreground text-center">
+            Who can join the fun? Here are the eligibility criteria.
+          </p>
+        </div>
+        <Card className="mt-12 bg-secondary/20 shadow-lg border-transparent p-8">
+            <CardHeader className="p-0 mb-4 flex-row gap-4 items-center">
+                <Target className="w-10 h-10 text-primary"/>
+                <CardTitle className="text-2xl font-bold text-primary">Who Can Participate?</CardTitle>
+            </CardHeader>
+          <CardContent className="p-0">
+            <ul className="space-y-3 list-disc pl-5 text-muted-foreground text-lg">
+              <li>Teams must consist of 3-4 members.</li>
+              <li>Open to school students from 3rd standard upwards and all university students.</li>
+              <li>Enthusiastic participation and creative ideas are highly encouraged!</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
 function PhasesSection() {
   return (
-    <section id="phases" className="w-full bg-background py-12 md:py-24 relative overflow-hidden">
+    <section id="phases" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
       <PlayfulShapes className="absolute top-1/2 -left-10 opacity-10 transform -rotate-90 scale-125" />
       <PlayfulShapes className="absolute bottom-20 -right-10 opacity-10 transform rotate-90 scale-125" />
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
@@ -356,7 +385,7 @@ function PhasesSection() {
           </p>
         </div>
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Card className="bg-secondary/20 shadow-lg border-transparent">
+          <Card className="bg-background/80 shadow-lg border-transparent">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-accent">Phase - I</CardTitle>
             </CardHeader>
@@ -378,7 +407,7 @@ function PhasesSection() {
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-secondary/20 shadow-lg border-transparent">
+          <Card className="bg-background/80 shadow-lg border-transparent">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-destructive">Phase - II</CardTitle>
             </CardHeader>
@@ -417,7 +446,7 @@ function PhasesSection() {
 
 function AssessmentCriteriaSection() {
   return (
-    <section id="assessment" className="w-full bg-secondary/20 py-12 md:py-24">
+    <section id="assessment" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
             <SectionHeading color="foreground">Assessment Criteria</SectionHeading>
@@ -496,7 +525,7 @@ function AssessmentCriteriaSection() {
 
 function ContactSection() {
     return (
-        <section id="contact" className="w-full bg-background py-12 md:py-24">
+        <section id="contact" className="w-full bg-secondary/20 py-12 md:py-24">
             <div className="container mx-auto max-w-7xl px-4 md:px-6">
                 <div className="mx-auto max-w-4xl text-center">
                      <SectionHeading color="primary">Contact Us</SectionHeading>
@@ -506,7 +535,7 @@ function ContactSection() {
                 </div>
 
                 <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-                    <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
+                    <Card className="p-6 bg-background/80 shadow-lg border-transparent">
                         <CardHeader className="p-0">
                             <CardTitle className="text-primary">For any Query contact</CardTitle>
                         </CardHeader>
@@ -529,7 +558,7 @@ function ContactSection() {
                             </div>
                         </CardContent>
                     </Card>
-                     <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
+                     <Card className="p-6 bg-background/80 shadow-lg border-transparent">
                         <CardHeader className="p-0">
                             <CardTitle className="text-primary">Reach out to us</CardTitle>
                         </CardHeader>
@@ -557,6 +586,7 @@ export default function Home() {
       <ThemesSection />
       <TimelineSection />
       <RulesSection />
+      <EligibilitySection />
       <PhasesSection />
       <AssessmentCriteriaSection />
       <ContactSection />
