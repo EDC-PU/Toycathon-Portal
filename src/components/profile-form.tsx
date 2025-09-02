@@ -52,12 +52,14 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            // teamName: "",
             leaderName: "",
             leaderPhone: "",
             college: "",
             rollNumber: "",
             yearOfStudy: "",
+            age: 0,
+            gender: undefined,
+            instituteType: undefined,
         },
     });
 
