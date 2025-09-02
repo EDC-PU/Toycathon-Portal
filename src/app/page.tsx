@@ -113,7 +113,7 @@ function HeroSection() {
                     <span className="text-yellow-500">TOY</span><span className="text-red-500">CA</span><span className="text-yellow-500">THON</span> <span className="text-red-500">2025</span>
                 </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl text-justify">
                 Where Fun meets Innovation!
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -140,7 +140,7 @@ function HeroSection() {
           <div className="grid items-center gap-8 md:grid-cols-2">
             <div>
               <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About VADODARA TOYCATHON 2025</h2>
-              <p className="mt-4 text-muted-foreground">
+              <p className="mt-4 text-muted-foreground text-justify">
                 Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
               </p>
             </div>
@@ -167,8 +167,10 @@ function HeroSection() {
             </div>
             <div className="md:order-1">
               <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">About PIERC</h2>
-              <p className="mt-4 text-muted-foreground">
-              Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
+              <p className="mt-4 text-muted-foreground text-justify">
+              Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
+strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring
+entrepreneurs and innovators.
               </p>
             </div>
           </div>
@@ -184,7 +186,7 @@ function ThemesSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Themes</h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-muted-foreground text-justify">
             Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
           </p>
         </div>
@@ -210,7 +212,7 @@ function TimelineSection() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Important Dates</h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-muted-foreground text-justify">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
         </div>
@@ -244,7 +246,7 @@ function RulesSection() {
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
                 <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Rules & Guidelines</h2>
-                <p className="mt-4 text-muted-foreground">
+                <p className="mt-4 text-muted-foreground text-justify">
                     Please read the rules carefully before registering.
                 </p>
             </div>
@@ -252,7 +254,7 @@ function RulesSection() {
                 {rules.map((rule, index) => (
                     <AccordionItem value={`item-${index}`} key={index}>
                         <AccordionTrigger className="text-lg font-semibold">{rule.title}</AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground">
+                        <AccordionContent className="text-muted-foreground text-justify">
                             {rule.content}
                         </AccordionContent>
                     </AccordionItem>
