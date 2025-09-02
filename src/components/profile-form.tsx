@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
@@ -35,14 +35,6 @@ export default function ProfileForm() {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-        });
-        return () => unsubscribe();
-    }, []);
-
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -53,6 +45,26 @@ export default function ProfileForm() {
             members: "",
         },
     });
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setUser(currentUser);
+            if (currentUser) {
+                const docRef = doc(db, "users", currentUser.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    form.reset(docSnap.data());
+                } else {
+                    // For Google Sign-in users, pre-fill some fields
+                    if (currentUser.displayName) {
+                        form.setValue('leaderName', currentUser.displayName);
+                    }
+                }
+            }
+        });
+        return () => unsubscribe();
+    }, [form]);
+
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!user) {
@@ -69,6 +81,8 @@ export default function ProfileForm() {
             await setDoc(doc(db, "users", user.uid), {
                 ...values,
                 email: user.email,
+                displayName: values.leaderName,
+                uid: user.uid,
             }, { merge: true });
 
             toast({
