@@ -132,7 +132,7 @@ export default function TeamPage() {
                                         <span>{team.teamId}</span>
                                      </div>
                                 </CardTitle>
-                                <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 5</CardDescription>
+                                <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (

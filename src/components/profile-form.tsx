@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, getDocs, runTransaction } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
@@ -92,10 +92,28 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
 
         setIsLoading(true);
         try {
+
+             if (teamId) {
+                const teamDocRef = doc(db, "teams", teamId);
+                const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
+                
+                const membersSnapshot = await getDocs(membersQuery);
+                if (membersSnapshot.size >= 4) {
+                    toast({
+                        title: "Team Full",
+                        description: "This team has already reached the maximum of 4 members.",
+                        variant: "destructive",
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
             await updateProfile(user, {
               displayName: values.leaderName
             });
 
+            const userRef = doc(db, "users", user.uid);
             const userData: any = {
                 ...values,
                 email: user.email,
@@ -107,7 +125,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                 userData.teamId = teamId;
             }
 
-            await setDoc(doc(db, "users", user.uid), userData, { merge: true });
+            await setDoc(userRef, userData, { merge: true });
 
             toast({
                 title: "Profile Updated!",
