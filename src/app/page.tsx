@@ -110,11 +110,12 @@ function HeroSection() {
         />
       </div>
       <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-        <h1 className="font-headline text-4xl font-bold tracking-tighter text-teal-green sm:text-5xl md:text-6xl lg:text-7xl">
-          Vadodara Toycathon 2025
+        <h1 className="font-headline text-5xl font-extrabold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
+            <span className="block text-teal-500">VADODARA</span>
+            <span className="mt-2 block text-yellow-500">TOYCATHON <span className="text-red-500">2025</span></span>
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-          Innovate, Create, and Play. Join us in a national challenge to design and build the next generation of Indian toys and games.
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-700 dark:text-gray-300 md:text-xl">
+            Where Fun meets Innovation!
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Button asChild size="lg" className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-primary/30">
