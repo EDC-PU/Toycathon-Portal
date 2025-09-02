@@ -3,14 +3,14 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, DocumentData, deleteDoc, writeBatch } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Copy, PlusCircle, Users, Tag } from 'lucide-react';
+import { Copy, PlusCircle, Users, Tag, Trash2 } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -73,6 +73,47 @@ export default function TeamPage() {
         }
     }
 
+    const deleteTeam = async (team: Team) => {
+        if (!confirm(`Are you sure you want to delete the team "${team.teamName}"? This action cannot be undone.`)) return;
+
+        setLoading(true);
+        try {
+            const batch = writeBatch(db);
+
+            // 1. Unlink all members from the team
+            const members = teamMembers[team.id] || [];
+            for (const member of members) {
+                const userRef = doc(db, "users", member.uid);
+                // We are removing the teamId field from the user document
+                const { teamId, ...updatedMemberData } = (await getDoc(userRef)).data() as any;
+                 batch.set(userRef, updatedMemberData);
+            }
+
+            // 2. Delete the team document
+            const teamRef = doc(db, "teams", team.id);
+            batch.delete(teamRef);
+            
+            await batch.commit();
+
+            toast({
+                title: "Team Deleted",
+                description: `"${team.teamName}" has been successfully deleted.`,
+            });
+
+            // Refresh the list of teams
+            if(user) {
+                fetchTeams(user.uid);
+            }
+
+        } catch (error) {
+            console.error("Error deleting team:", error);
+            toast({ title: "Error", description: "Failed to delete team.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
     const getJoiningLink = (teamId: string) => {
         if (!teamId) return '';
         const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -124,15 +165,20 @@ export default function TeamPage() {
                 <div className="grid gap-8">
                     {teams.map(team => (
                         <Card key={team.id}>
-                            <CardHeader>
-                                <CardTitle className="flex justify-between items-start">
-                                    <span className="text-primary">{team.teamName}</span>
-                                     <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground bg-secondary px-2 py-1 rounded-md">
-                                        <Tag className="h-4 w-4" />
-                                        <span>{team.teamId}</span>
-                                     </div>
-                                </CardTitle>
-                                <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
+                            <CardHeader className="flex flex-row justify-between items-start">
+                                <div>
+                                    <CardTitle className="flex items-center gap-4">
+                                        <span className="text-primary">{team.teamName}</span>
+                                         <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground bg-secondary px-2 py-1 rounded-md">
+                                            <Tag className="h-4 w-4" />
+                                            <span>{team.teamId}</span>
+                                         </div>
+                                    </CardTitle>
+                                    <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
+                                </div>
+                                <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
                             </CardHeader>
                             <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (
@@ -170,5 +216,3 @@ export default function TeamPage() {
         </div>
     );
 }
-
-    
