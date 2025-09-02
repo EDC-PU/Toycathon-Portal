@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, signInWithGoogle } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
@@ -21,8 +21,11 @@ import { Card, CardContent } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState } from "react";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email."),
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string()
@@ -70,6 +73,7 @@ export default function RegisterForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            name: "",
             email: "",
             password: "",
             confirmPassword: "",
@@ -79,7 +83,19 @@ export default function RegisterForm() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            await createUserWithEmailAndPassword(auth, values.email, values.password);
+            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+            const user = userCredential.user;
+            await updateProfile(user, {
+                displayName: values.name,
+            });
+
+             // Create user document in Firestore
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                displayName: values.name,
+                email: values.email,
+            });
+
             toast({
                 title: "Registration Successful!",
                 description: "You have been successfully registered.",
@@ -99,7 +115,17 @@ export default function RegisterForm() {
      async function handleGoogleSignIn() {
         setIsGoogleLoading(true);
         try {
-            await signInWithGoogle();
+            const userCredential = await signInWithGoogle();
+            const user = userCredential.user;
+
+             // Create user document in Firestore if it doesn't exist
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                displayName: user.displayName,
+                email: user.email,
+            }, { merge: true });
+
+
             toast({
                 title: "Registration Successful!",
                 description: "You have been successfully registered.",
@@ -121,6 +147,19 @@ export default function RegisterForm() {
             <CardContent className="pt-6">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                         <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="John Doe" {...field} disabled={isLoading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="email"

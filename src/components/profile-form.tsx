@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User, updateProfile } from "firebase/auth";
 
 const formSchema = z.object({
   teamName: z.string().min(2, "Team name must be at least 2 characters."),
@@ -78,10 +78,14 @@ export default function ProfileForm() {
 
         setIsLoading(true);
         try {
+            // Update firebase auth profile
+            await updateProfile(user, {
+              displayName: values.leaderName
+            });
+
             await setDoc(doc(db, "users", user.uid), {
                 ...values,
                 email: user.email,
-                displayName: values.leaderName,
                 uid: user.uid,
             }, { merge: true });
 
