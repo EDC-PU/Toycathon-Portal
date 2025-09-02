@@ -80,7 +80,7 @@ const timelineEvents = [
   },
   {
     icon: <Trophy className="h-5 w-5" />,
-    date: 'October 15-17, 2025',
+    date: '7th & 8th October, 2025',
     title: 'Grand Finale',
     description: 'The main event where finalists will present their creations.',
     color: 'destructive',
