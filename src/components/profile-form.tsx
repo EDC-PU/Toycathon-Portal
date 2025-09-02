@@ -101,7 +101,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                 if (membersSnapshot.size >= 4) {
                     toast({
                         title: "Team Full",
-                        description: "This team has already reached the maximum of 4 members.",
+                        description: "This team has already reached the maximum of 4 members (1 leader + 3 members).",
                         variant: "destructive",
                     });
                     setIsLoading(false);
