@@ -76,9 +76,9 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-secondary/20">
+    <div className="flex h-screen overflow-hidden bg-secondary/20">
       <DashboardSidebar isAdmin={isAdmin} />
-      <main className="flex-1 p-4 sm:p-6 md:p-8">{children}</main>
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">{children}</main>
     </div>
   );
 }

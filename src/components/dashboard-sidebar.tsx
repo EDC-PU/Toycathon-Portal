@@ -51,13 +51,13 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
 
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-background border-r">
-      <div className="h-20 flex items-center px-6 border-b">
+    <aside className="hidden md:flex flex-col w-64 bg-background border-r h-full">
+      <div className="h-20 flex items-center px-6 border-b flex-shrink-0">
          <Link href="/">
               <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={180} height={41} className="h-10 w-auto object-contain" />
           </Link>
       </div>
-      <nav className="flex-1 px-4 py-4 space-y-2">
+      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {navLinks.map((link) => {
           const isActive = pathname === link.href || (link.href === '/dashboard/teams' && pathname.startsWith('/dashboard/teams'));
           return (
@@ -98,7 +98,7 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
             </>
         )}
       </nav>
-      <div className="px-4 py-4 border-t">
+      <div className="px-4 py-4 border-t flex-shrink-0">
          <Button
             variant={'ghost'}
             className="w-full justify-start"
