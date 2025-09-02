@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, User, updateProfile } from "firebase/auth";
