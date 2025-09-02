@@ -23,9 +23,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between">
-        <Link href="/" className="flex items-center gap-2" prefetch={false}>
-          {/* <span className="font-headline text-lg font-bold text-primary">Toycathon 2025</span> */}
-        </Link>
+        <div className="flex items-center gap-4">
+          <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
+              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
+          </a>
+          <a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer">
+              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={80} height={32} className="h-8 w-auto object-contain" />
+          </a>
+        </div>
         
         <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
@@ -36,12 +41,6 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
-              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
-          </a>
-          <a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer">
-              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={80} height={32} className="h-8 w-auto object-contain" />
-          </a>
           <Button variant="ghost" asChild>
             <Link href="/login">Login</Link>
           </Button>
