@@ -3,10 +3,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Blocks, Menu, X } from 'lucide-react';
+import { Blocks, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 const navLinks = [
   { href: '/#about', label: 'About' },
@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between">
+      <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between">
         <Link href="/" className="flex items-center gap-2" prefetch={false}>
           <Blocks className="h-6 w-6 text-primary" />
           <span className="font-headline font-bold text-primary">Toycathon 2025</span>
@@ -35,7 +35,13 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
+          <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
+              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
+          </a>
+          <a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer">
+              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={80} height={32} className="h-8 w-auto object-contain" />
+          </a>
           <Button variant="ghost" asChild>
             <Link href="/login">Login</Link>
           </Button>
@@ -52,7 +58,7 @@ export default function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right">
-            <div className="flex flex-col gap-6 p-6">
+            <div className="flex h-full flex-col gap-6 p-6">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <Blocks className="h-6 w-6 text-primary" />
                     <span className="font-headline font-bold text-primary">Toycathon 2025</span>
@@ -64,7 +70,15 @@ export default function Header() {
                         </Link>
                     ))}
                 </nav>
-                <div className="mt-auto flex flex-col gap-2">
+                <div className="mt-auto flex flex-col gap-4">
+                    <div className="flex items-center justify-center gap-4">
+                        <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
+                            <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />
+                        </a>
+                        <a href="https://www.pierc.org/" target="_blank" rel="noopener noreferrer">
+                            <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={80} height={32} className="h-8 w-auto object-contain" />
+                        </a>
+                    </div>
                     <Button variant="outline" asChild>
                         <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
                     </Button>
@@ -79,5 +93,4 @@ export default function Header() {
     </header>
   );
 }
-
     
