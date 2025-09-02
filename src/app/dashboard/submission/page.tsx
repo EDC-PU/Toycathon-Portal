@@ -13,10 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useEffect } from 'react';
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 const submissionSchema = z.object({
@@ -30,6 +31,9 @@ export default function SubmissionPage() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [teamCount, setTeamCount] = useState(0);
+    const [isFetchingTeamCount, setIsFetchingTeamCount] = useState(true);
+
 
     const form = useForm<z.infer<typeof submissionSchema>>({
         resolver: zodResolver(submissionSchema),
@@ -49,6 +53,14 @@ export default function SubmissionPage() {
                 if (submissionDocSnap.exists()) {
                     form.reset(submissionDocSnap.data());
                 }
+
+                // Fetch team count
+                setIsFetchingTeamCount(true);
+                const teamsQuery = query(collection(db, "teams"), where("creatorUid", "==", currentUser.uid));
+                const teamsSnapshot = await getDocs(teamsQuery);
+                setTeamCount(teamsSnapshot.size);
+                setIsFetchingTeamCount(false);
+
             } else {
                 router.push('/login');
             }
@@ -88,6 +100,30 @@ export default function SubmissionPage() {
             setIsLoading(false);
         }
     };
+
+    if (isFetchingTeamCount) {
+        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Checking team status...</div>;
+    }
+
+    if (teamCount > 1) {
+        return (
+            <div className="space-y-8 text-center flex flex-col items-center justify-center h-full">
+                <Card className="max-w-lg">
+                    <CardHeader>
+                        <CardTitle className="text-destructive">Submission Disabled</CardTitle>
+                        <CardDescription>
+                            You cannot submit an idea because you have created more than one team. Please delete the extra teams to proceed with your submission.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link href="/dashboard/teams">Go to Manage Teams</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
 
     return (
