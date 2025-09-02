@@ -14,6 +14,7 @@ const navLinks = [
   { href: '/#timeline', label: 'Timeline' },
   { href: '/#rules', label: 'Rules' },
   { href: '/#phases', label: 'Phases' },
+  { href: '/#assessment', label: 'Assessment' },
 ];
 
 export default function Header() {
@@ -90,4 +91,3 @@ export default function Header() {
     </header>
   );
 }
-    

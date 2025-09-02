@@ -324,6 +324,81 @@ function PhasesSection() {
   );
 }
 
+function AssessmentCriteriaSection() {
+  return (
+    <section id="assessment" className="w-full bg-background py-12 md:py-24">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="font-headline text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Assessment Criteria of <span className="text-primary">VADODARA</span> <span className="text-yellow-400">TOY</span><span className="text-red-500">CA</span><span className="text-yellow-400">THON</span> <span className="text-red-500">2025</span>
+          </h2>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+          <Card className="rounded-lg bg-[#ef4444] text-white p-6 shadow-lg">
+            <CardHeader className="flex flex-row items-center gap-4 p-0">
+              <div className="rounded-lg bg-white/20 p-3">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17 2H7C5.89543 2 5 2.89543 5 4V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V4C19 2.89543 18.1046 2 17 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 6V18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 6V10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M15 14V18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold">Phase - I</h3>
+            </CardHeader>
+            <CardContent className="p-0 mt-4">
+              <ul className="space-y-2 list-disc pl-5">
+                <li>Novelty of Idea</li>
+                <li>Design of toy, games and play item</li>
+                <li>Educational values</li>
+                <li>Scalability & Marketability</li>
+                <li>Social implication</li>
+              </ul>
+            </CardContent>
+          </Card>
+          <Card className="rounded-lg bg-primary text-white p-6 shadow-lg">
+            <CardHeader className="flex flex-row items-center gap-4 p-0">
+              <div className="rounded-lg bg-white/20 p-3">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold">Phase - II</h3>
+            </CardHeader>
+            <CardContent className="p-0 mt-4">
+              <ul className="space-y-2 list-disc pl-5">
+                <li>Quality of the prototype</li>
+                <li>Functionality</li>
+                <li>Material / Graphics usage</li>
+                <li>Safety</li>
+                <li>Commercial viability</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-8">
+          <Card className="rounded-lg bg-yellow-400 text-foreground p-6 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between p-0">
+              <h3 className="text-3xl font-bold text-gray-800">Awards</h3>
+              <Trophy className="w-16 h-16 text-gray-800/50" />
+            </CardHeader>
+            <CardContent className="p-0 mt-4">
+              <ul className="space-y-2 list-disc pl-5 text-gray-700">
+                <li>Top teams will get Prize amount</li>
+                <li>Incubation & Funding support to scale up startup</li>
+                <li>Support to file IP for selected toy design</li>
+                <li>Linkage with toy industry to scale up selected toy design</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 export default function Home() {
   return (
@@ -334,8 +409,7 @@ export default function Home() {
       <TimelineSection />
       <RulesSection />
       <PhasesSection />
+      <AssessmentCriteriaSection />
     </>
   );
 }
-
-    
