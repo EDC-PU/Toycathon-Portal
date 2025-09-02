@@ -180,10 +180,44 @@ entrepreneurs and innovators.
     );
   }
 
+function SupportersSection() {
+  const supporterLogos = [
+    '/supporter1.jpg',
+    '/supporter2.jpg',
+    '/supporter3.jpg',
+    '/supporter4.jpg',
+    '/supporter5.jpg',
+    '/supporter6.jpg',
+    '/supporter7.jpg',
+  ];
+
+  return (
+    <section id="supporters" className="w-full bg-background py-12 md:py-24">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Supported By</h2>
+        </div>
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-12">
+          {supporterLogos.map((logo, index) => (
+            <div key={index} className="relative h-20 w-40 grayscale transition-all duration-300 hover:grayscale-0">
+              <Image
+                src={logo}
+                alt={`Supporter logo ${index + 1}`}
+                fill
+                className="object-contain"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 function ThemesSection() {
   return (
-    <section id="themes" className="w-full bg-background py-12 md:py-24">
+    <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Themes</h2>
@@ -193,7 +227,7 @@ function ThemesSection() {
         </div>
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {themes.map((theme, index) => (
-            <Card key={index} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-yellow-400/20 hover:-translate-y-2 bg-secondary/20 border-transparent">
+            <Card key={index} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-yellow-400/20 hover:-translate-y-2 bg-background border-transparent">
               <div className={`mb-4 transition-colors duration-300 ${theme.color}`}>
                 {theme.icon}
               </div>
@@ -209,7 +243,7 @@ function ThemesSection() {
 
 function TimelineSection() {
   return (
-    <section id="timeline" className="w-full bg-secondary/20 py-12 md:py-24">
+    <section id="timeline" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-accent md:text-4xl">Important Dates</h2>
@@ -222,7 +256,7 @@ function TimelineSection() {
           {timelineEvents.map((event, index) => (
             <div key={index} className={`relative flex w-full items-center my-8 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
               <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-primary border-transparent bg-background shadow-lg">
+                <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-primary border-transparent bg-secondary/20 shadow-lg">
                     <p className={`font-semibold text-${event.color === 'accent' ? 'yellow-400' : event.color === 'destructive' ? 'red-500' : 'primary'}`}>{event.date}</p>
                     <h3 className="text-lg font-bold">{event.title}</h3>
                     <p className="text-sm text-muted-foreground text-justify">{event.description}</p>
@@ -241,7 +275,7 @@ function TimelineSection() {
 
 function RulesSection() {
   return (
-    <section id="rules" className="w-full bg-background py-12 md:py-24">
+    <section id="rules" className="w-full bg-secondary/20 py-12 md:py-24">
         <div className="container mx-auto max-w-4xl px-4 md:px-6">
             <div className="mx-auto max-w-2xl text-center">
                 <h2 className="font-headline text-3xl font-bold tracking-tight text-destructive md:text-4xl">Rules & Guidelines</h2>
@@ -266,7 +300,7 @@ function RulesSection() {
 
 function PhasesSection() {
   return (
-    <section id="phases" className="w-full bg-secondary/20 py-12 md:py-24">
+    <section id="phases" className="w-full bg-background py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-primary md:text-4xl">Event Phases</h2>
@@ -275,7 +309,7 @@ function PhasesSection() {
           </p>
         </div>
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Card className="bg-background shadow-lg border-transparent">
+          <Card className="bg-secondary/20 shadow-lg border-transparent">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-accent">Phase - I</CardTitle>
             </CardHeader>
@@ -297,7 +331,7 @@ function PhasesSection() {
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-background shadow-lg border-transparent">
+          <Card className="bg-secondary/20 shadow-lg border-transparent">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-destructive">Phase - II</CardTitle>
             </CardHeader>
@@ -336,7 +370,7 @@ function PhasesSection() {
 
 function AssessmentCriteriaSection() {
   return (
-    <section id="assessment" className="w-full bg-background py-12 md:py-24">
+    <section id="assessment" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="font-headline text-3xl font-bold tracking-tight text-foreground md:text-4xl">
@@ -415,6 +449,7 @@ export default function Home() {
     <>
       <HeroSection />
       <AboutSection />
+      <SupportersSection />
       <ThemesSection />
       <TimelineSection />
       <RulesSection />
@@ -423,5 +458,3 @@ export default function Home() {
     </>
   );
 }
-
-    
