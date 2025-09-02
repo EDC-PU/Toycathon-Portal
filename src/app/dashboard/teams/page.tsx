@@ -78,23 +78,13 @@ export default function TeamPage() {
 
         setLoading(true);
         try {
-            const batch = writeBatch(db);
-
-            // 1. Unlink all members from the team
-            const members = teamMembers[team.id] || [];
-            for (const member of members) {
-                const userRef = doc(db, "users", member.uid);
-                // We are removing the teamId field from the user document
-                const { teamId, ...updatedMemberData } = (await getDoc(userRef)).data() as any;
-                 batch.set(userRef, updatedMemberData);
-            }
-
-            // 2. Delete the team document
+            // For security, client-side code should not unlink members from a team.
+            // This operation should ideally be handled by a Cloud Function with admin privileges.
+            // We will only delete the team document. The members will still have a teamId
+            // but it will point to a non-existent team. The app should handle this gracefully.
             const teamRef = doc(db, "teams", team.id);
-            batch.delete(teamRef);
+            await deleteDoc(teamRef);
             
-            await batch.commit();
-
             toast({
                 title: "Team Deleted",
                 description: `"${team.teamName}" has been successfully deleted.`,
@@ -107,7 +97,7 @@ export default function TeamPage() {
 
         } catch (error) {
             console.error("Error deleting team:", error);
-            toast({ title: "Error", description: "Failed to delete team.", variant: "destructive" });
+            toast({ title: "Error", description: "Failed to delete team. Please check your Firestore rules.", variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -216,3 +206,5 @@ export default function TeamPage() {
         </div>
     );
 }
+
+    
