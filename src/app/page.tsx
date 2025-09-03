@@ -167,20 +167,21 @@ function HeroSection() {
         </div>
         <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-                 <Image 
-                    src="/TOYCATHON.svg" 
-                    alt="Toycathon Logo"
-                    width={200}
-                    height={200}
-                    className="h-32 w-32 md:h-48 md:w-48"
-                />
-                <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl md:text-left">
+                
+                <h1 className="font-headline text-6xl font-black tracking-tighter sm:text-8xl md:text-8xl lg:text-8xl md:text-left">
                     <span className="text-primary">VADODARA</span>
                     <span className="mt-2 block">
                         <span className="text-accent">TOYCATHON </span>
                <span className="text-destructive">2025</span>
                     </span>
                 </h1>
+                <Image 
+                    src="/TOYCATHON.svg" 
+                    alt="Toycathon Logo"
+                    width={300}
+                    height={300}
+                    className="h-40 w-40 md:h-60 md:w-60"
+                />
             </div>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
                 Where Fun Meets Innovation!
@@ -237,14 +238,14 @@ function HeroSection() {
               support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), 
               which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, 
               an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation
-              of aspiring entrepreneurs' visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, 
+              of aspiring entrepreneurs' visions into scalable startup ventures. The studio offers a range of resources, including pre-seed grant support through VC funding, 
               government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform 
-              designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cutting and engraving, CNC routers, and vinyl cu􀂈ers, the Fab
+              designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cutting and engraving, CNC routers, and vinyl cutters, the Fab
               Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, 
               Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub
               for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of
               the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
-              strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
+              strengthens the ecosystem, offering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
               </p>
             </div>
           </div>
@@ -255,13 +256,9 @@ function HeroSection() {
 
 function SupportersSection() {
   const supporterLogos = [
-    'https://picsum.photos/160/80?random=1',
-    'https://picsum.photos/160/80?random=2',
-    'https://picsum.photos/160/80?random=3',
-    'https://picsum.photos/160/80?random=4',
-    'https://picsum.photos/160/80?random=5',
-    'https://picsum.photos/160/80?random=6',
-    'https://picsum.photos/160/80?random=7',
+    '/supporter1.png',
+    '/supporter2.svg',
+    '/supporter3.svg',
   ];
 
   return (
