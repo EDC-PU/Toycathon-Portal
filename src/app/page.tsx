@@ -155,7 +155,7 @@ function PlayfulShapes({ className }: { className?: string }) {
 
 function HeroSection() {
     return (
-      <section className="relative w-full overflow-hidden bg-background">
+      <section className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 z-0">
           <div 
             className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-50 blur-3xl"
@@ -306,65 +306,52 @@ function TimelineSection() {
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
         </div>
-
-        {/* Timeline for large screens */}
-        <div className="hidden md:block relative mt-16 w-full">
+        <div className="relative mt-16">
           {/* Central line */}
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2"></div>
-          
-          <div className="relative flex justify-between w-full">
+          <div className="absolute left-1/2 top-0 h-full w-0.5 -translate-x-1/2 bg-border"></div>
+          {/* Events */}
+          <div className="relative flex flex-col items-center gap-16">
             {timelineEvents.map((event, index) => (
-              <div key={index} className="relative w-1/4 flex justify-center">
-                <div className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-background border-4 border-${event.color} z-10 flex items-center justify-center top-1/2 -translate-y-1/2`}>
-                   <div className={`w-2 h-2 rounded-full bg-${event.color}`}></div>
-                </div>
-
-                <div className={`relative w-full ${index % 2 === 0 ? 'mb-40' : 'mt-40'}`}>
-                  {/* Vertical line from dot */}
-                  <div className={`absolute left-1/2 -translate-x-1/2 w-0.5 h-16 bg-border ${index % 2 === 0 ? 'top-1/2 -mt-16' : 'bottom-1/2 -mb-16'}`}></div>
-
-                  <div className={`absolute left-1/2 -translate-x-1/2 w-full px-4 text-center ${index % 2 === 0 ? 'bottom-full mb-8' : 'top-full mt-8'}`}>
-                    {/* Horizontal line to icon */}
-                    <div className="relative w-full h-12">
-                      <div className={`absolute top-1/2 -translate-y-1/2 h-0.5 bg-border- ${event.color} w-full`}></div>
+              <div key={index} className="relative flex w-full items-center justify-center">
+                {/* Event on the left */}
+                {index % 2 === 0 && (
+                  <div className="relative w-1/2 pr-8 text-right">
+                    <div className="absolute -right-4 top-1/2 h-8 w-8 -translate-y-1/2 transform rounded-full bg-background border-4 border-primary flex items-center justify-center z-10">
+                      <div className="h-3 w-3 rounded-full bg-primary"></div>
                     </div>
-                    <div className={`flex justify-center text-${event.color}`}>
-                      {React.cloneElement(event.icon, { className: "h-12 w-12" })}
+                    <div className="inline-block rounded-lg bg-secondary p-4 shadow-md">
+                      <div className={`text-${event.color}`}>{event.icon}</div>
+                      <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
+                      <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
                     </div>
-                    <p className={`font-bold mt-2 text-${event.color}`}>{event.date}</p>
-                    <h3 className="text-lg font-semibold mt-1">{event.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
                   </div>
-                </div>
+                )}
+                 {index % 2 !== 0 && <div className="w-1/2"></div>}
+                {/* Event on the right */}
+                {index % 2 !== 0 && (
+                  <div className="relative w-1/2 pl-8 text-left">
+                     <div className="absolute -left-4 top-1/2 h-8 w-8 -translate-y-1/2 transform rounded-full bg-background border-4 border-primary flex items-center justify-center z-10">
+                      <div className="h-3 w-3 rounded-full bg-primary"></div>
+                    </div>
+                    <div className="inline-block rounded-lg bg-secondary p-4 shadow-md">
+                      <div className={`text-${event.color}`}>{event.icon}</div>
+                      <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
+                      <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
+                    </div>
+                  </div>
+                )}
+                 {index % 2 === 0 && <div className="w-1/2"></div>}
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Timeline for small screens */}
-        <div className="md:hidden mt-12 space-y-8">
-          {timelineEvents.map((event, index) => (
-            <div key={index} className="flex items-start gap-4">
-              <div className="flex flex-col items-center">
-                <div className={`w-12 h-12 rounded-full bg-${event.color}/10 border-2 border-${event.color} flex items-center justify-center`}>
-                  {React.cloneElement(event.icon, { className: `h-6 w-6 text-${event.color}` })}
-                </div>
-                {index < timelineEvents.length - 1 && (
-                  <div className="w-0.5 flex-1 bg-border my-2"></div>
-                )}
-              </div>
-              <div className="flex-1 pb-8">
-                <p className={`font-bold text-${event.color}`}>{event.date}</p>
-                <h3 className="text-lg font-semibold mt-1">{event.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 
 
