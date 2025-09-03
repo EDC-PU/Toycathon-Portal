@@ -31,7 +31,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { SVGProps } from 'react';
 import { motion } from 'framer-motion';
-import StaticToycathonLogo from '@/components/static-toycathon-logo';
 
 const themes = [
   {
@@ -223,7 +222,6 @@ function HeroSection() {
                     animate="show"
                 >
                      <div className="block md:hidden mb-6">
-                        <StaticToycathonLogo className="h-auto w-24" />
                     </div>
                     <motion.h1 
                         className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
@@ -267,7 +265,7 @@ function HeroSection() {
                     </motion.div>
                 </motion.div>
                 <div className="relative hidden w-full md:w-1/2 lg:w-3/5 md:flex justify-center items-center">
-                    <StaticToycathonLogo className="h-auto w-full max-w-md lg:max-w-lg" />
+                    <Image src="/V1.svg" alt="Toycathon Illustration" width={500} height={500} className="w-full h-auto" />
                 </div>
             </div>
         </section>
@@ -298,13 +296,13 @@ function HeroSection() {
               ></iframe>
             </div>
           </div>
-          <div className="grid items-center gap-8 relative">
-             <PlayfulShapes className="absolute bottom-0 right-5 opacity-20 transform rotate-12" />
-            <div>
-               <div className="text-center">
-                 <SectionHeading color="accent">About PIERC</SectionHeading>
+          <div className="grid items-center gap-8 relative md:grid-cols-2">
+             <PlayfulShapes className="absolute bottom-0 -left-10 opacity-20 transform rotate-12" />
+            <div className="order-2 md:order-1">
+               <div className="text-center md:text-left">
+                 <h2 className="text-3xl font-bold tracking-tight text-accent sm:text-4xl">About PIERC</h2>
                </div>
-              <p className="mt-4 max-w-4xl text-muted-foreground text-justify">
+              <p className="mt-4 text-muted-foreground text-justify">
               Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive 
               support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), 
               which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, 
@@ -318,6 +316,9 @@ function HeroSection() {
               the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
               strengthens the ecosystem, offering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
               </p>
+            </div>
+             <div className="relative order-1 md:order-2 w-full flex items-center justify-center">
+                 <Image src="/V2.svg" alt="Innovation Illustration" width={400} height={400} className="w-full max-w-sm h-auto" />
             </div>
           </div>
         </div>
