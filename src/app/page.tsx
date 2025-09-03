@@ -156,7 +156,7 @@ function PlayfulShapes({ className }: { className?: string }) {
 
 function HeroSection() {
     return (
-      <section className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <section className="relative flex min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 z-0">
           <div 
             className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-50 blur-3xl"
@@ -276,7 +276,7 @@ function SupportersSection() {
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-16">
           {supporterLogos.map((logo, index) => (
             <React.Fragment key={index}>
-              <div className="relative h-20 w-40 transition-all duration-300">
+              <div className="relative h-28 w-52 transition-all duration-300">
                 <Image
                   src={logo}
                   alt={`Supporter logo ${index + 1}`}
@@ -390,22 +390,24 @@ function RulesAndEligibilitySection() {
 
           {/* Rules Column */}
           <div>
-            <div className="mx-auto max-w-2xl text-center mb-12">
-              <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
-              <p className="mt-4 text-muted-foreground text-center">
-                Please read the rules carefully before registering.
-              </p>
-            </div>
-            <Accordion type="single" collapsible className="w-full">
-              {rules.map((rule, index) => (
-                <AccordionItem value={`item-${index}`} key={index} className="border-b-2 border-primary/20 bg-background/80 px-4 rounded-lg mb-2 shadow-sm">
-                  <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">{rule.title}</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground text-justify">
-                    {rule.content}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+            <Card className="bg-background/80 shadow-lg border-transparent p-6 h-full">
+                <div className="mx-auto max-w-2xl text-center mb-8">
+                <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
+                <p className="mt-4 text-muted-foreground text-center">
+                    Please read the rules carefully before registering.
+                </p>
+                </div>
+                <Accordion type="single" collapsible className="w-full">
+                {rules.map((rule, index) => (
+                    <AccordionItem value={`item-${index}`} key={index} className="border-b-2 border-primary/20 bg-background/80 px-4 rounded-lg mb-2 shadow-sm">
+                    <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">{rule.title}</AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground text-justify">
+                        {rule.content}
+                    </AccordionContent>
+                    </AccordionItem>
+                ))}
+                </Accordion>
+            </Card>
           </div>
         </div>
       </div>
