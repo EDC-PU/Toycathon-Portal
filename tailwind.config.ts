@@ -11,6 +11,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
+        headline: ['"Mona Sans"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

@@ -156,7 +156,7 @@ function PlayfulShapes({ className }: { className?: string }) {
 
 function HeroSection() {
     return (
-      <section className="relative flex min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <section className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 z-0">
           <div 
             className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-50 blur-3xl"
@@ -166,12 +166,11 @@ function HeroSection() {
           />
         </div>
         <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-            <h1 className="text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
+            <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
                 <span className="text-primary">VADODARA</span>
                 <span className="mt-2 block">
-                    <span className="text-accent">TOY</span>
-                    <span className="text-destructive">CA</span>
-                    <span className="text-accent">THON</span> <span className="text-destructive">2025</span>
+                    <span className="text-accent">TOYCATHON </span>
+           <span className="text-destructive">2025</span>
                 </span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
