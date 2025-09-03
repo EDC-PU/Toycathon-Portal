@@ -214,19 +214,19 @@ function HeroSection() {
                     backgroundSize: '400% 400%',
                 }}
             />
-            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:flex-row md:gap-8">
+            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:text-left md:flex-row md:gap-8">
                 <motion.div 
                     className="flex flex-col items-center md:items-start md:w-1/2"
                     variants={textContainer}
                     initial="hidden"
                     animate="show"
                 >
-                     <div className="block md:hidden mb-6">
-                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={150} height={150} />
+                    <div className="block md:hidden mb-6">
+                        <Image src="/V1.svg" alt="Toycathon Logo" width={150} height={150} />
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:block">
-                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={150} height={150} />
+                             <Image src="/V1.svg" alt="Toycathon Logo" width={150} height={150} />
                         </div>
                         <motion.h1 
                             className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
@@ -707,3 +707,5 @@ export default function Home() {
     </>
   );
 }
+
+    
