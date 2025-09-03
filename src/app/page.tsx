@@ -167,7 +167,13 @@ function HeroSection() {
         </div>
         <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-                
+                <Image 
+                    src="/TOYCATHON.svg" 
+                    alt="Toycathon Logo"
+                    width={300}
+                    height={300}
+                    className="h-40 w-40 md:h-60 md:w-60 md:hidden"
+                />
                 <h1 className="font-headline text-6xl font-black tracking-tighter sm:text-8xl md:text-8xl lg:text-8xl md:text-left">
                     <span className="text-primary">VADODARA</span>
                     <span className="mt-2 block">
@@ -180,7 +186,7 @@ function HeroSection() {
                     alt="Toycathon Logo"
                     width={300}
                     height={300}
-                    className="h-40 w-40 md:h-60 md:w-60"
+                    className="h-40 w-40 md:h-60 md:w-60 hidden md:block"
                 />
             </div>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
@@ -257,7 +263,7 @@ function HeroSection() {
 function SupportersSection() {
   const supporterLogos = [
     '/supporter1.png',
-    '/supporter2.svg',
+    '/supporter2.png',
     '/supporter3.svg',
   ];
 
@@ -269,7 +275,7 @@ function SupportersSection() {
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-12">
           {supporterLogos.map((logo, index) => (
-            <div key={index} className="relative h-20 w-40 grayscale transition-all duration-300 hover:grayscale-0">
+            <div key={index} className="relative h-20 w-40 transition-all duration-300 hover:grayscale-0">
               <Image
                 src={logo}
                 alt={`Supporter logo ${index + 1}`}
