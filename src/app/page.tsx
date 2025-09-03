@@ -91,13 +91,6 @@ const timelineEvents = [
     color: 'destructive',
   },
   {
-    icon: <Wrench className="h-6 w-6" />,
-    date: 'October 5-6, 2025',
-    title: 'Phase 2: Prototyping',
-    description: 'Selected teams will build and showcase their working prototypes.',
-    color: 'primary',
-  },
-  {
     icon: <Trophy className="h-6 w-6" />,
     date: 'October 7-8, 2025',
     title: 'Grand Finale',
@@ -304,7 +297,7 @@ function ThemesSection() {
 
 function TimelineSection() {
   return (
-    <section id="timeline" className="w-full bg-background py-12 md:py-24">
+    <section id="timeline" className="w-full bg-background py-12 md:py-24 overflow-hidden">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
           <SectionHeading color="accent">Important Dates</SectionHeading>
@@ -313,16 +306,14 @@ function TimelineSection() {
           </p>
         </div>
         <div className="relative mt-16">
-          <div className="absolute left-0 top-1/2 h-1 w-full -translate-y-1/2 bg-border"></div>
+          <div className="absolute left-0 top-1/2 w-full h-0.5 bg-border -translate-y-1/2"></div>
           <div className="relative flex justify-between">
             {timelineEvents.map((event, index) => (
-              <div key={index} className="relative flex flex-col items-center">
-                <div
-                  className={`absolute -top-12 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-${event.color} text-primary-foreground ring-4 ring-background`}
-                >
+              <div key={index} className="relative flex flex-col items-center text-center w-48">
+                <div className={`absolute z-10 flex h-12 w-12 items-center justify-center rounded-full bg-${event.color} text-primary-foreground ring-4 ring-background ${index % 2 === 0 ? 'bottom-full mb-4' : 'top-full mt-4'}`}>
                   {event.icon}
                 </div>
-                <div className="mt-6 w-48 text-center">
+                <div className={`w-full ${index % 2 === 0 ? 'pb-20' : 'pt-20'}`}>
                   <p className={`font-semibold text-${event.color}`}>{event.date}</p>
                   <h3 className="text-lg font-bold">{event.title}</h3>
                   <p className="text-sm text-muted-foreground">{event.description}</p>
