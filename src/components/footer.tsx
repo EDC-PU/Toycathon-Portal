@@ -12,17 +12,17 @@ export default function Footer() {
                 <p className="font-headline text-lg font-bold text-primary">Vadodara Toycathon 2025</p>
                 <p className="mt-2 text-sm text-muted-foreground text-center md:text-left">&copy; {new Date().getFullYear()} All rights reserved.</p>
                  <div className="mt-4 flex items-center gap-4">
-                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <a href="https://www.instagram.com/pierc_pu/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                         <Button variant="ghost" size="icon">
                             <Instagram className="h-5 w-5" />
                         </Button>
                     </a>
-                     <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                     <a href="https://www.facebook.com/edcparuluniversity/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                         <Button variant="ghost" size="icon">
                             <Facebook className="h-5 w-5" />
                         </Button>
                     </a>
-                     <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                     <a href="https://www.linkedin.com/company/pierc-parul-university/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                         <Button variant="ghost" size="icon">
                             <Linkedin className="h-5 w-5" />
                         </Button>
