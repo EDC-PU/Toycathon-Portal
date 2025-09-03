@@ -37,10 +37,6 @@ export default function Footer() {
                         <Mail className="h-4 w-4" />
                         <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
                     </div>
-                     <div className="flex items-center justify-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        <span>Manish Jain - 9131445130</span>
-                    </div>
                 </div>
             </div>
 
