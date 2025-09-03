@@ -303,8 +303,8 @@ function HeroSection() {
             </div>
           </div>
           <div className="grid items-center gap-8 relative md:grid-cols-2">
-             <PlayfulShapes className="absolute bottom-0 -left-10 opacity-20 transform rotate-12" />
-            <div className="order-2 md:order-1">
+             <PlayfulShapes className="absolute bottom-0 -right-10 opacity-20 transform rotate-12" />
+            <div className="order-2 md:order-2">
                <div className="text-center md:text-left">
                  <h2 className="text-3xl font-bold tracking-tight text-accent sm:text-4xl">About PIERC</h2>
                </div>
@@ -323,7 +323,7 @@ function HeroSection() {
               strengthens the ecosystem, offering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
               </p>
             </div>
-             <div className="relative order-1 md:order-2 w-full flex items-center justify-center">
+             <div className="relative order-1 md:order-1 w-full flex items-center justify-center">
                  <Image src="/V2.svg" alt="Innovation Illustration" width={400} height={400} className="w-full max-w-sm h-auto" />
             </div>
           </div>
@@ -642,6 +642,9 @@ function ContactSection() {
     return (
         <section id="contact" className="w-full bg-background py-12 md:py-24">
             <div className="container mx-auto max-w-7xl px-4 md:px-6">
+                <div className="flex justify-center mb-8">
+                  <Image src="/V2.svg" alt="Contact Illustration" width={400} height={400} className="w-full max-w-xs h-auto" />
+                </div>
                 <div className="mx-auto max-w-4xl text-center">
                      <SectionHeading color="primary">Contact Us</SectionHeading>
                      <p className="mt-4 text-muted-foreground text-center">
