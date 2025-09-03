@@ -297,38 +297,28 @@ function ThemesSection() {
 
 function TimelineSection() {
   return (
-    <section id="timeline" className="w-full bg-background py-12 md:py-24 overflow-hidden">
-      <div className="container mx-auto max-w-5xl px-4 md:px-6 text-center">
+    <section id="timeline" className="w-full bg-background py-12 md:py-24">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 text-center">
         <SectionHeading color="accent">Important Dates</SectionHeading>
         <p className="mt-4 text-muted-foreground">
           Mark your calendars! Here is the timeline for the Toycathon 2025.
         </p>
       </div>
       <div className="container mx-auto max-w-7xl px-4 md:px-6 mt-16">
-        <div className="relative">
-          {/* The connecting line */}
-          <div className="absolute left-1/2 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
-          
-          <div className="space-y-16">
-            {timelineEvents.map((event, index) => {
-              const isLeft = index % 2 === 0;
-              return (
-                <div key={index} className={`relative flex items-center ${isLeft ? 'justify-start' : 'justify-end'}`}>
-                  {/* The content card */}
-                  <div className={`w-5/12 ${isLeft ? 'text-right' : 'text-left'}`}>
-                    <div className="inline-block p-2 rounded-full bg-secondary/80 text-primary">
-                        {React.cloneElement(event.icon, { className: `text-${event.color}`})}
-                    </div>
-                    <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
-                    <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
-                  </div>
-                  
-                  {/* The circle on the timeline */}
-                  <div className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-4 border-${event.color} bg-background`}></div>
+        <div className="relative flex items-center justify-center">
+          <div className="absolute top-1/2 left-0 h-0.5 w-full bg-border -translate-y-1/2"></div>
+          <div className="flex w-full justify-between">
+            {timelineEvents.map((event, index) => (
+              <div key={index} className="relative z-10 flex flex-col items-center w-1/4">
+                <div className={`h-8 w-8 rounded-full border-4 bg-background flex items-center justify-center border-${event.color}`}>
+                   {React.cloneElement(event.icon, { className: 'h-4 w-4' })}
                 </div>
-              );
-            })}
+                <div className="text-center mt-4 p-4 rounded-lg bg-secondary/30 w-full">
+                  <p className={`font-bold text-${event.color}`}>{event.date}</p>
+                  <h3 className="mt-1 text-md font-semibold">{event.title}</h3>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
