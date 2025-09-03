@@ -1,4 +1,5 @@
 
+"use client";
 import * as React from 'react';
 import {
   Accordion,
@@ -9,7 +10,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  ArrowRight,
   BookOpen,
   Calendar,
   Flag,
@@ -30,6 +30,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import type { SVGProps } from 'react';
+import { motion } from 'framer-motion';
 
 const themes = [
   {
@@ -154,60 +155,199 @@ function PlayfulShapes({ className }: { className?: string }) {
   )
 }
 
-function HeroSection() {
-    return (
-      <section className="relative flex min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-background">
-        <div className="absolute inset-0 z-0">
-          <div 
-            className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-50 blur-3xl"
-          />
-          <div 
-            className="absolute -top-1/2 right-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-accent/10 opacity-50 blur-3xl"
-          />
-        </div>
-        <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-                <Image 
-                    src="/TOYCATHON.svg" 
-                    alt="Toycathon Logo"
-                    width={300}
-                    height={300}
-                    className="h-40 w-40 md:h-60 md:w-60 md:hidden"
-                />
-                <h1 className="font-headline text-6xl font-black tracking-tighter sm:text-8xl md:text-8xl lg:text-8xl md:text-left">
-                    <span className="text-primary">VADODARA</span>
-                    <span className="mt-2 block">
-                        <span className="text-accent">TOYCATHON </span>
-               <span className="text-destructive">2025</span>
-                    </span>
-                </h1>
-                <Image 
-                    src="/TOYCATHON.svg" 
-                    alt="Toycathon Logo"
-                    width={300}
-                    height={300}
-                    className="h-40 w-40 md:h-60 md:w-60 hidden md:block"
-                />
-            </div>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-                Where Fun Meets Innovation!
-            </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" className="group transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-primary/30">
-                <Link href="/register">
-                Register Now <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
-                </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="group">
-                <Link href="#rules">
-                View Rules
-                </Link>
-            </Button>
-            </div>
-        </div>
-      </section>
-    );
+function LightbulbSVG() {
+  const bubbleVariants = {
+    float: {
+      y: [0, -10, 0, 10, 0],
+      transition: {
+        duration: 4,
+        ease: "easeInOut",
+        repeat: Infinity,
+      },
+    },
+  };
+
+  const bulbVariants = {
+      pulse: {
+          scale: [1, 1.05, 1],
+          transition: {
+              duration: 3,
+              ease: "easeInOut",
+              repeat: Infinity,
+          }
+      }
   }
+
+  return (
+    <motion.svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 400 400"
+      xmlns="http://www.w3.org/2000/svg"
+      initial="initial"
+      animate="animate"
+    >
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="8" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Bulb */}
+      <motion.g variants={bulbVariants} animate="pulse">
+        <path
+          d="M200 50 C 150 50, 120 120, 120 170 C 120 230, 150 250, 200 300 C 250 250, 280 230, 280 170 C 280 120, 250 50, 200 50 Z"
+          fill="rgba(255, 255, 255, 0.1)"
+          stroke="#FBBF24"
+          strokeWidth="3"
+        />
+        {/* Filament */}
+        <path
+          d="M180 170 C 180 150, 220 150, 220 170"
+          stroke="#FBBF24"
+          strokeWidth="3"
+          fill="none"
+        />
+        <path
+          d="M190 200 C 190 180, 210 180, 210 200"
+          stroke="#FBBF24"
+          strokeWidth="3"
+          fill="none"
+        />
+      </motion.g>
+
+      {/* Base */}
+      <rect x="170" y="300" width="60" height="15" rx="5" fill="#9CA3AF" />
+      <rect x="160" y="315" width="80" height="10" rx="5" fill="#6B7280" />
+      <rect x="175" y="325" width="50" height="5" rx="2" fill="#9CA3AF" />
+
+      {/* Floating Bubbles */}
+      <motion.circle cx="150" cy="100" r="10" fill="#34D399" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '0s' }} animate="float" />
+      <motion.circle cx="250" cy="150" r="15" fill="#FBBF24" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '0.5s' }} animate="float" />
+      <motion.circle cx="160" cy="220" r="8" fill="#EF4444" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '1s' }} animate="float" />
+      <motion.circle cx="240" cy="260" r="12" fill="#60A5FA" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '1.5s' }} animate="float" />
+      <motion.circle cx="280" cy="80" r="9" fill="#A78BFA" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '2s' }} animate="float" />
+    </motion.svg>
+  );
+}
+
+function HeroSection() {
+    const textContainer = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3,
+            }
+        }
+    }
+
+    const textItem = {
+        hidden: { y: 20, opacity: 0 },
+        show: { 
+            y: 0, 
+            opacity: 1,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+            }
+        }
+    }
+    
+    const toyCathonItem = {
+        hidden: { y: 20, opacity: 0 },
+        show: { 
+            y: 0, 
+            opacity: 1,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+                damping: 10,
+            }
+        },
+        hover: {
+            rotate: [0, 5, -5, 5, -5, 0],
+            transition: {
+                duration: 0.5
+            }
+        }
+    }
+
+    return (
+        <section className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden">
+            <motion.div 
+                className="absolute inset-0 z-0 bg-gradient-to-br from-primary/10 via-accent/10 to-destructive/10"
+                animate={{
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: "linear",
+                    repeat: Infinity,
+                }}
+                style={{
+                    backgroundSize: '400% 400%',
+                }}
+            />
+            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:flex-row md:text-left lg:py-0">
+                <motion.div 
+                    className="flex flex-col items-center md:items-start md:w-1/2"
+                    variants={textContainer}
+                    initial="hidden"
+                    animate="show"
+                >
+                    <motion.h1 
+                        className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
+                        variants={textContainer}
+                    >
+                        <motion.span variants={textItem} className="block text-primary">VADODARA</motion.span>
+                        <motion.span 
+                            variants={toyCathonItem}
+                            whileHover="hover"
+                            className="mt-1 block text-accent cursor-pointer"
+                        >
+                            TOYCATHON
+                        </motion.span>
+                        <motion.span 
+                            variants={textItem} 
+                            className="block text-destructive transition-colors duration-300 hover:text-destructive/70"
+                        >
+                            2025
+                        </motion.span>
+                    </motion.h1>
+                    <motion.p 
+                        className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:mx-0 md:text-xl"
+                        variants={textItem}
+                    >
+                        Where Fun Meets Innovation!
+                    </motion.p>
+                    <motion.div 
+                        className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row md:justify-start"
+                        variants={textContainer}
+                    >
+                        <motion.div variants={textItem} whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px hsl(var(--primary))" }}>
+                            <Button asChild size="lg">
+                                <Link href="/register">Register Now</Link>
+                            </Button>
+                        </motion.div>
+                        <motion.div variants={textItem} whileHover={{ scale: 1.05 }}>
+                            <Button asChild size="lg" variant="outline">
+                                <Link href="#rules">View Rules</Link>
+                            </Button>
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+                <div className="mt-12 w-full md:mt-0 md:w-1/2 h-96">
+                    <LightbulbSVG />
+                </div>
+            </div>
+        </section>
+    );
+}
 
   function AboutSection() {
     return (
