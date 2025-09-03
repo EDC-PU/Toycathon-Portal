@@ -17,11 +17,13 @@ import {
   Mail,
   Palette,
   Phone,
+  Presentation,
   Puzzle,
   Rocket,
   Target,
   Trophy,
   Users,
+  Wrench,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -68,25 +70,39 @@ const themes = [
 
 const timelineEvents = [
   {
-    icon: <Flag className="h-5 w-5" />,
+    icon: <Flag className="h-6 w-6" />,
     date: 'August 15, 2025',
     title: 'Registration Opens',
     description: 'Teams can start registering for the Toycathon.',
     color: 'primary',
   },
   {
-    icon: <Calendar className="h-5 w-5" />,
+    icon: <Calendar className="h-6 w-6" />,
     date: 'September 30, 2025',
     title: 'Registration Closes',
     description: 'Final day for team registrations and idea submission.',
     color: 'accent',
   },
   {
-    icon: <Trophy className="h-5 w-5" />,
-    date: '7th & 8th October, 2025',
+    icon: <Presentation className="h-6 w-6" />,
+    date: 'October 2-4, 2025',
+    title: 'Phase 1: Idea Presentation',
+    description: 'Teams will present their innovative toy concepts to the jury.',
+    color: 'destructive',
+  },
+  {
+    icon: <Wrench className="h-6 w-6" />,
+    date: 'October 5-6, 2025',
+    title: 'Phase 2: Prototyping',
+    description: 'Selected teams will build and showcase their working prototypes.',
+    color: 'primary',
+  },
+  {
+    icon: <Trophy className="h-6 w-6" />,
+    date: 'October 7-8, 2025',
     title: 'Grand Finale',
     description: 'The main event where finalists will present their creations.',
-    color: 'destructive',
+    color: 'accent',
   },
 ];
 
@@ -296,22 +312,24 @@ function TimelineSection() {
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
         </div>
-        <div className="relative mt-12 w-full max-w-3xl mx-auto">
-          <div className="absolute left-1/2 top-0 h-full w-0.5 -translate-x-1/2 bg-border"></div>
-          {timelineEvents.map((event, index) => (
-            <div key={index} className={`relative flex w-full items-center my-8 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
-              <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-primary border-transparent bg-secondary/20 shadow-lg">
-                    <p className={`font-semibold text-${event.color}`}>{event.date}</p>
-                    <h3 className="text-lg font-bold">{event.title}</h3>
-                    <p className="text-sm text-muted-foreground text-justify">{event.description}</p>
-                </Card>
-              </div>
-              <div className={`absolute left-1/2 top-1/2 z-10 h-12 w-12 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 rounded-full bg-${event.color} text-primary-foreground ring-4 ring-background`}>
+        <div className="relative mt-16">
+          <div className="absolute left-0 top-1/2 h-1 w-full -translate-y-1/2 bg-border"></div>
+          <div className="relative flex justify-between">
+            {timelineEvents.map((event, index) => (
+              <div key={index} className="relative flex flex-col items-center">
+                <div
+                  className={`absolute -top-12 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-${event.color} text-primary-foreground ring-4 ring-background`}
+                >
                   {event.icon}
+                </div>
+                <div className="mt-6 w-48 text-center">
+                  <p className={`font-semibold text-${event.color}`}>{event.date}</p>
+                  <h3 className="text-lg font-bold">{event.title}</h3>
+                  <p className="text-sm text-muted-foreground">{event.description}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -361,7 +379,7 @@ function EligibilitySection() {
             </CardHeader>
           <CardContent className="p-0">
             <ul className="space-y-3 list-disc pl-5 text-muted-foreground text-lg">
-              <li>Teams must consist of 3-4 members.</li>
+              <li>Teams must consist of up to 4 members.</li>
               <li>Open to school students from 3rd standard upwards and all university students.</li>
               <li>Enthusiastic participation and creative ideas are highly encouraged!</li>
             </ul>
