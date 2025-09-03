@@ -262,8 +262,8 @@ function HeroSection() {
 
 function SupportersSection() {
   const supporterLogos = [
-    '/supporter1.png',
-    '/supporter2.png',
+    '/supporter1.svg',
+    '/supporter2.svg',
     '/supporter3.svg',
   ];
 
