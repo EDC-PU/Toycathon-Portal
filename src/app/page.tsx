@@ -31,7 +31,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { SVGProps } from 'react';
 import { motion } from 'framer-motion';
-import AnimatedToycathonLogo from '@/components/animated-toycathon-logo';
+import StaticToycathonLogo from '@/components/static-toycathon-logo';
 
 const themes = [
   {
@@ -215,7 +215,7 @@ function HeroSection() {
                     backgroundSize: '400% 400%',
                 }}
             />
-            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:flex-row md:text-left md:gap-40">
+            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:flex-row md:gap-40">
                 <motion.div 
                     className="flex flex-col items-center md:items-start md:w-1/2"
                     variants={textContainer}
@@ -223,7 +223,7 @@ function HeroSection() {
                     animate="show"
                 >
                      <div className="block md:hidden mb-6">
-                        <AnimatedToycathonLogo className="h-auto w-24" />
+                        <StaticToycathonLogo className="h-auto w-24" />
                     </div>
                     <motion.h1 
                         className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
@@ -267,7 +267,7 @@ function HeroSection() {
                     </motion.div>
                 </motion.div>
                 <div className="relative hidden w-full md:w-1/2 lg:w-3/5 md:flex justify-center items-center">
-                    <AnimatedToycathonLogo className="h-auto w-full max-w-md lg:max-w-lg" />
+                    <StaticToycathonLogo className="h-auto w-full max-w-md lg:max-w-lg" />
                 </div>
             </div>
         </section>
