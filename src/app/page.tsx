@@ -166,13 +166,22 @@ function HeroSection() {
           />
         </div>
         <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
-            <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
-                <span className="text-primary">VADODARA</span>
-                <span className="mt-2 block">
-                    <span className="text-accent">TOYCATHON </span>
-           <span className="text-destructive">2025</span>
-                </span>
-            </h1>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+                 <Image 
+                    src="/TOYCATHON.svg" 
+                    alt="Toycathon Logo"
+                    width={200}
+                    height={200}
+                    className="h-32 w-32 md:h-48 md:w-48"
+                />
+                <h1 className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl md:text-left">
+                    <span className="text-primary">VADODARA</span>
+                    <span className="mt-2 block">
+                        <span className="text-accent">TOYCATHON </span>
+               <span className="text-destructive">2025</span>
+                    </span>
+                </h1>
+            </div>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
                 Where Fun Meets Innovation!
             </p>
