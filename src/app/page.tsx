@@ -70,31 +70,31 @@ const themes = [
 
 const timelineEvents = [
   {
-    icon: <Flag className="h-8 w-8" />,
     date: 'August 15, 2025',
     title: 'Registration Opens',
     description: 'Teams can start registering for the Toycathon.',
+    icon: <Flag className="h-8 w-8" />,
     color: 'primary',
   },
   {
-    icon: <Calendar className="h-8 w-8" />,
     date: 'September 30, 2025',
     title: 'Registration Closes',
     description: 'Final day for team registrations and idea submission.',
-    color: 'accent',
+    icon: <Calendar className="h-8 w-8" />,
+     color: 'accent',
   },
   {
-    icon: <Presentation className="h-8 w-8" />,
     date: 'October 2-4, 2025',
     title: 'Phase 1: Idea Presentation',
     description: 'Teams will present their innovative toy concepts to the jury.',
+    icon: <Presentation className="h-8 w-8" />,
     color: 'destructive',
   },
   {
-    icon: <Trophy className="h-8 w-8" />,
     date: 'October 7-8, 2025',
     title: 'Grand Finale',
     description: 'The main event where finalists will present their creations.',
+    icon: <Trophy className="h-8 w-8" />,
     color: 'primary',
   },
 ];
@@ -154,7 +154,7 @@ function PlayfulShapes({ className }: { className?: string }) {
 
 function HeroSection() {
     return (
-      <section className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <section className="relative flex min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 z-0">
           <div 
             className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-50 blur-3xl"
@@ -298,60 +298,37 @@ function ThemesSection() {
 function TimelineSection() {
   return (
     <section id="timeline" className="w-full bg-background py-12 md:py-24 overflow-hidden">
-      <div className="container mx-auto max-w-5xl px-4 md:px-6">
+      <div className="container mx-auto max-w-5xl px-4 md:px-6 text-center">
+        <SectionHeading color="accent">Important Dates</SectionHeading>
+        <p className="mt-4 text-muted-foreground">
+          Mark your calendars! Here is the timeline for the Toycathon 2025.
+        </p>
+      </div>
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 mt-16">
         <div className="relative">
-          {/* Central line */}
-          <div className="absolute left-1/2 top-10 h-[calc(100%-2.5rem)] w-0.5 -translate-x-1/2 bg-border"></div>
-
-          {/* Heading */}
-          <div className="relative mb-12 flex justify-center">
-            <div className="z-10 rounded-full bg-accent px-6 py-2 text-lg font-bold text-accent-foreground">
-              Important Dates
-            </div>
-          </div>
-          <p className="text-center text-muted-foreground -mt-8 mb-16">
-            Mark your calendars! Here is the timeline for the Toycathon 2025.
-          </p>
-
-
-          {/* Events Grid */}
-          <div className="relative grid grid-cols-2 gap-x-12 gap-y-16">
-            {timelineEvents.map((event, index) => (
-              <React.Fragment key={index}>
-                {/* Event on the left */}
-                {index % 2 === 0 && (
-                  <>
-                    <div className="text-right">
-                      <div className={`inline-block p-2 rounded-full bg-secondary/80 text-${event.color}`}>
-                        {event.icon}
-                      </div>
-                      <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
-                      <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
+          {/* The connecting line */}
+          <div className="absolute left-1/2 top-0 h-full w-0.5 bg-border -translate-x-1/2"></div>
+          
+          <div className="space-y-16">
+            {timelineEvents.map((event, index) => {
+              const isLeft = index % 2 === 0;
+              return (
+                <div key={index} className={`relative flex items-center ${isLeft ? 'justify-start' : 'justify-end'}`}>
+                  {/* The content card */}
+                  <div className={`w-5/12 ${isLeft ? 'text-right' : 'text-left'}`}>
+                    <div className="inline-block p-2 rounded-full bg-secondary/80 text-primary">
+                        {React.cloneElement(event.icon, { className: `text-${event.color}`})}
                     </div>
-                    <div className="relative">
-                       <div className={`absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-${event.color} bg-background`}></div>
-                    </div>
-                  </>
-                )}
-                {/* Event on the right */}
-                {index % 2 !== 0 && (
-                  <>
-                     <div className="relative">
-                        <div className={`absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-${event.color} bg-background`}></div>
-                     </div>
-                    <div className="text-left">
-                       <div className={`inline-block p-2 rounded-full bg-secondary/80 text-${event.color}`}>
-                        {event.icon}
-                      </div>
-                      <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
-                      <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
-                    </div>
-                  </>
-                )}
-              </React.Fragment>
-            ))}
+                    <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
+                    <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
+                  </div>
+                  
+                  {/* The circle on the timeline */}
+                  <div className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-4 border-${event.color} bg-background`}></div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -359,64 +336,63 @@ function TimelineSection() {
   );
 }
 
-
-function RulesSection() {
+function RulesAndEligibilitySection() {
   return (
     <section id="rules" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
-        <PlayfulShapes className="absolute bottom-10 left-5 opacity-20 transform -rotate-12" />
-        <div className="container mx-auto max-w-4xl px-4 md:px-6">
-            <div className="mx-auto max-w-2xl text-center">
-                <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
-                <p className="mt-4 text-muted-foreground text-center">
-                    Please read the rules carefully before registering.
-                </p>
+      <div className="container mx-auto max-w-7xl px-4 md:px-6">
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Eligibility Column */}
+          <div>
+            <div className="mx-auto max-w-2xl text-center mb-12">
+              <SectionHeading color="primary">Eligibility</SectionHeading>
+              <p className="mt-4 text-muted-foreground text-center">
+                Who can join the fun? Here are the eligibility criteria.
+              </p>
             </div>
-            <Accordion type="single" collapsible className="w-full mt-12">
-                {rules.map((rule, index) => (
-                    <AccordionItem value={`item-${index}`} key={index} className="border-b-2 border-primary/20">
-                        <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">{rule.title}</AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground text-justify">
-                            {rule.content}
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-        </div>
-    </section>
-  );
-}
+            <Card className="bg-background/80 shadow-lg border-transparent p-8 h-full">
+                <CardHeader className="p-0 mb-4 flex-row gap-4 items-center">
+                    <Target className="w-10 h-10 text-primary"/>
+                    <CardTitle className="text-2xl font-bold text-primary">Who Can Participate?</CardTitle>
+                </CardHeader>
+              <CardContent className="p-0">
+                <ul className="space-y-3 list-disc pl-5 text-muted-foreground text-lg">
+                  <li>Teams must consist of up to 4 members.</li>
+                  <li>Open to school students from 3rd standard upwards and all university students.</li>
+                  <li>Enthusiastic participation and creative ideas are highly encouraged!</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
 
-function EligibilitySection() {
-  return (
-    <section id="eligibility" className="w-full bg-background py-12 md:py-24 relative overflow-hidden">
-      <div className="container mx-auto max-w-4xl px-4 md:px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <SectionHeading color="primary">Eligibility</SectionHeading>
-           <p className="mt-4 text-muted-foreground text-center">
-            Who can join the fun? Here are the eligibility criteria.
-          </p>
+          {/* Rules Column */}
+          <div>
+            <div className="mx-auto max-w-2xl text-center mb-12">
+              <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
+              <p className="mt-4 text-muted-foreground text-center">
+                Please read the rules carefully before registering.
+              </p>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              {rules.map((rule, index) => (
+                <AccordionItem value={`item-${index}`} key={index} className="border-b-2 border-primary/20 bg-background/80 px-4 rounded-lg mb-2 shadow-sm">
+                  <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">{rule.title}</AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-justify">
+                    {rule.content}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
-        <Card className="mt-12 bg-secondary/20 shadow-lg border-transparent p-8">
-            <CardHeader className="p-0 mb-4 flex-row gap-4 items-center">
-                <Target className="w-10 h-10 text-primary"/>
-                <CardTitle className="text-2xl font-bold text-primary">Who Can Participate?</CardTitle>
-            </CardHeader>
-          <CardContent className="p-0">
-            <ul className="space-y-3 list-disc pl-5 text-muted-foreground text-lg">
-              <li>Teams must consist of up to 4 members.</li>
-              <li>Open to school students from 3rd standard upwards and all university students.</li>
-              <li>Enthusiastic participation and creative ideas are highly encouraged!</li>
-            </ul>
-          </CardContent>
-        </Card>
       </div>
     </section>
   );
 }
+
 
 function PhasesSection() {
   return (
-    <section id="phases" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
+    <section id="phases" className="w-full bg-background py-12 md:py-24 relative overflow-hidden">
       <PlayfulShapes className="absolute top-1/2 -left-10 opacity-10 transform -rotate-90 scale-125" />
       <PlayfulShapes className="absolute bottom-20 -right-10 opacity-10 transform rotate-90 scale-125" />
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
@@ -427,7 +403,7 @@ function PhasesSection() {
           </p>
         </div>
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Card className="bg-background/80 shadow-lg border-transparent">
+          <Card className="bg-secondary/20 shadow-lg border-transparent">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-accent">Phase - I</CardTitle>
             </CardHeader>
@@ -449,7 +425,7 @@ function PhasesSection() {
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-background/80 shadow-lg border-transparent">
+          <Card className="bg-secondary/20 shadow-lg border-transparent">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-destructive">Phase - II</CardTitle>
             </CardHeader>
@@ -488,7 +464,7 @@ function PhasesSection() {
 
 function AssessmentCriteriaSection() {
   return (
-    <section id="assessment" className="w-full bg-background py-12 md:py-24">
+    <section id="assessment" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
             <SectionHeading color="foreground">Assessment Criteria</SectionHeading>
@@ -567,7 +543,7 @@ function AssessmentCriteriaSection() {
 
 function ContactSection() {
     return (
-        <section id="contact" className="w-full bg-secondary/20 py-12 md:py-24">
+        <section id="contact" className="w-full bg-background py-12 md:py-24">
             <div className="container mx-auto max-w-7xl px-4 md:px-6">
                 <div className="mx-auto max-w-4xl text-center">
                      <SectionHeading color="primary">Contact Us</SectionHeading>
@@ -577,7 +553,7 @@ function ContactSection() {
                 </div>
 
                 <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-                    <Card className="p-6 bg-background/80 shadow-lg border-transparent">
+                    <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
                         <CardHeader className="p-0">
                             <CardTitle className="text-primary">For any Query contact</CardTitle>
                         </CardHeader>
@@ -600,7 +576,7 @@ function ContactSection() {
                             </div>
                         </CardContent>
                     </Card>
-                     <Card className="p-6 bg-background/80 shadow-lg border-transparent">
+                     <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
                         <CardHeader className="p-0">
                             <CardTitle className="text-primary">Reach out to us</CardTitle>
                         </CardHeader>
@@ -627,8 +603,7 @@ export default function Home() {
       <SupportersSection />
       <ThemesSection />
       <TimelineSection />
-      <RulesSection />
-      <EligibilitySection />
+      <RulesAndEligibilitySection />
       <PhasesSection />
       <AssessmentCriteriaSection />
       <ContactSection />
