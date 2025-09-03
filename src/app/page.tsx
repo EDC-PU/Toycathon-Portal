@@ -155,85 +155,6 @@ function PlayfulShapes({ className }: { className?: string }) {
   )
 }
 
-function LightbulbSVG() {
-  const bubbleVariants = {
-    float: {
-      y: [0, -10, 0, 10, 0],
-      transition: {
-        duration: 4,
-        ease: "easeInOut",
-        repeat: Infinity,
-      },
-    },
-  };
-
-  const bulbVariants = {
-      pulse: {
-          scale: [1, 1.05, 1],
-          transition: {
-              duration: 3,
-              ease: "easeInOut",
-              repeat: Infinity,
-          }
-      }
-  }
-
-  return (
-    <motion.svg
-      width="100%"
-      height="100%"
-      viewBox="0 0 400 400"
-      xmlns="http://www.w3.org/2000/svg"
-      initial="initial"
-      animate="animate"
-    >
-      <defs>
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="8" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-      {/* Bulb */}
-      <motion.g variants={bulbVariants} animate="pulse">
-        <path
-          d="M200 50 C 150 50, 120 120, 120 170 C 120 230, 150 250, 200 300 C 250 250, 280 230, 280 170 C 280 120, 250 50, 200 50 Z"
-          fill="rgba(255, 255, 255, 0.1)"
-          stroke="#FBBF24"
-          strokeWidth="3"
-        />
-        {/* Filament */}
-        <path
-          d="M180 170 C 180 150, 220 150, 220 170"
-          stroke="#FBBF24"
-          strokeWidth="3"
-          fill="none"
-        />
-        <path
-          d="M190 200 C 190 180, 210 180, 210 200"
-          stroke="#FBBF24"
-          strokeWidth="3"
-          fill="none"
-        />
-      </motion.g>
-
-      {/* Base */}
-      <rect x="170" y="300" width="60" height="15" rx="5" fill="#9CA3AF" />
-      <rect x="160" y="315" width="80" height="10" rx="5" fill="#6B7280" />
-      <rect x="175" y="325" width="50" height="5" rx="2" fill="#9CA3AF" />
-
-      {/* Floating Bubbles */}
-      <motion.circle cx="150" cy="100" r="10" fill="#34D399" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '0s' }} animate="float" />
-      <motion.circle cx="250" cy="150" r="15" fill="#FBBF24" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '0.5s' }} animate="float" />
-      <motion.circle cx="160" cy="220" r="8" fill="#EF4444" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '1s' }} animate="float" />
-      <motion.circle cx="240" cy="260" r="12" fill="#60A5FA" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '1.5s' }} animate="float" />
-      <motion.circle cx="280" cy="80" r="9" fill="#A78BFA" filter="url(#glow)" variants={bubbleVariants} style={{ transitionDelay: '2s' }} animate="float" />
-    </motion.svg>
-  );
-}
-
 function HeroSection() {
     const textContainer = {
         hidden: { opacity: 0 },
@@ -300,6 +221,13 @@ function HeroSection() {
                     initial="hidden"
                     animate="show"
                 >
+                    <Image
+                        src="/TOYCATHON.svg"
+                        alt="Toycathon Logo"
+                        width={500}
+                        height={500}
+                        className="mx-auto mb-6 h-auto w-48 md:hidden"
+                    />
                     <motion.h1 
                         className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
                         variants={textContainer}
@@ -341,8 +269,14 @@ function HeroSection() {
                         </motion.div>
                     </motion.div>
                 </motion.div>
-                <div className="mt-12 w-full md:mt-0 md:w-1/2 h-96">
-                    <LightbulbSVG />
+                <div className="relative w-full md:w-1/2 lg:w-3/5">
+                     <Image
+                      src="/TOYCATHON.svg"
+                      alt="Toycathon Logo"
+                      width={500}
+                      height={500}
+                      className="hidden h-auto w-full max-w-md md:block lg:max-w-lg"
+                    />
                 </div>
             </div>
         </section>
@@ -529,26 +463,24 @@ function RulesAndEligibilitySection() {
           </div>
 
           {/* Rules Column */}
-          <div>
-            <Card className="bg-background/80 shadow-lg border-transparent p-6 h-full">
-                <div className="mx-auto max-w-2xl text-center mb-8">
-                <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
-                <p className="mt-4 text-muted-foreground text-center">
-                    Please read the rules carefully before registering.
-                </p>
-                </div>
-                <Accordion type="single" collapsible className="w-full">
-                {rules.map((rule, index) => (
-                    <AccordionItem value={`item-${index}`} key={index} className="border-b-2 border-primary/20 bg-background/80 px-4 rounded-lg mb-2 shadow-sm">
-                    <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">{rule.title}</AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground text-justify">
-                        {rule.content}
-                    </AccordionContent>
-                    </AccordionItem>
-                ))}
-                </Accordion>
-            </Card>
-          </div>
+          <Card className="bg-background/80 shadow-lg border-transparent p-6 h-full">
+              <div className="mx-auto max-w-2xl text-center mb-8">
+              <SectionHeading color="destructive">Rules & Guidelines</SectionHeading>
+              <p className="mt-4 text-muted-foreground text-center">
+                  Please read the rules carefully before registering.
+              </p>
+              </div>
+              <Accordion type="single" collapsible className="w-full">
+              {rules.map((rule, index) => (
+                  <AccordionItem value={`item-${index}`} key={index} className="border-b-2 border-primary/20 bg-background/80 px-4 rounded-lg mb-2 shadow-sm">
+                  <AccordionTrigger className="text-lg font-semibold hover:no-underline text-left">{rule.title}</AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-justify">
+                      {rule.content}
+                  </AccordionContent>
+                  </AccordionItem>
+              ))}
+              </Accordion>
+          </Card>
         </div>
       </div>
     </section>
@@ -777,3 +709,5 @@ export default function Home() {
     </>
   );
 }
+
+    
