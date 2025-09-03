@@ -273,17 +273,22 @@ function SupportersSection() {
         <div className="mx-auto max-w-4xl text-center">
           <SectionHeading color="primary">Supported By</SectionHeading>
         </div>
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-12">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-8 md:gap-16">
           {supporterLogos.map((logo, index) => (
-            <div key={index} className="relative h-20 w-40 transition-all duration-300 hover:grayscale-0">
-              <Image
-                src={logo}
-                alt={`Supporter logo ${index + 1}`}
-                fill
-                className="object-contain"
-                data-ai-hint="logo"
-              />
-            </div>
+            <React.Fragment key={index}>
+              <div className="relative h-20 w-40 transition-all duration-300">
+                <Image
+                  src={logo}
+                  alt={`Supporter logo ${index + 1}`}
+                  fill
+                  className="object-contain"
+                  data-ai-hint="logo"
+                />
+              </div>
+              {index < supporterLogos.length - 1 && (
+                <div className="hidden h-16 w-px bg-border md:block" />
+              )}
+            </React.Fragment>
           ))}
         </div>
       </div>
