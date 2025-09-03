@@ -373,13 +373,13 @@ function RulesAndEligibilitySection() {
                 Who can join the fun? Here are the eligibility criteria.
               </p>
             </div>
-            <Card className="bg-background/80 shadow-lg border-transparent p-8 h-full">
+            <Card className="bg-background/80 shadow-lg border-transparent p-6">
                 <CardHeader className="p-0 mb-4 flex-row gap-4 items-center">
                     <Target className="w-10 h-10 text-primary"/>
                     <CardTitle className="text-2xl font-bold text-primary">Who Can Participate?</CardTitle>
                 </CardHeader>
               <CardContent className="p-0">
-                <ul className="space-y-3 list-disc pl-5 text-muted-foreground text-lg">
+                <ul className="space-y-3 list-disc pl-5 text-muted-foreground">
                   <li>Teams must consist of up to 4 members.</li>
                   <li>Open to school students from 3rd standard upwards and all university students.</li>
                   <li>Enthusiastic participation and creative ideas are highly encouraged!</li>
