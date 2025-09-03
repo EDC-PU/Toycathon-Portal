@@ -214,7 +214,7 @@ function HeroSection() {
                     backgroundSize: '400% 400%',
                 }}
             />
-            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:flex-row md:gap-40">
+            <div className="container relative z-10 mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center md:flex-row md:gap-8">
                 <motion.div 
                     className="flex flex-col items-center md:items-start md:w-1/2"
                     variants={textContainer}
@@ -222,26 +222,32 @@ function HeroSection() {
                     animate="show"
                 >
                      <div className="block md:hidden mb-6">
+                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={150} height={150} />
                     </div>
-                    <motion.h1 
-                        className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
-                        variants={textContainer}
-                    >
-                        <motion.span variants={textItem} className="block text-primary">VADODARA</motion.span>
-                        <motion.span 
-                            variants={toyCathonItem}
-                            whileHover="hover"
-                            className="mt-1 block text-accent cursor-pointer"
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:block">
+                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={150} height={150} />
+                        </div>
+                        <motion.h1 
+                            className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
+                            variants={textContainer}
                         >
-                            TOYCATHON
-                        </motion.span>
-                        <motion.span 
-                            variants={textItem} 
-                            className="block text-destructive transition-colors duration-300 hover:text-destructive/70"
-                        >
-                            2025
-                        </motion.span>
-                    </motion.h1>
+                            <motion.span variants={textItem} className="block text-primary">VADODARA</motion.span>
+                            <motion.span 
+                                variants={toyCathonItem}
+                                whileHover="hover"
+                                className="mt-1 block text-accent cursor-pointer"
+                            >
+                                TOYCATHON
+                            </motion.span>
+                            <motion.span 
+                                variants={textItem} 
+                                className="block text-destructive transition-colors duration-300 hover:text-destructive/70"
+                            >
+                                2025
+                            </motion.span>
+                        </motion.h1>
+                    </div>
                     <motion.p 
                         className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:mx-0 md:text-xl"
                         variants={textItem}
