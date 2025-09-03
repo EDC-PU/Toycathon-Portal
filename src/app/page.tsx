@@ -1,5 +1,4 @@
 
-
 import * as React from 'react';
 import {
   Accordion,
@@ -155,7 +154,7 @@ function PlayfulShapes({ className }: { className?: string }) {
 
 function HeroSection() {
     return (
-      <section className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
+      <section className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 z-0">
           <div 
             className="absolute -bottom-1/2 left-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-50 blur-3xl"
@@ -299,51 +298,59 @@ function ThemesSection() {
 function TimelineSection() {
   return (
     <section id="timeline" className="w-full bg-background py-12 md:py-24 overflow-hidden">
-      <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="mx-auto max-w-4xl text-center">
-          <SectionHeading color="accent">Important Dates</SectionHeading>
-          <p className="mt-4 text-muted-foreground text-center">
+      <div className="container mx-auto max-w-5xl px-4 md:px-6">
+        <div className="relative">
+          {/* Central line */}
+          <div className="absolute left-1/2 top-10 h-[calc(100%-2.5rem)] w-0.5 -translate-x-1/2 bg-border"></div>
+
+          {/* Heading */}
+          <div className="relative mb-12 flex justify-center">
+            <div className="z-10 rounded-full bg-accent px-6 py-2 text-lg font-bold text-accent-foreground">
+              Important Dates
+            </div>
+          </div>
+          <p className="text-center text-muted-foreground -mt-8 mb-16">
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
-        </div>
-        <div className="relative mt-16">
-          {/* Central line */}
-          <div className="absolute left-1/2 top-0 h-full w-0.5 -translate-x-1/2 bg-border"></div>
-          {/* Events */}
-          <div className="relative flex flex-col items-center gap-16">
+
+
+          {/* Events Grid */}
+          <div className="relative grid grid-cols-2 gap-x-12 gap-y-16">
             {timelineEvents.map((event, index) => (
-              <div key={index} className="relative flex w-full items-center justify-center">
+              <React.Fragment key={index}>
                 {/* Event on the left */}
                 {index % 2 === 0 && (
-                  <div className="relative w-1/2 pr-8 text-right">
-                    <div className="absolute -right-4 top-1/2 h-8 w-8 -translate-y-1/2 transform rounded-full bg-background border-4 border-primary flex items-center justify-center z-10">
-                      <div className="h-3 w-3 rounded-full bg-primary"></div>
-                    </div>
-                    <div className="inline-block rounded-lg bg-secondary p-4 shadow-md">
-                      <div className={`text-${event.color}`}>{event.icon}</div>
+                  <>
+                    <div className="text-right">
+                      <div className={`inline-block p-2 rounded-full bg-secondary/80 text-${event.color}`}>
+                        {event.icon}
+                      </div>
                       <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
                       <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
                     </div>
-                  </div>
+                    <div className="relative">
+                       <div className={`absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-${event.color} bg-background`}></div>
+                    </div>
+                  </>
                 )}
-                 {index % 2 !== 0 && <div className="w-1/2"></div>}
                 {/* Event on the right */}
                 {index % 2 !== 0 && (
-                  <div className="relative w-1/2 pl-8 text-left">
-                     <div className="absolute -left-4 top-1/2 h-8 w-8 -translate-y-1/2 transform rounded-full bg-background border-4 border-primary flex items-center justify-center z-10">
-                      <div className="h-3 w-3 rounded-full bg-primary"></div>
-                    </div>
-                    <div className="inline-block rounded-lg bg-secondary p-4 shadow-md">
-                      <div className={`text-${event.color}`}>{event.icon}</div>
+                  <>
+                     <div className="relative">
+                        <div className={`absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-${event.color} bg-background`}></div>
+                     </div>
+                    <div className="text-left">
+                       <div className={`inline-block p-2 rounded-full bg-secondary/80 text-${event.color}`}>
+                        {event.icon}
+                      </div>
                       <p className={`mt-2 font-bold text-${event.color}`}>{event.date}</p>
                       <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>
                     </div>
-                  </div>
+                  </>
                 )}
-                 {index % 2 === 0 && <div className="w-1/2"></div>}
-              </div>
+              </React.Fragment>
             ))}
           </div>
         </div>
@@ -351,8 +358,6 @@ function TimelineSection() {
     </section>
   );
 }
-
-
 
 
 function RulesSection() {
