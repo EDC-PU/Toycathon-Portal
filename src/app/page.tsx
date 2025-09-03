@@ -24,6 +24,8 @@ import {
   Trophy,
   Users,
   Wrench,
+  Star,
+  BarChart
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -163,11 +165,13 @@ function HeroSection() {
             className="absolute -top-1/2 right-1/4 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-accent/10 opacity-50 blur-3xl"
           />
         </div>
-        <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-20">
+        <div className="container relative mx-auto max-w-7xl px-4 py-20 text-center md:py-32 lg:py-40">
             <h1 className="text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl">
                 <span className="text-primary">VADODARA</span>
                 <span className="mt-2 block">
-                    <span className="text-accent">TOYCATHON</span> <span className="text-destructive">2025</span>
+                    <span className="text-accent">TOY</span>
+                    <span className="text-destructive">CA</span>
+                    <span className="text-accent">THON</span> <span className="text-destructive">2025</span>
                 </span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
@@ -221,9 +225,18 @@ function HeroSection() {
                  <SectionHeading color="accent">About PIERC</SectionHeading>
                </div>
               <p className="mt-4 max-w-4xl text-muted-foreground text-justify">
-              Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation of aspiring entrepreneurs&apos; visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cu􀂈ing and engraving, CNC routers, and vinyl cu􀂈ers, the Fab Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
-strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring
-entrepreneurs and innovators.
+              Parul Innovation and Entrepreneurship Research Centre (PIERC) is a Section 8 company established in 2015 by Parul University as an incubator to provide comprehensive 
+              support and services to startups at every stage of their journey, from the idea stage to growth. PIERC operates under the Entrepreneurship Development Centre (EDC), 
+              which was founded in 2013 with the goal of fostering a culture of research, innovation, and entrepreneurship among students and faculties. The Vadodara Startup Studio, 
+              an initiative of the Entrepreneurship Development Centre, was launched in 2021. It serves as a dynamic startup incubator and accelerator, facilitating the transformation
+              of aspiring entrepreneurs' visions into scalable startup ventures. The studio o􀂇ers a range of resources, including pre-seed grant support through VC funding, 
+              government grants, and other funding opportunities. Additionally, PIERC houses a Fabrication Laboratory (Fab Lab), a state-of-the-art technical prototyping platform 
+              designed to foster learning and innovation. Equipped with advanced technology such as 3D printers, laser cutting and engraving, CNC routers, and vinyl cu􀂈ers, the Fab
+              Lab empowers students to bring their ideas to life. Recently in 2023 PIERC has expand his horizon within state by launching its 3 new units namely Rajkot Startup Studio, 
+              Ahmedabad Startup Studio and Surat Startup Studio with the aim to reach more entrepreneurs and supporting their ground breaking startups. PIERC serves as a dedicated hub
+              for nurturing entrepreneurial spirit, providing incubation support, and fostering innovation and research among the aspirant entrepreneurs and startups. The inclusion of
+              the Vadodara Startup Studio, Rajkot Startup Studio, Ahmedabad Startup Studio and Surat Startup Studio and the Fab Lab further
+              strengthens the ecosystem, o􀂇ering resources, funding opportunities, and a collaborative environment for aspiring entrepreneurs and innovators.
               </p>
             </div>
           </div>
@@ -304,18 +317,22 @@ function TimelineSection() {
           Mark your calendars! Here is the timeline for the Toycathon 2025.
         </p>
       </div>
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 mt-16">
-        <div className="relative flex items-center justify-center">
+      <div className="container mx-auto max-w-5xl px-4 md:px-6 mt-16">
+        <div className="relative">
+          {/* The horizontal line */}
           <div className="absolute top-1/2 left-0 h-0.5 w-full bg-border -translate-y-1/2"></div>
-          <div className="flex w-full justify-between">
+          
+          <div className="relative flex justify-between">
             {timelineEvents.map((event, index) => (
-              <div key={index} className="relative z-10 flex flex-col items-center w-1/4">
-                <div className={`h-8 w-8 rounded-full border-4 bg-background flex items-center justify-center border-${event.color}`}>
-                   {React.cloneElement(event.icon, { className: 'h-4 w-4' })}
+              <div key={index} className="relative z-10 flex flex-col items-center w-1/4 group">
+                {/* Event Icon */}
+                <div className={`h-12 w-12 rounded-full border-4 bg-background flex items-center justify-center border-${event.color} transition-all duration-300 group-hover:scale-110`}>
+                   {React.cloneElement(event.icon, { className: `h-6 w-6 text-${event.color}` })}
                 </div>
-                <div className="text-center mt-4 p-4 rounded-lg bg-secondary/30 w-full">
-                  <p className={`font-bold text-${event.color}`}>{event.date}</p>
-                  <h3 className="mt-1 text-md font-semibold">{event.title}</h3>
+                {/* Event Details */}
+                <div className="text-center mt-4 p-4 rounded-lg bg-secondary/30 w-full transition-all duration-300 group-hover:shadow-lg">
+                  <p className={`font-bold text-sm text-${event.color}`}>{event.date}</p>
+                  <h3 className="mt-1 text-md font-semibold text-foreground">{event.title}</h3>
                 </div>
               </div>
             ))}
@@ -325,6 +342,7 @@ function TimelineSection() {
     </section>
   );
 }
+
 
 function RulesAndEligibilitySection() {
   return (
@@ -404,9 +422,9 @@ function PhasesSection() {
                 presentations should align with the given themes and provide comprehensive details
                 about various aspects of their toy concept. They should cover areas such as the toy&apos;s
                 concept, design, materials, target audience, and the educational or
-                developmental benefits it o􀂇ers.
+                developmental benefits it offers.
                 Furthermore, participants should highlight
-                the unique features that di􀂇erentiate their
+                the unique features that differentiate their
                 toy from other products available in the
                 market. The evaluation for the Phase II
                 round will be based on the quality of the
@@ -457,72 +475,72 @@ function AssessmentCriteriaSection() {
     <section id="assessment" className="w-full bg-secondary/20 py-12 md:py-24">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
-            <SectionHeading color="foreground">Assessment Criteria</SectionHeading>
+          <SectionHeading color="foreground">Assessment Criteria</SectionHeading>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          <Card className="rounded-lg bg-destructive text-white p-6 shadow-lg">
-            <CardHeader className="flex flex-row items-center gap-4 p-0">
-              <div className="rounded-lg bg-white/20 p-3">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17 2H7C5.89543 2 5 2.89543 5 4V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V4C19 2.89543 18.1046 2 17 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 6V18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 6V10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M15 14V18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold">Phase - I</h3>
-            </CardHeader>
-            <CardContent className="p-0 mt-4">
-              <ul className="space-y-2 list-disc pl-5">
-                <li>Novelty of Idea</li>
-                <li>Design of toy, games and play item</li>
-                <li>Educational values</li>
-                <li>Scalability & Marketability</li>
-                <li>Social implication</li>
-              </ul>
-            </CardContent>
-          </Card>
-          <Card className="rounded-lg bg-primary text-white p-6 shadow-lg">
-            <CardHeader className="flex flex-row items-center gap-4 p-0">
-              <div className="rounded-lg bg-white/20 p-3">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold">Phase - II</h3>
-            </CardHeader>
-            <CardContent className="p-0 mt-4">
-              <ul className="space-y-2 list-disc pl-5">
-                <li>Quality of the prototype</li>
-                <li>Functionality</li>
-                <li>Material / Graphics usage</li>
-                <li>Safety</li>
-                <li>Commercial viability</li>
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-orange-400"></div>
+            <Card className="relative bg-transparent text-white p-6 h-full">
+              <CardHeader className="flex flex-row items-center gap-4 p-0">
+                <div className="rounded-lg bg-white/20 p-3">
+                  <BarChart className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold">Phase - I</h3>
+              </CardHeader>
+              <CardContent className="p-0 mt-4">
+                <ul className="space-y-2 list-disc pl-5">
+                  <li>Novelty of Idea</li>
+                  <li>Design of toy, games and play item</li>
+                  <li>Educational values</li>
+                  <li>Scalability & Marketability</li>
+                  <li>Social implication</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-green-400"></div>
+            <Card className="relative bg-transparent text-white p-6 h-full">
+              <CardHeader className="flex flex-row items-center gap-4 p-0">
+                <div className="rounded-lg bg-white/20 p-3">
+                  <Star className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold">Phase - II</h3>
+              </CardHeader>
+              <CardContent className="p-0 mt-4">
+                <ul className="space-y-2 list-disc pl-5">
+                  <li>Quality of the prototype</li>
+                  <li>Functionality</li>
+                  <li>Material / Graphics usage</li>
+                  <li>Safety</li>
+                  <li>Commercial viability</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <div className="mt-8">
-          <Card className="rounded-lg bg-accent text-accent-foreground p-6 shadow-lg">
+        <div className="mt-8 group relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:scale-105">
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-amber-500"></div>
+          <Card className="relative bg-transparent text-gray-800 p-6">
             <CardHeader className="p-0">
               <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-3xl font-bold">Awards</h3>
-                     <p className="font-semibold text-gray-700 mt-2">🏅 Top teams will receive prize amounts in recognition of their outstanding ideas.</p>
-                  </div>
-                  <Trophy className="w-16 h-16 text-gray-800/50" />
+                <Trophy className="w-16 h-16 text-white/50" />
+                <div>
+                  <h3 className="text-3xl font-bold">Awards</h3>
+                  <p className="font-semibold mt-2">🏅 Top teams will receive prize amounts in recognition of their outstanding ideas.</p>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-0 mt-4">
-              <ul className="space-y-2 list-disc pl-5 text-gray-700">
+              <ul className="space-y-2 list-disc pl-5">
                 <li>Top teams will get Prize amount</li>
                 <li>Incubation & Funding support to scale up startup</li>
                 <li>Support to file IP for selected toy design</li>
                 <li>Linkage with toy industry to scale up selected toy design</li>
               </ul>
-               <p className="mt-4 font-semibold text-gray-700">From concept to commercialization — we’re here to help your ideas grow into real-world success stories 💡.</p>
+              <p className="mt-4 font-semibold">From concept to commercialization — we’re here to help your ideas grow into real-world success stories 💡.</p>
             </CardContent>
           </Card>
         </div>
@@ -530,6 +548,7 @@ function AssessmentCriteriaSection() {
     </section>
   );
 }
+
 
 function ContactSection() {
     return (
@@ -543,7 +562,7 @@ function ContactSection() {
                 </div>
 
                 <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-                    <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
+                    <Card className="p-6 bg-background/80 shadow-lg border-transparent">
                         <CardHeader className="p-0">
                             <CardTitle className="text-primary">For any Query contact</CardTitle>
                         </CardHeader>
@@ -566,7 +585,7 @@ function ContactSection() {
                             </div>
                         </CardContent>
                     </Card>
-                     <Card className="p-6 bg-secondary/20 shadow-lg border-transparent">
+                     <Card className="p-6 bg-background/80 shadow-lg border-transparent">
                         <CardHeader className="p-0">
                             <CardTitle className="text-primary">Reach out to us</CardTitle>
                         </CardHeader>
