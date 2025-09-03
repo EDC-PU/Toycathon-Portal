@@ -306,23 +306,31 @@ function TimelineSection() {
             Mark your calendars! Here is the timeline for the Toycathon 2025.
           </p>
         </div>
-        <div className="relative mt-16 w-full">
-          <div className="absolute top-1/2 left-0 w-full h-1 bg-border -translate-y-1/2"></div>
+
+        {/* Timeline for large screens */}
+        <div className="hidden md:block relative mt-16 w-full">
+          {/* Central line */}
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2"></div>
           
           <div className="relative flex justify-between w-full">
             {timelineEvents.map((event, index) => (
-              <div key={index} className="relative flex flex-col items-center w-1/4">
-                <div className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-background border-2 border-${event.color} z-10 flex items-center justify-center top-1/2 -translate-y-1/2`}>
-                  <div className={`w-3 h-3 rounded-full bg-${event.color}`}></div>
+              <div key={index} className="relative w-1/4 flex justify-center">
+                <div className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-background border-4 border-${event.color} z-10 flex items-center justify-center top-1/2 -translate-y-1/2`}>
+                   <div className={`w-2 h-2 rounded-full bg-${event.color}`}></div>
                 </div>
 
-                <div className={`text-center ${index % 2 === 0 ? 'pb-16' : 'pt-16'}`}>
-                  <div className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-border ${index % 2 === 0 ? 'top-full h-8' : 'bottom-full h-8'}`}></div>
-                  
-                  <div className={`${index % 2 === 0 ? 'absolute bottom-full mb-2 w-full' : 'absolute top-full mt-2 w-full'}`}>
-                     <div className={`flex justify-center text-${event.color}`}>
-                        {React.cloneElement(event.icon, { className: "h-12 w-12" })}
-                      </div>
+                <div className={`relative w-full ${index % 2 === 0 ? 'mb-40' : 'mt-40'}`}>
+                  {/* Vertical line from dot */}
+                  <div className={`absolute left-1/2 -translate-x-1/2 w-0.5 h-16 bg-border ${index % 2 === 0 ? 'top-1/2 -mt-16' : 'bottom-1/2 -mb-16'}`}></div>
+
+                  <div className={`absolute left-1/2 -translate-x-1/2 w-full px-4 text-center ${index % 2 === 0 ? 'bottom-full mb-8' : 'top-full mt-8'}`}>
+                    {/* Horizontal line to icon */}
+                    <div className="relative w-full h-12">
+                      <div className={`absolute top-1/2 -translate-y-1/2 h-0.5 bg-border- ${event.color} w-full`}></div>
+                    </div>
+                    <div className={`flex justify-center text-${event.color}`}>
+                      {React.cloneElement(event.icon, { className: "h-12 w-12" })}
+                    </div>
                     <p className={`font-bold mt-2 text-${event.color}`}>{event.date}</p>
                     <h3 className="text-lg font-semibold mt-1">{event.title}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
@@ -332,10 +340,32 @@ function TimelineSection() {
             ))}
           </div>
         </div>
+
+        {/* Timeline for small screens */}
+        <div className="md:hidden mt-12 space-y-8">
+          {timelineEvents.map((event, index) => (
+            <div key={index} className="flex items-start gap-4">
+              <div className="flex flex-col items-center">
+                <div className={`w-12 h-12 rounded-full bg-${event.color}/10 border-2 border-${event.color} flex items-center justify-center`}>
+                  {React.cloneElement(event.icon, { className: `h-6 w-6 text-${event.color}` })}
+                </div>
+                {index < timelineEvents.length - 1 && (
+                  <div className="w-0.5 flex-1 bg-border my-2"></div>
+                )}
+              </div>
+              <div className="flex-1 pb-8">
+                <p className={`font-bold text-${event.color}`}>{event.date}</p>
+                <h3 className="text-lg font-semibold mt-1">{event.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
+
 
 
 function RulesSection() {
