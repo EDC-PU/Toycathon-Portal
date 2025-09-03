@@ -165,7 +165,7 @@ export default function AnnouncementsPage() {
                             </Button>
                         </form>
                     </Form>
-                </CardHeader>
+                </CardContent>
             </Card>
 
             <Card>
