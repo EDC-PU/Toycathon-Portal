@@ -95,4 +95,15 @@ export default {
     },
   },
   plugins: [require('tailwindcss-animate')],
+  safelist: [
+    'border-primary',
+    'bg-primary',
+    'text-primary',
+    'border-accent',
+    'bg-accent',
+    'text-accent',
+    'border-destructive',
+    'bg-destructive',
+    'text-destructive',
+  ],
 } satisfies Config;
