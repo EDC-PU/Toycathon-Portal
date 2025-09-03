@@ -70,10 +70,10 @@ export default function Header() {
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="hidden md:block">
-              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={180} height={41} className="h-12 w-auto object-contain" />
+              <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={180} height={50} className="h-12 w-auto object-contain" />
           </Link>
-          <Link href="/">
-              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={100} height={41} className="h-12 w-auto object-contain" />
+          <Link href="/" className="pl-4 md:pl-0">
+              <Image src="https://www.pierc.org/assets/PIERC.svg" alt="PIERC Logo" width={100} height={50} className="h-16 w-auto object-contain" />
           </Link>
         </div>
         
@@ -197,3 +197,4 @@ export default function Header() {
     </header>
   );
 }
+
