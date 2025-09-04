@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db, RecaptchaVerifier, signInWithPhoneNumber, signInWithGoogle } from "@/lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const emailSchema = z.object({
     name: z.string().optional(),
     email: z.string().email("Please enter a valid email."),
-    password: z.string().min(6, "Password must be at least 6 characters."),
+    password: z.string().min(6, "Password must be at least 6 characters.").optional().or(z.literal('')),
 });
 
 const phoneSchema = z.object({
@@ -104,6 +104,11 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                 setIsLoading(false);
                 return;
             }
+            if (!values.password) {
+                 emailForm.setError("password", { type: "manual", message: "Password is required for registration." });
+                 setIsLoading(false);
+                 return;
+            }
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
                 const user = userCredential.user;
@@ -125,6 +130,11 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                 toast({ title: "Registration Failed", description: error.message, variant: "destructive" });
             }
         } else { // LOGIN
+            if (!values.password) {
+                 emailForm.setError("password", { type: "manual", message: "Password is required for login." });
+                 setIsLoading(false);
+                 return;
+            }
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
                 toast({ title: "Login Successful", description: "Welcome back!" });
@@ -218,6 +228,31 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
         }
     }
 
+    const handleForgotPassword = async () => {
+        const email = emailForm.getValues("email");
+        if (!email) {
+            emailForm.setError("email", { type: "manual", message: "Please enter your email address to reset your password." });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await sendPasswordResetEmail(auth, email);
+            toast({
+                title: "Password Reset Email Sent",
+                description: "If an account exists for this email, a password reset link has been sent to your inbox.",
+            });
+        } catch (error: any) {
+            toast({
+                title: "Error",
+                description: "Failed to send password reset email. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <Card className="mt-8">
             <CardContent className="pt-6">
@@ -269,6 +304,11 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                                 <Button type="submit" className="w-full" size="lg" disabled={isLoading || isGoogleLoading}>
                                     {isLoading ? <Loader2 className="animate-spin" /> : (isRegisterPage ? 'Register' : 'Sign In')}
                                 </Button>
+                                 {!isRegisterPage && (
+                                    <Button type="button" variant="link" className="w-full text-muted-foreground" size="sm" onClick={handleForgotPassword} disabled={isLoading}>
+                                        Forgot Password?
+                                    </Button>
+                                )}
                             </form>
                         </Form>
                     </TabsContent>
