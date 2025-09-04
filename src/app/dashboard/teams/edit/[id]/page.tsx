@@ -32,13 +32,14 @@ export default function EditTeamPage() {
     const router = useRouter();
     const params = useParams();
     const [user, setUser] = useState<User | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const teamId = params.id as string;
     
     const deadline = new Date('2025-09-30T23:59:59');
-    const canEdit = new Date() < deadline;
+    const canEdit = new Date() < deadline || isAdmin;
 
     const form = useForm<z.infer<typeof editTeamSchema>>({
         resolver: zodResolver(editTeamSchema),
@@ -49,13 +50,20 @@ export default function EditTeamPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
+                
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                const userIsAdmin = userDocSnap.exists() && userDocSnap.data().isAdmin === true;
+                setIsAdmin(userIsAdmin);
+
                 if (teamId) {
                     const teamDocRef = doc(db, "teams", teamId);
                     try {
                         const teamDocSnap = await getDoc(teamDocRef);
                         if (teamDocSnap.exists()) {
                             const teamData = teamDocSnap.data();
-                            if (teamData.creatorUid !== currentUser.uid) {
+                            // Admins can edit any team, creators can only edit their own.
+                            if (teamData.creatorUid !== currentUser.uid && !userIsAdmin) {
                                 setError("You are not authorized to edit this team.");
                             } else {
                                 form.reset(teamData);
@@ -78,10 +86,16 @@ export default function EditTeamPage() {
     }, [router, teamId, form]);
 
     const onSubmit = async (values: z.infer<typeof editTeamSchema>) => {
-        if (!user || !teamId || !canEdit) {
-            toast({ title: "Error", description: "You are not authorized to perform this action or the deadline has passed.", variant: "destructive" });
+        if (!user || !teamId) {
+            toast({ title: "Error", description: "You must be logged in to perform this action.", variant: "destructive" });
             return;
         }
+
+        if (!canEdit) {
+             toast({ title: "Action Not Allowed", description: "The deadline for editing has passed.", variant: "destructive" });
+            return;
+        }
+
 
         setIsLoading(true);
         try {
@@ -92,7 +106,12 @@ export default function EditTeamPage() {
                 title: 'Team Updated!',
                 description: 'The team details have been successfully updated.',
             });
-            router.push('/dashboard/teams');
+            
+            if (isAdmin) {
+                router.push('/dashboard/admin/teams');
+            } else {
+                router.push('/dashboard/teams');
+            }
 
         } catch (error) {
             console.error("Error updating team:", error);
@@ -114,7 +133,7 @@ export default function EditTeamPage() {
          return <div className="flex h-screen items-center justify-center text-destructive">{error}</div>;
     }
 
-    if (!canEdit) {
+    if (!canEdit && !isAdmin) {
          return <div className="flex h-screen items-center justify-center text-destructive">Editing for teams has been closed after September 30th, 2025.</div>;
     }
 

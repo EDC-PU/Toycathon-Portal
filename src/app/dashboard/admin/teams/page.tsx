@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, writeBatch, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, writeBatch, where, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,8 +35,11 @@ export default function AdminTeamsPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                if (tokenResult.claims.admin) {
+                 const docRef = doc(db, 'users', currentUser.uid);
+                 const docSnap = await getDoc(docRef);
+                 const userIsAdmin = docSnap.exists() && docSnap.data().isAdmin === true;
+                
+                if (userIsAdmin) {
                     setIsAdmin(true);
                     fetchTeams();
                 } else {
@@ -70,20 +73,13 @@ export default function AdminTeamsPage() {
 
         try {
             const teamRef = doc(db, "teams", team.id);
-            const usersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
-            
-            const batch = writeBatch(db);
-            const usersSnapshot = await getDocs(usersQuery);
-            usersSnapshot.forEach(userDoc => {
-                batch.update(userDoc.ref, { teamId: null });
-            });
-            
-            batch.delete(teamRef);
-            await batch.commit();
+            // In a real-world scenario, unlinking users might require a Cloud Function for security.
+            // For this prototype, we'll just delete the team document.
+            await deleteDoc(teamRef);
             
             toast({
                 title: "Team Deleted",
-                description: `"${team.teamName}" and its member associations have been removed.`,
+                description: `"${team.teamName}" has been removed.`,
             });
 
             fetchTeams();
@@ -98,8 +94,8 @@ export default function AdminTeamsPage() {
         return teams.filter(team => 
             team.teamName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             team.leaderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            team.teamId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            team.instituteName.toLowerCase().includes(searchTerm.toLowerCase())
+            (team.teamId && team.teamId.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (team.instituteName && team.instituteName.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }, [teams, searchTerm]);
 
@@ -155,7 +151,7 @@ export default function AdminTeamsPage() {
                                 {filteredTeams.length > 0 ? filteredTeams.map(team => (
                                     <TableRow key={team.id}>
                                         <TableCell className="font-medium">{team.teamName}</TableCell>
-                                        <TableCell>{team.teamId}</TableCell>
+                                        <TableCell>{team.teamId || 'N/A'}</TableCell>
                                         <TableCell>{team.leaderName}</TableCell>
                                         <TableCell>{team.instituteName}</TableCell>
                                         <TableCell className="text-right space-x-2">
