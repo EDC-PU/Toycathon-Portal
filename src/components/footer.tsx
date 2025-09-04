@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid gap-8 md:grid-cols-3">
             <div className="flex flex-col items-center md:items-start">
                 <p className="font-headline text-lg font-bold text-primary">Vadodara Toycathon 2025</p>
-                <p className="mt-2 text-sm text-muted-foreground text-center md:text-left">&copy; {new Date().getFullYear()} All rights reserved.</p>
+                <p className="mt-2 text-sm text-muted-foreground text-center md:text-left">&copy; {new Date().getFullYear()} All rights reserved by Parul University.</p>
                  <div className="mt-4 flex items-center gap-4">
                     <a href="https://www.instagram.com/pierc_pu/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                         <Button variant="ghost" size="icon">
@@ -53,6 +53,9 @@ export default function Footer() {
                     </a>
                 </div>
             </div>
+        </div>
+        <div className="mt-8 border-t pt-4 text-center text-sm text-muted-foreground">
+            <p>Designed & Developed By <a href="https://www.linkedin.com/in/pranav-rathi-37920b16b/" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Pranav Rathi</a></p>
         </div>
       </div>
     </footer>
