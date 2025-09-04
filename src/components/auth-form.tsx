@@ -228,31 +228,6 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
         }
     }
 
-    const handleForgotPassword = async () => {
-        const email = emailForm.getValues("email");
-        if (!email) {
-            emailForm.setError("email", { type: "manual", message: "Please enter your email address to reset your password." });
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            await sendPasswordResetEmail(auth, email);
-            toast({
-                title: "Password Reset Email Sent",
-                description: "If an account exists for this email, a password reset link has been sent to your inbox.",
-            });
-        } catch (error: any) {
-            toast({
-                title: "Error",
-                description: "Failed to send password reset email. Please try again.",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     return (
         <Card className="mt-8">
             <CardContent className="pt-6">
@@ -305,8 +280,8 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                                     {isLoading ? <Loader2 className="animate-spin" /> : (isRegisterPage ? 'Register' : 'Sign In')}
                                 </Button>
                                  {!isRegisterPage && (
-                                    <Button type="button" variant="link" className="w-full text-muted-foreground" size="sm" onClick={handleForgotPassword} disabled={isLoading}>
-                                        Forgot Password?
+                                    <Button type="button" variant="link" asChild className="w-full text-muted-foreground" size="sm" disabled={isLoading}>
+                                       <Link href="/forgot-password">Forgot Password?</Link>
                                     </Button>
                                 )}
                             </form>
