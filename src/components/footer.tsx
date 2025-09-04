@@ -31,9 +31,11 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-col items-center text-sm">
-                <h3 className="font-semibold text-foreground">Contact Us</h3>
+                <h3 className="font-semibold text-foreground">Quick Links</h3>
                 <div className="mt-4 space-y-2 text-center text-muted-foreground">
-                    <div className="flex items-center justify-center gap-2">
+                    <p><Link href="/terms-of-service" className="hover:text-primary">Terms of Service</Link></p>
+                    <p><Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>
+                     <div className="flex items-center justify-center gap-2 pt-2">
                         <Mail className="h-4 w-4" />
                         <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
                     </div>
