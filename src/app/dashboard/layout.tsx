@@ -25,7 +25,9 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isProfileSufficient = (profileData: any) => {
-    return !!profileData;
+    // A user's profile is considered sufficient if they have completed the form,
+    // or if they have a teamId (meaning they are a member who joined via a link).
+    return profileData && (profileData.leaderPhone || profileData.teamId);
   }
 
   useEffect(() => {
@@ -40,26 +42,33 @@ export default function DashboardLayout({
         setIsAdmin(userIsAdmin);
 
         if (userIsAdmin) {
+           // Only redirect admins if they land on the base participant dashboard.
+           // This allows them to access all other admin pages.
            if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
               router.push('/dashboard/admin');
            }
         } else {
+            // For regular users, check if their profile is complete.
             if (docSnap.exists()) {
               const profileData = docSnap.data();
               if (!isProfileSufficient(profileData)) {
+                // If profile is not complete, redirect to profile creation page.
                 router.push('/profile');
               }
             } else {
+              // If no profile document exists at all, force creation.
               router.push('/profile');
             }
         }
 
       } else {
+        // If no user is logged in, redirect to the login page.
         router.push('/login');
       }
       setLoading(false);
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [router]);
 
@@ -72,7 +81,7 @@ export default function DashboardLayout({
   }
 
   if (!user) {
-    return null; // Redirect is handled by the effect
+    return null; // Redirect is handled by the effect, so we don't render anything.
   }
 
   return (
