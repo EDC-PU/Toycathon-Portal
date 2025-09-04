@@ -222,11 +222,11 @@ function HeroSection() {
                     animate="show"
                 >
                     <div className="block md:hidden mb-6">
-                        <Image src="/V1.svg" alt="Toycathon Logo" width={150} height={150} />
+                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={100} height={100} />
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:block">
-                             <Image src="/V1.svg" alt="Toycathon Logo" width={150} height={150} />
+                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={105} height={105} />
                         </div>
                         <motion.h1 
                             className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
@@ -271,7 +271,7 @@ function HeroSection() {
                     </motion.div>
                 </motion.div>
                 <div className="relative hidden w-full md:w-1/2 lg:w-3/5 md:flex justify-center items-center">
-                    <Image src="/V1.svg" alt="Toycathon Illustration" width={500} height={500} className="w-full h-auto" />
+                    <Image src="/TOYCATHON.svg" alt="Toycathon Illustration" width={150} height={150} className="w-full h-auto" />
                 </div>
             </div>
         </section>
@@ -324,7 +324,7 @@ function HeroSection() {
               </p>
             </div>
              <div className="relative order-1 md:order-1 w-full flex items-center justify-center">
-                 <Image src="/V2.svg" alt="Innovation Illustration" width={400} height={400} className="w-full max-w-sm h-auto" />
+                 <Image src="/V1.svg" alt="Innovation Illustration" width={400} height={400} className="w-full max-w-sm h-auto" />
             </div>
           </div>
         </div>
@@ -334,8 +334,8 @@ function HeroSection() {
 
 function SupportersSection() {
   const supporterLogos = [
-    '/supporter1.svg',
-    '/supporter2.svg',
+    '/supporter1.png',
+    '/supporter2.png',
     '/supporter3.svg',
   ];
 
