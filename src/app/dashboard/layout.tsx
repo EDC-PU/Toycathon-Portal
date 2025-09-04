@@ -31,19 +31,24 @@ export default function DashboardLayout({
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const tokenResult = await currentUser.getIdTokenResult();
-        const userIsAdmin = !!tokenResult.claims.admin;
-        setIsAdmin(userIsAdmin);
         setUser(currentUser);
+        
+        // Check for admin status from both token and Firestore
+        const tokenResult = await currentUser.getIdTokenResult();
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        
+        const userIsAdmin = !!tokenResult.claims.admin || (docSnap.exists() && docSnap.data().isAdmin === true);
+        setIsAdmin(userIsAdmin);
 
         if (userIsAdmin) {
-           router.push('/dashboard/admin');
+           // If on the base dashboard, redirect to admin, otherwise stay.
+           if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
+              router.push('/dashboard/admin');
+           }
            setLoading(false);
            return;
         }
-
-        const docRef = doc(db, 'users', currentUser.uid);
-        const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const profileData = docSnap.data();
@@ -51,6 +56,7 @@ export default function DashboardLayout({
              router.push('/profile');
           }
         } else {
+          // If no user doc, they need to create one.
           router.push('/profile');
         }
 

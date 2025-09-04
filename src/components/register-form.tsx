@@ -112,6 +112,7 @@ export default function RegisterForm() {
                 displayName: values.name,
                 email: values.email,
                 createdAt: serverTimestamp(),
+                isAdmin: false, // Default role is not admin
             };
             if (teamId) {
                 userData.teamId = teamId;
@@ -148,6 +149,7 @@ export default function RegisterForm() {
                     displayName: user.displayName,
                     email: user.email,
                     createdAt: serverTimestamp(),
+                    isAdmin: false, // Default role is not admin
                 };
                 if (teamId) {
                     userData.teamId = teamId;

@@ -25,16 +25,6 @@ interface PortalUser extends DocumentData {
     isAdmin: boolean;
 }
 
-// This function needs to be callable from the client, so it can't be a server action
-// It would require setting up a cloud function for secure admin role changes.
-// For this prototype, we'll simulate the role change on the client and assume it works.
-async function setAdminClaim(uid: string, isAdmin: boolean) {
-    // In a real app, this would be a call to a secure Cloud Function.
-    // e.g., await functions.httpsCallable('setAdminClaim')({ uid, isAdmin });
-    console.log(`Simulating setting admin=${isAdmin} for UID: ${uid}`);
-    // We will update the local state, but this won't persist without a backend function.
-}
-
 
 export default function AdminUsersPage() {
     const router = useRouter();
@@ -50,8 +40,11 @@ export default function AdminUsersPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                if (tokenResult.claims.admin) {
+                 const docRef = doc(db, 'users', currentUser.uid);
+                 const docSnap = await getDoc(docRef);
+                 const userIsAdmin = docSnap.exists() && docSnap.data().isAdmin === true;
+
+                if (userIsAdmin) {
                     setIsAdmin(true);
                     fetchUsers(currentUser.uid);
                 } else {
@@ -72,7 +65,6 @@ export default function AdminUsersPage() {
             const querySnapshot = await getDocs(q);
             const fetchedUsers = querySnapshot.docs.map(doc => {
                 const data = doc.data();
-                // We check for an `isAdmin` field in Firestore, but trust the auth token in the app
                 return { id: doc.id, isAdmin: !!data.isAdmin, ...data } as PortalUser
             });
              setUsers(fetchedUsers);
@@ -93,16 +85,13 @@ export default function AdminUsersPage() {
         const newAdminStatus = !targetUser.isAdmin;
         setUpdating(targetUser.id);
         try {
-            // This is a client-side simulation. In a real app, this would be a secure backend call.
-            await setAdminClaim(targetUser.id, newAdminStatus);
-            // To reflect the change in the UI, we update the `isAdmin` field in Firestore.
-            // Note: This does NOT grant admin privileges, only the custom claim does.
+            // Update the isAdmin field in Firestore.
             const userDocRef = doc(db, 'users', targetUser.id);
             await updateDoc(userDocRef, { isAdmin: newAdminStatus });
 
             toast({
                 title: 'Success',
-                description: `${targetUser.displayName} is now ${newAdminStatus ? 'an admin' : 'a regular user'}.`,
+                description: `${targetUser.displayName} is now ${newAdminStatus ? 'an admin' : 'a regular user'}. The user must log out and log back in for the change to take full effect.`,
             });
             // Re-fetch users to get the latest state
             fetchUsers(user.uid);
@@ -123,8 +112,8 @@ export default function AdminUsersPage() {
 
         setUpdating(targetUser.id);
         try {
-            // In a real app, you would need a Cloud Function to delete the user from Firebase Auth
-            // and then delete their Firestore document.
+            // NOTE: This only deletes the Firestore record. For a production app, you would
+            // need a Cloud Function to delete the user from Firebase Authentication as well.
             await deleteDoc(doc(db, "users", targetUser.id));
             
             toast({
@@ -242,7 +231,7 @@ export default function AdminUsersPage() {
                 </CardContent>
                 <CardFooter>
                     <p className="text-xs text-muted-foreground">
-                        Admin role changes require the user to log out and log back in to take effect. User deletion is permanent.
+                       Admin role changes require the user to log out and log back in to take effect. User deletion is permanent.
                     </p>
                 </CardFooter>
             </Card>
