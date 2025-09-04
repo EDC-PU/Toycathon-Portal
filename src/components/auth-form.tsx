@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth, db, RecaptchaVerifier, signInWithPhoneNumber, signInWithGoogle } from "@/lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -15,8 +15,10 @@ import { Card, CardContent } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+
 
 const emailSchema = z.object({
     name: z.string().optional(),
@@ -57,6 +59,8 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
     const [confirmationResult, setConfirmationResult] = useState<any>(null);
     const [phoneStep, setPhoneStep] = useState<'phone' | 'otp'>('phone');
     const teamId = searchParams.get('teamId');
+    const hasRecaptchaKey = !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
 
     const emailForm = useForm<z.infer<typeof emailSchema>>({
         resolver: zodResolver(emailSchema),
@@ -74,12 +78,12 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
     });
     
     useEffect(() => {
-        if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
+        if (hasRecaptchaKey && typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
             (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
               'size': 'invisible',
             });
         }
-    }, []);
+    }, [hasRecaptchaKey]);
 
     const handleRedirect = async (user: any) => {
         const docRef = doc(db, "users", user.uid);
@@ -234,7 +238,7 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                 <Tabs defaultValue="email">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="email">Email</TabsTrigger>
-                        <TabsTrigger value="phone">Phone</TabsTrigger>
+                        <TabsTrigger value="phone" disabled={!hasRecaptchaKey}>Phone</TabsTrigger>
                     </TabsList>
                     
                     {/* Email Tab */}
@@ -290,7 +294,15 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
 
                     {/* Phone Tab */}
                     <TabsContent value="phone">
-                        {phoneStep === 'phone' ? (
+                         {!hasRecaptchaKey ? (
+                             <Alert variant="destructive" className="mt-4">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Configuration Error</AlertTitle>
+                                <AlertDescription>
+                                    Phone sign-in is currently unavailable. The reCAPTCHA site key is missing from the environment configuration.
+                                </AlertDescription>
+                            </Alert>
+                         ) : phoneStep === 'phone' ? (
                             <Form {...phoneForm}>
                                 <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-6 mt-4">
                                     <FormField
