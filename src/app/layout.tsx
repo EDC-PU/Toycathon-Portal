@@ -28,6 +28,7 @@ export default function RootLayout({
         <head>
            <title>Vadodara Toycathon 2025 - Dashboard</title>
            <meta name="description" content="Manage your teams, submissions, and profile for the Vadodara Toycathon 2025." />
+           <link rel="icon" href="https://paruluniversity.ac.in/favicon.ico" />
         </head>
         <body className={cn('min-h-screen bg-background font-body antialiased')}>
             {children}
@@ -42,6 +43,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <Head>
         <title>{pageTitle}</title>
+        <link rel="icon" href="https://paruluniversity.ac.in/favicon.ico" />
         <meta name="description" content={pageDescription} />
         <meta name="keywords" content="Vadodara Toycathon 2025, Toy Hackathon, school competition Vadodara, university competition Vadodara, college event Gujarat, toy design challenge, PIERC, Parul University" />
         <meta name="author" content="Parul Innovation and Entrepreneurship Research Centre (PIERC)" />
