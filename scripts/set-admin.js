@@ -1,16 +1,17 @@
+
 // This script is used to set a custom claim on a user account to grant admin privileges.
 // IMPORTANT: This script should be run from a secure server environment.
 // Do not expose your service account credentials on the client-side.
 
 // Usage: node scripts/set-admin.js <user-email-to-make-admin>
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '.env' });
 const admin = require('firebase-admin');
 
 // IMPORTANT: Your service account credentials should be set as environment variables.
 const serviceAccount = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+  privateKey: process.env.FIREBASE_PRIVATE_KEY
 }; 
 
 admin.initializeApp({
