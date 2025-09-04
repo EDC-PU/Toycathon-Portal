@@ -278,7 +278,90 @@ function HeroSection() {
     );
 }
 
-  function AboutSection() {
+function AboutSection() {
+    const videoRef = React.useRef<HTMLDivElement>(null);
+    const playerRef = React.useRef<any>(null);
+
+    const onPlayerReady = (event: any) => {
+        event.target.setVolume(50); 
+    };
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+        const entry = entries[0];
+        if (playerRef.current) {
+            if (entry.isIntersecting) {
+                playerRef.current.playVideo();
+            } else {
+                playerRef.current.pauseVideo();
+            }
+        }
+    };
+    
+    React.useEffect(() => {
+        const loadPlayer = () => {
+            if (!(window as any).YT) {
+                const tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                const firstScriptTag = document.getElementsByTagName('script')[0];
+                if(firstScriptTag && firstScriptTag.parentNode) {
+                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                }
+            }
+    
+            (window as any).onYouTubeIframeAPIReady = () => {
+                if (videoRef.current) {
+                   playerRef.current = new (window as any).YT.Player(videoRef.current, {
+                        videoId: '9ELqa04tTUg',
+                        playerVars: {
+                            'autoplay': 0,
+                            'controls': 1,
+                            'rel': 0,
+                            'showinfo': 0,
+                            'modestbranding': 1,
+                            'loop': 1,
+                            'playlist': '9ELqa04tTUg',
+                            'fs': 1,
+                            'cc_load_policy': 0,
+                            'iv_load_policy': 3,
+                            'autohide': 0,
+                        },
+                        events: {
+                            'onReady': onPlayerReady
+                        }
+                    });
+                }
+            };
+        };
+
+        if (typeof window !== 'undefined') {
+            loadPlayer();
+        }
+
+    }, []);
+
+     React.useEffect(() => {
+        const observer = new IntersectionObserver(handleIntersection, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5 
+        });
+
+        const currentVideoRef = videoRef.current;
+
+        if (currentVideoRef) {
+            observer.observe(currentVideoRef);
+        }
+
+        return () => {
+            if (currentVideoRef) {
+                observer.unobserve(currentVideoRef);
+            }
+             if (playerRef.current) {
+                playerRef.current.destroy();
+            }
+        };
+    }, []);
+
     return (
       <section id="about" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
          <PlayfulShapes className="absolute top-10 left-5 opacity-20 transform -rotate-45" />
@@ -292,14 +375,8 @@ function HeroSection() {
                 Vadodara Toycathon 2025 is a remarkable initiative that aims at nurturing the creativity and ingenuity of students from schools and universities. The event serves as a platform for these young minds to explore their innovative potential and transform their toy ideas into tangible realities. By focusing on the rich heritage of Bharatiya civilization, history, culture, mythology, and ethos, the Vadodara Toycathon 2025 inspires participants to conceive novel toys and games that are deeply rooted in our roots.
               </p>
             </div>
-            <div className="relative order-1 w-full overflow-hidden rounded-xl shadow-lg md:order-2" style={{paddingTop: '56.25%'}}>
-              <iframe
-                className="absolute top-0 left-0 h-full w-full"
-                src="https://www.youtube.com/embed/9ELqa04tTUg"
-                title="Vadodara Toycathon 2025 Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
+             <div className="relative order-1 w-full overflow-hidden rounded-xl shadow-lg md:order-2" style={{paddingTop: '56.25%'}}>
+                <div ref={videoRef} className="absolute top-0 left-0 h-full w-full" />
             </div>
           </div>
           <div className="grid items-center gap-8 relative md:grid-cols-2">
@@ -710,6 +787,8 @@ export default function Home() {
     </>
   );
 }
+
+    
 
     
 

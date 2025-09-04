@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  module.exports = {
+    images: {
+      unoptimized: true,
+    },
+  };
   images: {
     remotePatterns: [
       {
