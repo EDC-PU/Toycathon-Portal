@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin } from 'lucide-react';
-import AdminDashboard from '@/components/admin-dashboard';
 
 interface UserProfile {
     displayName: string;
@@ -41,22 +40,21 @@ export default function DashboardPage() {
                 const tokenResult = await currentUser.getIdTokenResult();
                 const userIsAdmin = !!tokenResult.claims.admin;
 
+                // If user is admin, they should be on the admin page.
+                if (userIsAdmin) {
+                    router.push('/dashboard/admin');
+                    return;
+                }
+
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     setProfile({ ...docSnap.data(), isAdmin: userIsAdmin } as UserProfile);
                 } else {
-                    setProfile({ 
-                        displayName: currentUser.displayName || 'User',
-                        email: currentUser.email || '',
-                        uid: currentUser.uid,
-                        isAdmin: userIsAdmin 
-                    });
+                     router.push('/profile'); // if no profile, force creation
                 }
                 
-                if (!userIsAdmin) {
-                    fetchAnnouncements();
-                }
+                fetchAnnouncements();
 
             } else {
                  router.push('/login');
@@ -80,14 +78,9 @@ export default function DashboardPage() {
     }
 
     if (!profile) {
-        // This case should ideally not be hit if the user is logged in
-        return <div className="flex h-screen items-center justify-center">Could not load profile information.</div>;
+        // This case should ideally not be hit if the user is logged in and not an admin
+        return <div className="flex h-screen items-center justify-center">Could not load profile information. Redirecting...</div>;
     }
-    
-    if (profile.isAdmin) {
-        return <AdminDashboard />;
-    }
-
 
     return (
         <div className="space-y-8">
@@ -269,5 +262,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-
-    

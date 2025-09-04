@@ -37,6 +37,7 @@ export default function DashboardLayout({
         setUser(currentUser);
 
         if (userIsAdmin) {
+           router.push('/dashboard/admin');
            setLoading(false);
            return;
         }

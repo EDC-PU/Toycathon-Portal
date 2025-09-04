@@ -2,11 +2,13 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs,getCountFromServer } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
+import { collection, getCountFromServer } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, FileText, Megaphone, Tag, Loader2, List } from 'lucide-react';
+import { Users, FileText, Megaphone, Tag, Loader2, List, Shield } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 interface Stats {
     users: number;
@@ -17,52 +19,75 @@ interface Stats {
     themes: number;
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboardPage() {
+    const router = useRouter();
+    const [user, setUser] = useState<User | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const usersCol = collection(db, "users");
-                const teamsCol = collection(db, "teams");
-                const submissionsCol = collection(db, "submissions");
-                const announcementsCol = collection(db, "announcements");
-                const categoriesCol = collection(db, "categories");
-                const themesCol = collection(db, "themes");
-
-                const [usersSnap, teamsSnap, submissionsSnap, announcementsSnap, categoriesSnap, themesSnap] = await Promise.all([
-                    getCountFromServer(usersCol),
-                    getCountFromServer(teamsCol),
-                    getCountFromServer(submissionsCol),
-                    getCountFromServer(announcementsCol),
-                    getCountFromServer(categoriesCol),
-                    getCountFromServer(themesCol)
-                ]);
-
-                setStats({
-                    users: usersSnap.data().count,
-                    teams: teamsSnap.data().count,
-                    submissions: submissionsSnap.data().count,
-                    announcements: announcementsSnap.data().count,
-                    categories: categoriesSnap.data().count,
-                    themes: themesSnap.data().count,
-                });
-            } catch (error) {
-                console.error("Error fetching admin stats:", error);
-            } finally {
-                setLoading(false);
+     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                const tokenResult = await currentUser.getIdTokenResult();
+                if (tokenResult.claims.admin) {
+                    setIsAdmin(true);
+                    fetchStats();
+                } else {
+                    router.push('/dashboard');
+                }
+            } else {
+                router.push('/login');
             }
-        };
+        });
 
-        fetchStats();
-    }, []);
+        return () => unsubscribe();
+    }, [router]);
+
+    const fetchStats = async () => {
+        setLoading(true);
+        try {
+            const usersCol = collection(db, "users");
+            const teamsCol = collection(db, "teams");
+            const submissionsCol = collection(db, "submissions");
+            const announcementsCol = collection(db, "announcements");
+            const categoriesCol = collection(db, "categories");
+            const themesCol = collection(db, "themes");
+
+            const [usersSnap, teamsSnap, submissionsSnap, announcementsSnap, categoriesSnap, themesSnap] = await Promise.all([
+                getCountFromServer(usersCol),
+                getCountFromServer(teamsCol),
+                getCountFromServer(submissionsCol),
+                getCountFromServer(announcementsCol),
+                getCountFromServer(categoriesCol),
+                getCountFromServer(themesCol)
+            ]);
+
+            setStats({
+                users: usersSnap.data().count,
+                teams: teamsSnap.data().count,
+                submissions: submissionsSnap.data().count,
+                announcements: announcementsSnap.data().count,
+                categories: categoriesSnap.data().count,
+                themes: themesSnap.data().count,
+            });
+        } catch (error) {
+            console.error("Error fetching admin stats:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
     
     const chartData = stats ? [
         { name: "Users", total: stats.users },
         { name: "Teams", total: stats.teams },
         { name: "Submissions", total: stats.submissions },
     ] : [];
+
+    if (!isAdmin) {
+        return <div className="flex h-screen items-center justify-center">Checking permissions...</div>;
+    }
 
     if (loading) {
         return <div className="flex h-full items-center justify-center"><Loader2 className="mr-2 h-8 w-8 animate-spin" /> Loading Admin Dashboard...</div>;
@@ -92,7 +117,7 @@ export default function AdminDashboard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Teams Created</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <Shield className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.teams}</div>
@@ -166,5 +191,3 @@ export default function AdminDashboard() {
         </div>
     );
 }
-
-    

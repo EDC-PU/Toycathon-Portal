@@ -19,7 +19,7 @@ const navLinks = [
 ];
 
 const adminNavLinks = [
-    { href: '/dashboard', label: 'Overview', icon: BarChart2 },
+    { href: '/dashboard/admin', label: 'Overview', icon: BarChart2 },
     { href: '/dashboard/admin/users', label: 'Manage Users', icon: Users },
     { href: '/dashboard/admin/teams', label: 'Manage Teams', icon: Shield },
     { href: '/dashboard/announcements', label: 'Announcements', icon: Megaphone },
@@ -66,7 +66,7 @@ export default function DashboardSidebar({ isAdmin, onLinkClick }: DashboardSide
       </div>
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {linksToRender.map((link) => {
-          const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
+          const isActive = pathname === link.href || (link.href !== '/dashboard' && link.href !== '/dashboard/admin' && pathname.startsWith(link.href));
           return (
             <Link key={link.href} href={link.href} onClick={onLinkClick}>
               <Button
@@ -96,5 +96,3 @@ export default function DashboardSidebar({ isAdmin, onLinkClick }: DashboardSide
     </aside>
   );
 }
-
-    
