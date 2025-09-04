@@ -2,16 +2,14 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { auth, db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, writeBatch, where, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Trash2, Edit, Users, Search, XCircle } from 'lucide-react';
+import { Loader2, Trash2, Edit, Search, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface Team extends DocumentData {
@@ -23,35 +21,14 @@ interface Team extends DocumentData {
 }
 
 export default function AdminTeamsPage() {
-    const router = useRouter();
     const { toast } = useToast();
-    const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [teams, setTeams] = useState<Team[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                 const docRef = doc(db, 'users', currentUser.uid);
-                 const docSnap = await getDoc(docRef);
-                 const userIsAdmin = docSnap.exists() && docSnap.data().isAdmin === true;
-                
-                if (userIsAdmin) {
-                    setIsAdmin(true);
-                    fetchTeams();
-                } else {
-                    router.push('/dashboard');
-                }
-            } else {
-                router.push('/login');
-            }
-        });
-
-        return () => unsubscribe();
-    }, [router]);
+        fetchTeams();
+    }, []);
     
     const fetchTeams = async () => {
         setLoading(true);
@@ -99,10 +76,6 @@ export default function AdminTeamsPage() {
         );
     }, [teams, searchTerm]);
 
-    if (!isAdmin) {
-        return <div className="flex h-screen items-center justify-center">Checking permissions...</div>;
-    }
-    
     if (loading) {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching all teams...</div>;
     }
@@ -156,7 +129,7 @@ export default function AdminTeamsPage() {
                                         <TableCell>{team.instituteName}</TableCell>
                                         <TableCell className="text-right space-x-2">
                                             <Button asChild variant="outline" size="icon">
-                                                <Link href={`/dashboard/teams/edit/${team.id}`}><Edit className="h-4 w-4" /></Link>
+                                                <Link href={`/admin/teams/edit/${team.id}`}><Edit className="h-4 w-4" /></Link>
                                             </Button>
                                             <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)}>
                                                 <Trash2 className="h-4 w-4" />

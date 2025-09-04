@@ -2,13 +2,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { db, auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { collection, getCountFromServer } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FileText, Megaphone, Tag, Loader2, List, Shield } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 
 interface Stats {
     users: number;
@@ -20,30 +18,12 @@ interface Stats {
 }
 
 export default function AdminDashboardPage() {
-    const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
 
      useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                if (tokenResult.claims.admin) {
-                    setIsAdmin(true);
-                    fetchStats();
-                } else {
-                    router.push('/dashboard');
-                }
-            } else {
-                router.push('/login');
-            }
-        });
-
-        return () => unsubscribe();
-    }, [router]);
+        fetchStats();
+    }, []);
 
     const fetchStats = async () => {
         setLoading(true);
@@ -85,9 +65,6 @@ export default function AdminDashboardPage() {
         { name: "Submissions", total: stats.submissions },
     ] : [];
 
-    if (!isAdmin) {
-        return <div className="flex h-screen items-center justify-center">Checking permissions...</div>;
-    }
 
     if (loading) {
         return <div className="flex h-full items-center justify-center"><Loader2 className="mr-2 h-8 w-8 animate-spin" /> Loading Admin Dashboard...</div>;

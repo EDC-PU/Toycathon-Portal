@@ -3,16 +3,14 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Trash2, Shield, ShieldOff, User as UserIcon, Search, XCircle, Crown } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Loader2, Trash2, Search, XCircle, Crown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 
@@ -25,41 +23,27 @@ interface PortalUser extends DocumentData {
     isAdmin: boolean;
 }
 
-
 export default function AdminUsersPage() {
-    const router = useRouter();
     const { toast } = useToast();
-    const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<PortalUser[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [updating, setUpdating] = useState<string | null>(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                 const docRef = doc(db, 'users', currentUser.uid);
-                 const docSnap = await getDoc(docRef);
-                 const userIsAdmin = docSnap.exists() && docSnap.data().isAdmin === true;
-
-                if (userIsAdmin) {
-                    setIsAdmin(true);
-                    fetchUsers(currentUser.uid);
-                } else {
-                    router.push('/dashboard');
-                }
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setCurrentUser(user);
+            if(user){
+                fetchUsers();
             } else {
-                router.push('/login');
+                setLoading(false);
             }
-            setLoading(false);
         });
-
         return () => unsubscribe();
-    }, [router]);
+    }, []);
     
-    const fetchUsers = async (currentAdminUid: string) => {
+    const fetchUsers = async () => {
         setLoading(true);
         try {
             const q = query(collection(db, "users"), orderBy("displayName"));
@@ -78,7 +62,7 @@ export default function AdminUsersPage() {
     };
 
     const toggleAdminStatus = async (targetUser: PortalUser) => {
-        if (!user || user.uid === targetUser.id) {
+        if (!currentUser || currentUser.uid === targetUser.id) {
             toast({ title: 'Action not allowed', description: 'Admins cannot change their own status.', variant: 'destructive'});
             return;
         }
@@ -86,7 +70,6 @@ export default function AdminUsersPage() {
         const newAdminStatus = !targetUser.isAdmin;
         setUpdating(targetUser.id);
         try {
-            // Update the isAdmin field in Firestore.
             const userDocRef = doc(db, 'users', targetUser.id);
             await updateDoc(userDocRef, { isAdmin: newAdminStatus });
 
@@ -94,8 +77,9 @@ export default function AdminUsersPage() {
                 title: 'Success',
                 description: `${targetUser.displayName} is now ${newAdminStatus ? 'an admin' : 'a regular user'}. The user must log out and log back in for the change to take full effect.`,
             });
-            // Re-fetch users to get the latest state
-            fetchUsers(user.uid);
+            
+            setUsers(prevUsers => prevUsers.map(u => u.id === targetUser.id ? {...u, isAdmin: newAdminStatus} : u));
+
         } catch(error) {
             console.error("Error toggling admin status:", error);
             toast({ title: 'Error', description: 'Could not update user role.', variant: 'destructive' });
@@ -105,7 +89,7 @@ export default function AdminUsersPage() {
     };
 
     const deleteUser = async (targetUser: PortalUser) => {
-        if (!user || user.uid === targetUser.id) {
+        if (!currentUser || currentUser.uid === targetUser.id) {
             toast({ title: 'Action not allowed', description: 'Admins cannot delete their own account.', variant: 'destructive'});
             return;
         }
@@ -113,8 +97,6 @@ export default function AdminUsersPage() {
 
         setUpdating(targetUser.id);
         try {
-            // NOTE: This only deletes the Firestore record. For a production app, you would
-            // need a Cloud Function to delete the user from Firebase Authentication as well.
             await deleteDoc(doc(db, "users", targetUser.id));
             
             toast({
@@ -122,7 +104,8 @@ export default function AdminUsersPage() {
                 description: `"${targetUser.displayName}" has been successfully deleted from the portal records.`,
             });
 
-            fetchUsers(user.uid);
+            setUsers(prevUsers => prevUsers.filter(u => u.id !== targetUser.id));
+
         } catch (error) {
             console.error("Error deleting user:", error);
             toast({ title: "Error", description: "Failed to delete user.", variant: "destructive" });
@@ -131,19 +114,14 @@ export default function AdminUsersPage() {
         }
     }
 
-
     const filteredUsers = useMemo(() => {
         return users.filter(u => 
-            u.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (u.college && u.college.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }, [users, searchTerm]);
 
-    if (!isAdmin) {
-        return <div className="flex h-screen items-center justify-center">Checking permissions...</div>;
-    }
-    
     if (loading) {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching all users...</div>;
     }
@@ -192,7 +170,7 @@ export default function AdminUsersPage() {
                                     <TableRow key={u.id} className={updating === u.id ? 'opacity-50' : ''}>
                                         <TableCell>
                                             <div className="font-medium flex items-center gap-2">
-                                                {u.displayName} {u.id === user?.uid && <Crown className="h-4 w-4 text-amber-500" />}
+                                                {u.displayName} {u.id === currentUser?.uid && <Crown className="h-4 w-4 text-amber-500" />}
                                             </div>
                                             <div className="text-sm text-muted-foreground">{u.email}</div>
                                         </TableCell>
@@ -204,7 +182,7 @@ export default function AdminUsersPage() {
                                             <Switch 
                                                 checked={u.isAdmin}
                                                 onCheckedChange={() => toggleAdminStatus(u)}
-                                                disabled={u.id === user?.uid || updating === u.id}
+                                                disabled={u.id === currentUser?.uid || updating === u.id}
                                                 aria-label={`Toggle admin status for ${u.displayName}`}
                                             />
                                         </TableCell>
@@ -213,7 +191,7 @@ export default function AdminUsersPage() {
                                                 variant="destructive" 
                                                 size="icon" 
                                                 onClick={() => deleteUser(u)} 
-                                                disabled={u.id === user?.uid || updating === u.id}
+                                                disabled={u.id === currentUser?.uid || updating === u.id}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -240,5 +218,3 @@ export default function AdminUsersPage() {
         </div>
     )
 }
-
-    

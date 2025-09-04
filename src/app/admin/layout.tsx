@@ -9,11 +9,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import DashboardSidebar from '@/components/dashboard-sidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Loader2 } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 
-export default function DashboardLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -23,10 +24,6 @@ export default function DashboardLayout({
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const isProfileSufficient = (profileData: any) => {
-    return profileData && (profileData.leaderPhone || profileData.teamId);
-  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -45,20 +42,10 @@ export default function DashboardLayout({
         const userIsAdmin = docSnap.exists() && docSnap.data().isAdmin === true;
         
         if (userIsAdmin) {
-           router.push('/admin');
-           return; 
+            setIsAdmin(true);
         } else {
-            setIsAdmin(false);
-            if (docSnap.exists()) {
-              const profileData = docSnap.data();
-              if (!isProfileSufficient(profileData)) {
-                router.push('/profile');
-                return;
-              }
-            } else {
-              router.push('/profile');
-              return;
-            }
+           router.push('/dashboard');
+           return;
         }
 
       } else {
@@ -74,19 +61,19 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="mr-2 h-8 w-8 animate-spin" /> Loading...
+        <Loader2 className="mr-2 h-8 w-8 animate-spin" /> Verifying admin access...
       </div>
     );
   }
 
-  if (!user) {
-    return null; // Redirect is handled by the effect.
+  if (!user || !isAdmin) {
+    return null; // Redirects are handled by the effect
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-secondary/20">
       <div className="hidden md:flex">
-         <DashboardSidebar isAdmin={isAdmin} />
+         <DashboardSidebar isAdmin={true} />
       </div>
        <div className="flex flex-1 flex-col overflow-hidden">
         <header className="md:hidden flex h-16 items-center justify-between border-b bg-background px-4">
@@ -100,7 +87,7 @@ export default function DashboardLayout({
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0">
-                  <DashboardSidebar isAdmin={isAdmin} onLinkClick={() => setMobileMenuOpen(false)} />
+                  <DashboardSidebar isAdmin={true} onLinkClick={() => setMobileMenuOpen(false)} />
               </SheetContent>
             </Sheet>
         </header>

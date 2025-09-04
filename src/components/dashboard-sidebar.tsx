@@ -19,13 +19,13 @@ const navLinks = [
 ];
 
 const adminNavLinks = [
-    { href: '/dashboard/admin', label: 'Overview', icon: BarChart2 },
-    { href: '/dashboard/admin/users', label: 'Manage Users', icon: Users },
-    { href: '/dashboard/admin/teams', label: 'Manage Teams', icon: Shield },
-    { href: '/dashboard/announcements', label: 'Announcements', icon: Megaphone },
-    { href: '/dashboard/categories', label: 'Categories & Themes', icon: Tag },
-    { href: '/dashboard/admin/health', label: 'System Health', icon: HeartPulse },
-    { href: '/dashboard/profile', label: 'Admin Profile', icon: Settings },
+    { href: '/admin', label: 'Overview', icon: BarChart2 },
+    { href: '/admin/users', label: 'Manage Users', icon: Users },
+    { href: '/admin/teams', label: 'Manage Teams', icon: Shield },
+    { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
+    { href: '/admin/categories', label: 'Categories & Themes', icon: Tag },
+    { href: '/admin/health', label: 'System Health', icon: HeartPulse },
+    { href: '/admin/profile', label: 'Admin Profile', icon: Settings },
 ];
 
 interface DashboardSidebarProps {
@@ -67,7 +67,7 @@ export default function DashboardSidebar({ isAdmin, onLinkClick }: DashboardSide
       </div>
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {linksToRender.map((link) => {
-          const isActive = pathname === link.href || (link.href !== '/dashboard' && link.href !== '/dashboard/admin' && pathname.startsWith(link.href));
+          const isActive = pathname === link.href || (link.href !== '/dashboard' && link.href !== '/admin' && pathname.startsWith(link.href));
           return (
             <Link key={link.href} href={link.href} onClick={onLinkClick}>
               <Button

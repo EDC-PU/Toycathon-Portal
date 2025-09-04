@@ -2,11 +2,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { collection, getCountFromServer } from 'firebase/firestore';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, CheckCircle, XCircle, AlertTriangle, RefreshCw } from 'lucide-react';
@@ -21,11 +18,6 @@ interface ServiceStatus {
 }
 
 export default function SystemHealthPage() {
-    const router = useRouter();
-    const { toast } = useToast();
-    const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [services, setServices] = useState<ServiceStatus[]>([
         { name: 'Firebase Authentication', status: 'checking', message: 'Verifying auth status...' },
         { name: 'Firestore Database', status: 'checking', message: 'Pinging database...' },
@@ -66,28 +58,9 @@ export default function SystemHealthPage() {
     }, []);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                if (tokenResult.claims.admin) {
-                    setIsAdmin(true);
-                    runHealthChecks();
-                } else {
-                    router.push('/dashboard');
-                }
-            } else {
-                router.push('/login');
-            }
-            setLoading(false);
-        });
+        runHealthChecks();
+    }, [runHealthChecks]);
 
-        return () => unsubscribe();
-    }, [router, runHealthChecks]);
-
-    if (loading || !isAdmin) {
-        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Verifying permissions...</div>;
-    }
 
     const getStatusIcon = (status: Status) => {
         switch (status) {

@@ -2,17 +2,15 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { auth, db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, query, orderBy, getDocs, deleteDoc, doc, DocumentData } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, getDocs, deleteDoc, doc, DocumentData } from 'firebase/firestore';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Tag, BookOpen } from 'lucide-react';
 
@@ -30,11 +28,7 @@ interface FirestoreDocument extends DocumentData {
 }
 
 export default function CategoriesPage() {
-    const router = useRouter();
     const { toast } = useToast();
-    const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState<FirestoreDocument[]>([]);
     const [themes, setThemes] = useState<FirestoreDocument[]>([]);
 
@@ -49,25 +43,9 @@ export default function CategoriesPage() {
     });
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                if (tokenResult.claims.admin) {
-                    setIsAdmin(true);
-                    fetchCategories();
-                    fetchThemes();
-                } else {
-                    router.push('/dashboard');
-                }
-            } else {
-                router.push('/login');
-            }
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, [router]);
+        fetchCategories();
+        fetchThemes();
+    }, []);
 
     const fetchCategories = async () => {
         const q = query(collection(db, "categories"), orderBy("name"));
@@ -116,15 +94,6 @@ export default function CategoriesPage() {
              toast({ title: 'Error', description: 'Failed to delete item.', variant: 'destructive' });
         }
     }
-
-    if (loading) {
-        return <div className="flex h-screen items-center justify-center">Checking permissions...</div>;
-    }
-    
-    if (!isAdmin) {
-        return null;
-    }
-
 
     return (
         <div className="space-y-8">

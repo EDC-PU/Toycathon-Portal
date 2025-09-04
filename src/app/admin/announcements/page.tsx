@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, query, orderBy, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, orderBy, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,11 +30,7 @@ interface Announcement {
 }
 
 export default function AnnouncementsPage() {
-    const router = useRouter();
     const { toast } = useToast();
-    const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
     const form = useForm<z.infer<typeof announcementSchema>>({
@@ -46,24 +42,8 @@ export default function AnnouncementsPage() {
     });
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                if (tokenResult.claims.admin) {
-                    setIsAdmin(true);
-                    fetchAnnouncements();
-                } else {
-                    router.push('/dashboard');
-                }
-            } else {
-                router.push('/login');
-            }
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, [router]);
+        fetchAnnouncements();
+    }, []);
 
     const fetchAnnouncements = async () => {
         const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
@@ -109,15 +89,6 @@ export default function AnnouncementsPage() {
             });
         }
     }
-
-    if (loading) {
-        return <div className="flex h-screen items-center justify-center">Checking permissions...</div>;
-    }
-    
-    if (!isAdmin) {
-        return null;
-    }
-
 
     return (
         <div className="space-y-8">
