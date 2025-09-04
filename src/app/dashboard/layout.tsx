@@ -34,6 +34,14 @@ export default function DashboardLayout({
       if (currentUser) {
         setUser(currentUser);
         
+        // Reload user to get the latest emailVerified status
+        await currentUser.reload();
+
+        if (!currentUser.emailVerified) {
+          router.push('/verify-email');
+          return;
+        }
+        
         const docRef = doc(db, 'users', currentUser.uid);
         const docSnap = await getDoc(docRef);
         
@@ -41,14 +49,11 @@ export default function DashboardLayout({
         setIsAdmin(userIsAdmin);
 
         if (userIsAdmin) {
-           // If an admin lands on the base participant dashboard, redirect them.
-           // This check is now specific and will not affect any other admin routes.
            if (pathname === '/dashboard') {
               router.push('/dashboard/admin');
-              return; // End execution to prevent rendering child
+              return; 
            }
         } else {
-            // For regular users, check if their profile is complete.
             if (docSnap.exists()) {
               const profileData = docSnap.data();
               if (!isProfileSufficient(profileData)) {
@@ -56,7 +61,6 @@ export default function DashboardLayout({
                 return;
               }
             } else {
-              // If no profile document exists at all, force creation.
               router.push('/profile');
               return;
             }

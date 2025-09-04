@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { auth, signInWithGoogle } from "@/lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
@@ -89,6 +89,11 @@ export default function RegisterForm() {
     }
 
     const handleRedirect = (user: any, teamId?: string | null) => {
+        if (!user.emailVerified) {
+            router.push('/verify-email');
+            return;
+        }
+
         let path = '/profile';
         if (teamId) {
           path = `/profile?teamId=${teamId}`;
@@ -105,6 +110,7 @@ export default function RegisterForm() {
             await updateProfile(user, {
                 displayName: values.name,
             });
+            await sendEmailVerification(user);
 
              // Create user document in Firestore
              const userData: any = {
@@ -121,7 +127,7 @@ export default function RegisterForm() {
 
             toast({
                 title: "Registration Successful!",
-                description: "Let's complete your profile.",
+                description: "A verification email has been sent. Please check your inbox.",
             });
             handleRedirect(user, teamId);
         } catch (error: any) {
