@@ -222,11 +222,11 @@ function HeroSection() {
                     animate="show"
                 >
                     <div className="block md:hidden mb-6">
-                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={80} height={80} />
+                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={160} height={160} />
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:block">
-                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={56} height={56} />
+                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={160} height={160} />
                         </div>
                         <motion.h1 
                             className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
@@ -271,8 +271,15 @@ function HeroSection() {
                     </motion.div>
                 </motion.div>
                 <div className="relative hidden w-full md:w-1/2 lg:w-3/5 md:flex justify-center items-center">
-                    <Image src="/TOYCATHON.svg" alt="Toycathon Illustration" width={90} height={90} className="w-full h-auto" />
-                </div>
+    <Image
+        src="/TOYCATHON.svg"
+        alt="Toycathon Illustration"
+        width={90}
+        height={90}
+        className="w-full h-auto md:max-h-[60vh]"
+    />
+</div>
+
             </div>
         </section>
     );
