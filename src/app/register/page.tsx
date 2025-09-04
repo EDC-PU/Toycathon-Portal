@@ -1,7 +1,7 @@
 
 "use client";
 
-import RegisterForm from '@/components/register-form';
+import AuthForm from '@/components/auth-form';
 import { Suspense } from 'react';
 
 function RegisterContent() {
@@ -12,7 +12,7 @@ function RegisterContent() {
                     <h1 className="font-headline text-4xl font-bold tracking-tight text-primary">Create an Account</h1>
                     <p className="mt-2 text-muted-foreground">Join the challenge and bring your ideas to life!</p>
                 </div>
-                <RegisterForm />
+                <AuthForm isRegisterPage={true} />
             </div>
         </div>
     )

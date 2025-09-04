@@ -1,4 +1,5 @@
-import LoginForm from '@/components/login-form';
+
+import AuthForm from '@/components/auth-form';
 
 export default function LoginPage() {
   return (
@@ -8,7 +9,7 @@ export default function LoginPage() {
                 <h1 className="font-headline text-4xl font-bold tracking-tight text-primary">Welcome Back</h1>
                 <p className="mt-2 text-muted-foreground">Sign in to your account to continue.</p>
             </div>
-            <LoginForm />
+            <AuthForm />
         </div>
     </div>
   );
