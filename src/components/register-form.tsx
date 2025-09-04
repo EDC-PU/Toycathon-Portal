@@ -4,8 +4,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
-import { auth, signInWithGoogle } from "@/lib/firebase";
+import { updateProfile } from "firebase/auth";
+import { auth, RecaptchaVerifier, signInWithPhoneNumber, signInWithGoogle } from "@/lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -23,18 +23,19 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "./ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
-
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  email: z.string().email("Please enter a valid email."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
-  confirmPassword: z.string()
-}).refine(data => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
+const phoneSchema = z.object({
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number with country code (e.g., +919876543210)."),
 });
+
+const otpSchema = z.object({
+    otp: z.string().min(6, "OTP must be 6 digits."),
+    name: z.string().min(2, "Name must be at least 2 characters."),
+    email: z.string().email("Please enter a valid email."),
+});
+
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
@@ -71,54 +72,79 @@ export default function RegisterForm() {
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const [confirmationResult, setConfirmationResult] = useState<any>(null);
+    const [step, setStep] = useState<'phone' | 'otp'>('phone');
     const teamId = searchParams.get('teamId');
 
-
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-        },
+    const phoneForm = useForm<z.infer<typeof phoneSchema>>({
+        resolver: zodResolver(phoneSchema),
+        defaultValues: { phone: "+91" },
     });
 
-    const isProfileComplete = (profileData: any) => {
-        return profileData && profileData.leaderPhone && profileData.college;
-    }
+    const otpForm = useForm<z.infer<typeof otpSchema>>({
+        resolver: zodResolver(otpSchema),
+        defaultValues: { otp: "", name: "", email: "" },
+    });
 
-    const handleRedirect = (user: any, teamId?: string | null) => {
-        if (!user.emailVerified) {
-            router.push('/verify-email');
-            return;
-        }
+    useEffect(() => {
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'invisible',
+        });
+    }, []);
 
+    const handleRedirect = (user: any) => {
         let path = '/profile';
         if (teamId) {
           path = `/profile?teamId=${teamId}`;
         }
         router.push(path);
     }
-
-
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    
+    async function onPhoneSubmit(values: z.infer<typeof phoneSchema>) {
         setIsLoading(true);
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+            const appVerifier = (window as any).recaptchaVerifier;
+            const result = await signInWithPhoneNumber(auth, values.phone, appVerifier);
+            setConfirmationResult(result);
+            setStep('otp');
+            toast({
+                title: "OTP Sent",
+                description: "An OTP has been sent to your phone number.",
+            });
+        } catch (error: any) {
+            console.error("Error sending OTP:", error);
+            toast({
+                title: "Failed to Send OTP",
+                description: error.message || "Please check the phone number and try again.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+
+    async function onOtpSubmit(values: z.infer<typeof otpSchema>) {
+        if (!confirmationResult) return;
+        setIsLoading(true);
+        try {
+            const userCredential = await confirmationResult.confirm(values.otp);
             const user = userCredential.user;
+            
+            // User is now signed in. Update profile and create firestore doc.
             await updateProfile(user, {
                 displayName: values.name,
+                // Firebase Phone Auth doesn't have a dedicated email field,
+                // so we don't update it here. We store it in Firestore.
             });
-            await sendEmailVerification(user);
 
-             // Create user document in Firestore
-             const userData: any = {
+            const userData: any = {
                 uid: user.uid,
                 displayName: values.name,
-                email: values.email,
+                email: values.email, // Store email in Firestore
+                phoneNumber: user.phoneNumber,
                 createdAt: serverTimestamp(),
-                isAdmin: false, // Default role is not admin
+                isAdmin: false, 
             };
             if (teamId) {
                 userData.teamId = teamId;
@@ -127,13 +153,13 @@ export default function RegisterForm() {
 
             toast({
                 title: "Registration Successful!",
-                description: "A verification email has been sent. Please check your inbox.",
+                description: "Your account has been created.",
             });
-            handleRedirect(user, teamId);
+            handleRedirect(user);
         } catch (error: any) {
              toast({
                 title: "Registration Failed",
-                description: error.message || "An unexpected error occurred.",
+                description: error.message || "The OTP was incorrect or has expired.",
                 variant: "destructive"
             });
         } finally {
@@ -155,7 +181,7 @@ export default function RegisterForm() {
                     displayName: user.displayName,
                     email: user.email,
                     createdAt: serverTimestamp(),
-                    isAdmin: false, // Default role is not admin
+                    isAdmin: false,
                 };
                 if (teamId) {
                     userData.teamId = teamId;
@@ -167,7 +193,7 @@ export default function RegisterForm() {
                 title: "Sign-in Successful!",
                 description: "Welcome! Let's complete your profile if needed.",
             });
-            handleRedirect(user, teamId);
+            handleRedirect(user);
         } catch (error: any) {
              toast({
                 title: "Sign-in Failed",
@@ -182,77 +208,87 @@ export default function RegisterForm() {
     return (
         <Card className="mt-8">
             <CardContent className="pt-6">
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                         <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="John Doe" {...field} disabled={isLoading} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" placeholder="john.doe@example.com" {...field} disabled={isLoading} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" placeholder="••••••••" {...field} disabled={isLoading}/>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Confirm Password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" placeholder="••••••••" {...field} disabled={isLoading}/>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="w-full" size="lg" disabled={isLoading || isGoogleLoading}>
-                            {isLoading ? 'Registering...' : 'Register'}
-                        </Button>
-                    </form>
-                </Form>
+                {step === 'phone' ? (
+                     <Form {...phoneForm}>
+                        <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-6">
+                            <FormField
+                                control={phoneForm.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Phone Number</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="+919876543210" {...field} disabled={isLoading} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full" size="lg" disabled={isLoading || isGoogleLoading}>
+                                {isLoading ? <Loader2 className="animate-spin" /> : 'Send OTP'}
+                            </Button>
+                        </form>
+                    </Form>
+                ) : (
+                    <Form {...otpForm}>
+                        <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-6">
+                           <FormField
+                                control={otpForm.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="John Doe" {...field} disabled={isLoading} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={otpForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email Address</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="john.doe@example.com" {...field} disabled={isLoading} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={otpForm.control}
+                                name="otp"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Verification Code (OTP)</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="123456" {...field} disabled={isLoading} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full" size="lg" disabled={isLoading || isGoogleLoading}>
+                                {isLoading ? <Loader2 className="animate-spin" /> : 'Verify & Register'}
+                            </Button>
+                        </form>
+                    </Form>
+                )}
                  <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
+                        Or
                         </span>
                     </div>
                 </div>
                  <Button variant="outline" className="w-full" size="lg" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
-                    {isGoogleLoading ? 'Signing In...' : <><GoogleIcon className="mr-2 h-5 w-5" /> Google</>}
+                    {isGoogleLoading ? <Loader2 className="animate-spin" /> : <><GoogleIcon className="mr-2 h-5 w-5" /> Continue with Google</>}
                 </Button>
                 <div className="mt-6 text-center text-sm text-muted-foreground">
                     Already have an account?{" "}
@@ -260,6 +296,7 @@ export default function RegisterForm() {
                         Login
                     </Link>
                 </div>
+                <div id="recaptcha-container"></div>
             </CardContent>
         </Card>
     );
