@@ -33,31 +33,25 @@ export default function DashboardLayout({
       if (currentUser) {
         setUser(currentUser);
         
-        // Check for admin status from both token and Firestore
-        const tokenResult = await currentUser.getIdTokenResult();
         const docRef = doc(db, 'users', currentUser.uid);
         const docSnap = await getDoc(docRef);
         
-        const userIsAdmin = !!tokenResult.claims.admin || (docSnap.exists() && docSnap.data().isAdmin === true);
+        const userIsAdmin = docSnap.exists() && docSnap.data().isAdmin === true;
         setIsAdmin(userIsAdmin);
 
         if (userIsAdmin) {
-           // If on the base dashboard, redirect to admin, otherwise stay.
            if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
               router.push('/dashboard/admin');
            }
-           setLoading(false);
-           return;
-        }
-
-        if (docSnap.exists()) {
-          const profileData = docSnap.data();
-          if (!isProfileSufficient(profileData)) {
-             router.push('/profile');
-          }
         } else {
-          // If no user doc, they need to create one.
-          router.push('/profile');
+            if (docSnap.exists()) {
+              const profileData = docSnap.data();
+              if (!isProfileSufficient(profileData)) {
+                router.push('/profile');
+              }
+            } else {
+              router.push('/profile');
+            }
         }
 
       } else {
