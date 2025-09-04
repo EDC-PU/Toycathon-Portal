@@ -10,14 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import AdminDashboard from '@/components/admin-dashboard';
 
 interface UserProfile {
     displayName: string;
     email: string;
     uid: string;
     instituteType?: 'school' | 'university';
-    // Add other fields from your user profile if needed
+    isAdmin?: boolean;
 }
 
 interface Announcement {
@@ -38,12 +38,26 @@ export default function DashboardPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
+                const tokenResult = await currentUser.getIdTokenResult();
+                const userIsAdmin = !!tokenResult.claims.admin;
+
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    setProfile(docSnap.data() as UserProfile);
+                    setProfile({ ...docSnap.data(), isAdmin: userIsAdmin } as UserProfile);
+                } else {
+                    setProfile({ 
+                        displayName: currentUser.displayName || 'User',
+                        email: currentUser.email || '',
+                        uid: currentUser.uid,
+                        isAdmin: userIsAdmin 
+                    });
                 }
-                fetchAnnouncements();
+                
+                if (!userIsAdmin) {
+                    fetchAnnouncements();
+                }
+
             } else {
                  router.push('/login');
             }
@@ -66,7 +80,12 @@ export default function DashboardPage() {
     }
 
     if (!profile) {
-        return <div className="flex h-screen items-center justify-center">Could not load profile. Please complete your profile.</div>;
+        // This case should ideally not be hit if the user is logged in
+        return <div className="flex h-screen items-center justify-center">Could not load profile information.</div>;
+    }
+    
+    if (profile.isAdmin) {
+        return <AdminDashboard />;
     }
 
 
@@ -250,3 +269,5 @@ export default function DashboardPage() {
         </div>
     );
 }
+
+    
