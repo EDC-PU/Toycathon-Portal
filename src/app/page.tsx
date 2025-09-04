@@ -222,11 +222,11 @@ function HeroSection() {
                     animate="show"
                 >
                     <div className="block md:hidden mb-6">
-                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={100} height={100} />
+                        <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={80} height={80} />
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:block">
-                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={74} height={74} />
+                             <Image src="/TOYCATHON.svg" alt="Toycathon Logo" width={56} height={56} />
                         </div>
                         <motion.h1 
                             className="font-headline text-5xl font-black tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl"
@@ -271,7 +271,7 @@ function HeroSection() {
                     </motion.div>
                 </motion.div>
                 <div className="relative hidden w-full md:w-1/2 lg:w-3/5 md:flex justify-center items-center">
-                    <Image src="/TOYCATHON.svg" alt="Toycathon Illustration" width={105} height={105} className="w-full h-auto" />
+                    <Image src="/TOYCATHON.svg" alt="Toycathon Illustration" width={90} height={90} className="w-full h-auto" />
                 </div>
             </div>
         </section>
@@ -334,8 +334,8 @@ function HeroSection() {
 
 function SupportersSection() {
   const supporterLogos = [
-    '/supporter1.png',
-    '/supporter2.png',
+    'https://i.ibb.co/60nGFb7y/supporter1.png',
+    'https://i.ibb.co/FLVygH0v/supporter2.png',
     '/supporter3.svg',
   ];
 
