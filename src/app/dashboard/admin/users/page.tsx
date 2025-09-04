@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +53,7 @@ export default function AdminUsersPage() {
             } else {
                 router.push('/login');
             }
+            setLoading(false);
         });
 
         return () => unsubscribe();
@@ -239,3 +240,5 @@ export default function AdminUsersPage() {
         </div>
     )
 }
+
+    
