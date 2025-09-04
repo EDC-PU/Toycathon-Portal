@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import { Facebook, Instagram, Linkedin, Mail, Phone, Pin } from 'lucide-react';
 import Link from 'next/link';
@@ -22,7 +23,7 @@ export default function Footer() {
                             <Facebook className="h-5 w-5" />
                         </Button>
                     </a>
-                     <a href="https://www.linkedin.com/company/pierc-parul-university/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                     <a href="https://www.linkedin.com/company/pierc-paruluniversity/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                         <Button variant="ghost" size="icon">
                             <Linkedin className="h-5 w-5" />
                         </Button>
