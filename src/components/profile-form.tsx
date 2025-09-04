@@ -115,12 +115,16 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
               displayName: values.leaderName
             });
 
+            const tokenResult = await user.getIdTokenResult();
+            const isAdmin = !!tokenResult.claims.admin;
+
             const userRef = doc(db, "users", user.uid);
             const userData: any = {
                 ...values,
                 email: user.email,
                 uid: user.uid,
                 displayName: values.leaderName,
+                role: isAdmin ? 'admin' : 'member',
             }
 
             if(teamId) {
