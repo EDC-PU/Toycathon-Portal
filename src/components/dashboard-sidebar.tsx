@@ -26,9 +26,10 @@ const adminNavLinks = [
 
 interface DashboardSidebarProps {
     isAdmin: boolean;
+    onLinkClick?: () => void;
 }
 
-export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
+export default function DashboardSidebar({ isAdmin, onLinkClick }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -52,7 +53,7 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
 
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-background border-r h-full">
+    <aside className="flex flex-col w-64 bg-background border-r h-full">
       <div className="h-20 flex items-center px-6 border-b flex-shrink-0">
          <Link href="/">
               <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={180} height={41} className="h-10 w-auto object-contain" />
@@ -62,7 +63,7 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
         {navLinks.map((link) => {
           const isActive = pathname === link.href || (link.href === '/dashboard/teams' && pathname.startsWith('/dashboard/teams'));
           return (
-            <Link key={link.href} href={link.href}>
+            <Link key={link.href} href={link.href} onClick={onLinkClick}>
               <Button
                 variant={isActive ? 'secondary' : 'ghost'}
                 className="w-full justify-start"
@@ -83,7 +84,7 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
                         {adminNavLinks.map((link) => {
                             const isActive = pathname.startsWith(link.href);
                             return (
-                                <Link key={link.href} href={link.href}>
+                                <Link key={link.href} href={link.href} onClick={onLinkClick}>
                                 <Button
                                     variant={isActive ? 'secondary' : 'ghost'}
                                     className="w-full justify-start"
@@ -103,7 +104,10 @@ export default function DashboardSidebar({ isAdmin }: DashboardSidebarProps) {
          <Button
             variant={'ghost'}
             className="w-full justify-start"
-            onClick={handleLogout}
+            onClick={() => {
+                handleLogout();
+                if(onLinkClick) onLinkClick();
+            }}
         >
             <LogOut className="mr-2 h-4 w-4" />
             Logout

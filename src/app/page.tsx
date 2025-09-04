@@ -249,7 +249,7 @@ function HeroSection() {
                         </motion.h1>
                     </div>
                     <motion.p 
-                        className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:mx-0 md:text-xl"
+                        className="mx-auto max-w-2xl text-lg text-muted-foreground md:mx-0 md:text-xl"
                         variants={textItem}
                     >
                         Where Fun Meets Innovation!
