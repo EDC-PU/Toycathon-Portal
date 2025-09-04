@@ -21,7 +21,6 @@ const navLinks = [
 const adminNavLinks = [
     { href: '/dashboard/admin', label: 'Overview', icon: BarChart2 },
     { href: '/dashboard/admin/users', label: 'Manage Users', icon: Users },
-    { href: '/dashboard/admin/teams', label: 'Manage Teams', icon: Shield },
     { href: '/dashboard/announcements', label: 'Announcements', icon: Megaphone },
     { href: '/dashboard/categories', label: 'Categories & Themes', icon: Tag },
     { href: '/dashboard/profile', label: 'Admin Profile', icon: Settings },
