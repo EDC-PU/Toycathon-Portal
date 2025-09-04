@@ -2,7 +2,7 @@
 'use client';
 
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -19,14 +19,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isProfileSufficient = (profileData: any) => {
-    // A user's profile is considered sufficient if they have completed the form,
-    // or if they have a teamId (meaning they are a member who joined via a link).
     return profileData && (profileData.leaderPhone || profileData.teamId);
   }
 
@@ -42,35 +41,36 @@ export default function DashboardLayout({
         setIsAdmin(userIsAdmin);
 
         if (userIsAdmin) {
-           // Only redirect admins if they land on the base participant dashboard.
-           // This allows them to access all other admin pages.
-           if (window.location.pathname === '/dashboard' || window.location.pathname === '/dashboard/') {
+           // If an admin lands on the base participant dashboard, redirect them.
+           // This check is now specific and will not affect any other admin routes.
+           if (pathname === '/dashboard') {
               router.push('/dashboard/admin');
+              return; // End execution to prevent rendering child
            }
         } else {
             // For regular users, check if their profile is complete.
             if (docSnap.exists()) {
               const profileData = docSnap.data();
               if (!isProfileSufficient(profileData)) {
-                // If profile is not complete, redirect to profile creation page.
                 router.push('/profile');
+                return;
               }
             } else {
               // If no profile document exists at all, force creation.
               router.push('/profile');
+              return;
             }
         }
 
       } else {
-        // If no user is logged in, redirect to the login page.
         router.push('/login');
+        return;
       }
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [router]);
+  }, [router, pathname]);
 
   if (loading) {
     return (
@@ -81,7 +81,7 @@ export default function DashboardLayout({
   }
 
   if (!user) {
-    return null; // Redirect is handled by the effect, so we don't render anything.
+    return null; // Redirect is handled by the effect.
   }
 
   return (

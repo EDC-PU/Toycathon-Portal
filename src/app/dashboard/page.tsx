@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2 } from 'lucide-react';
 
 interface UserProfile {
     displayName: string;
@@ -37,25 +37,25 @@ export default function DashboardPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                const tokenResult = await currentUser.getIdTokenResult();
-                const userIsAdmin = !!tokenResult.claims.admin;
-
-                // If user is admin, they should be on the admin page.
-                if (userIsAdmin) {
-                    router.push('/dashboard/admin');
-                    return;
-                }
-
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
+
                 if (docSnap.exists()) {
-                    setProfile({ ...docSnap.data(), isAdmin: userIsAdmin } as UserProfile);
+                    const profileData = docSnap.data();
+                    const userIsAdmin = profileData.isAdmin === true;
+
+                    // This is a safeguard. The layout should already handle this,
+                    // but this ensures an admin never sees the participant dashboard.
+                    if (userIsAdmin) {
+                        router.push('/dashboard/admin');
+                        return; // Stop further processing
+                    }
+                    setProfile({ ...profileData } as UserProfile);
+                    fetchAnnouncements();
                 } else {
                      router.push('/profile'); // if no profile, force creation
                 }
                 
-                fetchAnnouncements();
-
             } else {
                  router.push('/login');
             }
@@ -74,12 +74,12 @@ export default function DashboardPage() {
 
 
     if (loading) {
-        return <div className="flex h-screen items-center justify-center">Loading...</div>;
+        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2" /> Loading Dashboard...</div>;
     }
 
     if (!profile) {
-        // This case should ideally not be hit if the user is logged in and not an admin
-        return <div className="flex h-screen items-center justify-center">Could not load profile information. Redirecting...</div>;
+        // This can happen briefly during redirects
+        return <div className="flex h-screen items-center justify-center">Verifying user session...</div>;
     }
 
     return (
