@@ -38,11 +38,11 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, orderBy, query, DocumentData } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface Theme extends DocumentData {
+interface Category extends DocumentData {
     id: string;
     name: string;
 }
-interface Category extends DocumentData {
+interface Theme extends DocumentData {
     id: string;
     name: string;
     targetCustomerGroup: string;
@@ -378,59 +378,50 @@ function CategoriesSection() {
         fetchCategories();
     }, []);
 
-    const categoryColors = ['border-primary', 'border-accent', 'border-destructive'];
+    const categoryIcons = [
+        <Puzzle className="h-8 w-8" />,
+        <Lightbulb className="h-8 w-8" />,
+        <Rocket className="h-8 w-8" />,
+        <Users className="h-8 w-8" />,
+        <Palette className="h-8 w-8" />,
+        <BookOpen className="h-8 w-8" />,
+        <Star className="h-8 w-8" />,
+        <Tag className="h-8 w-8" />
+    ];
+    
+    const categoryColors = ['text-primary', 'text-accent', 'text-destructive'];
 
     return (
-        <section id="categories" className="w-full bg-background py-12 md:py-24">
+        <section id="categories" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
+            <PlayfulShapes className="absolute top-20 right-10 opacity-10 transform rotate-45 scale-150" />
             <div className="container mx-auto max-w-7xl px-4 md:px-6">
                 <div className="mx-auto max-w-4xl text-center">
-                    <SectionHeading color="accent">Event Categories</SectionHeading>
-                    <p className="mt-4 text-muted-foreground">
-                        Select a category that best fits your innovative toy or game idea.
+                    <SectionHeading color="primary">Event Categories</SectionHeading>
+                    <p className="mt-4 text-muted-foreground text-center">
+                        Your creations should be based on one of the following categories, reflecting the diversity and richness of Indian ethos.
                     </p>
                 </div>
                 <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {isLoading ? (
-                        Array.from({ length: 3 }).map((_, index) => (
-                            <Card key={index} className="p-6">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <Skeleton className="h-10 w-10 rounded-full" />
-                                    <Skeleton className="h-6 w-3/4" />
+                         Array.from({ length: 6 }).map((_, index) => (
+                            <Card key={index} className="p-6 bg-background/50">
+                                <div className="flex items-center gap-4">
+                                     <Skeleton className="h-8 w-8 rounded-full" />
+                                     <Skeleton className="h-6 w-3/4" />
                                 </div>
-                                <Skeleton className="h-4 w-1/2 mb-2" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-5/6 mt-1" />
                             </Card>
                         ))
                     ) : categories.length > 0 ? (
                         categories.map((category, index) => (
-                            <Card key={category.id} className={`group flex flex-col p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 bg-secondary/30 border-l-4 ${categoryColors[index % categoryColors.length]}`}>
-                                <CardHeader className="p-0 flex-row gap-4 items-center mb-4">
-                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                        <Tag className="h-5 w-5" />
-                                    </div>
-                                    <CardTitle className="text-xl font-bold text-foreground">{category.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-0 flex-grow">
-                                    <div className="mb-3">
-                                        <p className="text-sm font-semibold text-primary flex items-center gap-2">
-                                            <Users2 className="h-4 w-4" />
-                                            Target Group
-                                        </p>
-                                        <p className="text-muted-foreground text-sm">{category.targetCustomerGroup}</p>
-                                    </div>
-                                    <div>
-                                         <p className="text-sm font-semibold text-primary flex items-center gap-2">
-                                             <Lightbulb className="h-4 w-4" />
-                                             Concept
-                                        </p>
-                                        <p className="text-muted-foreground text-sm">{category.concept}</p>
-                                    </div>
-                                </CardContent>
+                            <Card key={category.id} className="group flex items-center gap-4 p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
+                                <div className={`transition-colors duration-300 ${categoryColors[index % categoryColors.length]}`}>
+                                    {React.cloneElement(categoryIcons[index % categoryIcons.length], { className: "h-8 w-8" })}
+                                </div>
+                                <h3 className="text-xl font-bold text-foreground">{category.name}</h3>
                             </Card>
                         ))
                     ) : (
-                        <p className="col-span-full text-center text-muted-foreground">No categories have been added yet. Please check back later.</p>
+                         <p className="col-span-full text-center text-muted-foreground">No categories have been added yet. Please check back later.</p>
                     )}
                 </div>
             </div>
@@ -461,50 +452,59 @@ function ThemesSection() {
         fetchThemes();
     }, []);
 
-    const themeIcons = [
-        <Puzzle className="h-8 w-8" />,
-        <Lightbulb className="h-8 w-8" />,
-        <Rocket className="h-8 w-8" />,
-        <Users className="h-8 w-8" />,
-        <Palette className="h-8 w-8" />,
-        <BookOpen className="h-8 w-8" />,
-        <Star className="h-8 w-8" />,
-        <Tag className="h-8 w-8" />
-    ];
-    
-    const themeColors = ['text-primary', 'text-accent', 'text-destructive'];
+    const themeColors = ['border-primary', 'border-accent', 'border-destructive'];
 
     return (
-        <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
-            <PlayfulShapes className="absolute top-20 right-10 opacity-10 transform rotate-45 scale-150" />
+        <section id="themes" className="w-full bg-background py-12 md:py-24">
             <div className="container mx-auto max-w-7xl px-4 md:px-6">
                 <div className="mx-auto max-w-4xl text-center">
-                    <SectionHeading color="primary">Event Themes</SectionHeading>
-                    <p className="mt-4 text-muted-foreground text-center">
-                        Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
+                    <SectionHeading color="accent">Event Themes</SectionHeading>
+                    <p className="mt-4 text-muted-foreground">
+                        Select a theme that best fits your innovative toy or game idea.
                     </p>
                 </div>
                 <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {isLoading ? (
-                         Array.from({ length: 6 }).map((_, index) => (
-                            <Card key={index} className="p-6 bg-background/50">
-                                <div className="flex items-center gap-4">
-                                     <Skeleton className="h-8 w-8 rounded-full" />
-                                     <Skeleton className="h-6 w-3/4" />
+                        Array.from({ length: 3 }).map((_, index) => (
+                            <Card key={index} className="p-6">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <Skeleton className="h-10 w-10 rounded-full" />
+                                    <Skeleton className="h-6 w-3/4" />
                                 </div>
+                                <Skeleton className="h-4 w-1/2 mb-2" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-5/6 mt-1" />
                             </Card>
                         ))
                     ) : themes.length > 0 ? (
                         themes.map((theme, index) => (
-                            <Card key={theme.id} className="group flex items-center gap-4 p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
-                                <div className={`transition-colors duration-300 ${themeColors[index % themeColors.length]}`}>
-                                    {React.cloneElement(themeIcons[index % themeIcons.length], { className: "h-8 w-8" })}
-                                </div>
-                                <h3 className="text-xl font-bold text-foreground">{theme.name}</h3>
+                            <Card key={theme.id} className={`group flex flex-col p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 bg-secondary/30 border-l-4 ${themeColors[index % themeColors.length]}`}>
+                                <CardHeader className="p-0 flex-row gap-4 items-center mb-4">
+                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                        <BookOpen className="h-5 w-5" />
+                                    </div>
+                                    <CardTitle className="text-xl font-bold text-foreground">{theme.name}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0 flex-grow">
+                                    <div className="mb-3">
+                                        <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                                            <Users2 className="h-4 w-4" />
+                                            Target Group
+                                        </p>
+                                        <p className="text-muted-foreground text-sm">{theme.targetCustomerGroup}</p>
+                                    </div>
+                                    <div>
+                                         <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                                             <Lightbulb className="h-4 w-4" />
+                                             Concept
+                                        </p>
+                                        <p className="text-muted-foreground text-sm">{theme.concept}</p>
+                                    </div>
+                                </CardContent>
                             </Card>
                         ))
                     ) : (
-                         <p className="col-span-full text-center text-muted-foreground">No themes have been added yet. Please check back later.</p>
+                        <p className="col-span-full text-center text-muted-foreground">No themes have been added yet. Please check back later.</p>
                     )}
                 </div>
             </div>
@@ -817,8 +817,8 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <SupportersSection />
-      <CategoriesSection />
       <ThemesSection />
+      <CategoriesSection />
       <TimelineSection />
       <RulesAndEligibilitySection />
       <PhasesSection />

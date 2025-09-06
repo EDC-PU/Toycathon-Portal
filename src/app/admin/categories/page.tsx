@@ -15,14 +15,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Tag, BookOpen } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
-const categorySchema = z.object({
-  name: z.string().min(3, "Category name must be at least 3 characters."),
+const themeSchema = z.object({
+  name: z.string().min(3, "Theme name must be at least 3 characters."),
   targetCustomerGroup: z.string().min(3, "Target customer group is required."),
   concept: z.string().min(10, "Concept description is required."),
 });
 
-const themeSchema = z.object({
-  name: z.string().min(3, "Theme name must be at least 3 characters."),
+const categorySchema = z.object({
+  name: z.string().min(3, "Category name must be at least 3 characters."),
 });
 
 interface FirestoreDocument extends DocumentData {
@@ -37,13 +37,13 @@ export default function CategoriesPage() {
     const [categories, setCategories] = useState<FirestoreDocument[]>([]);
     const [themes, setThemes] = useState<FirestoreDocument[]>([]);
 
-    const categoryForm = useForm<z.infer<typeof categorySchema>>({
-        resolver: zodResolver(categorySchema),
+    const themeForm = useForm<z.infer<typeof themeSchema>>({
+        resolver: zodResolver(themeSchema),
         defaultValues: { name: "", targetCustomerGroup: "", concept: "" },
     });
 
-    const themeForm = useForm<z.infer<typeof themeSchema>>({
-        resolver: zodResolver(themeSchema),
+    const categoryForm = useForm<z.infer<typeof categorySchema>>({
+        resolver: zodResolver(categorySchema),
         defaultValues: { name: "" },
     });
 
@@ -66,17 +66,6 @@ export default function CategoriesPage() {
         setThemes(fetched);
     }
 
-    const onCategorySubmit = async (values: z.infer<typeof categorySchema>) => {
-        try {
-            await addDoc(collection(db, "categories"), values);
-            toast({ title: 'Category Added!' });
-            categoryForm.reset();
-            fetchCategories();
-        } catch (error) {
-            toast({ title: 'Error', description: 'Failed to add category.', variant: 'destructive' });
-        }
-    };
-    
     const onThemeSubmit = async (values: z.infer<typeof themeSchema>) => {
         try {
             await addDoc(collection(db, "themes"), values);
@@ -85,6 +74,17 @@ export default function CategoriesPage() {
             fetchThemes();
         } catch (error) {
             toast({ title: 'Error', description: 'Failed to add theme.', variant: 'destructive' });
+        }
+    };
+    
+    const onCategorySubmit = async (values: z.infer<typeof categorySchema>) => {
+        try {
+            await addDoc(collection(db, "categories"), values);
+            toast({ title: 'Category Added!' });
+            categoryForm.reset();
+            fetchCategories();
+        } catch (error) {
+            toast({ title: 'Error', description: 'Failed to add category.', variant: 'destructive' });
         }
     };
     
@@ -108,19 +108,18 @@ export default function CategoriesPage() {
             </div>
             
             <div className="grid md:grid-cols-2 gap-8">
-                <Card>
+                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><Tag /> Categories</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Form {...categoryForm}>
-                            <form onSubmit={categoryForm.handleSubmit(onCategorySubmit)} className="space-y-4">
+                         <Form {...categoryForm}>
+                            <form onSubmit={categoryForm.handleSubmit(onCategorySubmit)} className="flex items-center gap-4">
                                 <FormField
                                     control={categoryForm.control}
                                     name="name"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Category Name</FormLabel>
+                                        <FormItem className="flex-1">
                                             <FormControl>
                                                 <Input placeholder="e.g., Physical Toy" {...field} />
                                             </FormControl>
@@ -128,46 +127,16 @@ export default function CategoriesPage() {
                                         </FormItem>
                                     )}
                                 />
-                                 <FormField
-                                    control={categoryForm.control}
-                                    name="targetCustomerGroup"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Target Customer Group</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="e.g., Ages 5-8" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={categoryForm.control}
-                                    name="concept"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Concept</FormLabel>
-                                            <FormControl>
-                                                <Textarea placeholder="Describe the concept..." {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                                 <Button type="submit" disabled={categoryForm.formState.isSubmitting}>
-                                    {categoryForm.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Category'}
+                                     {categoryForm.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
                                 </Button>
                             </form>
                         </Form>
                          <div className="mt-6 space-y-2">
                             {categories.map(cat => (
-                                <div key={cat.id} className="flex items-start justify-between p-3 rounded-lg bg-secondary/30">
-                                    <div className="flex-1">
-                                        <p className="font-bold text-primary">{cat.name}</p>
-                                        <p className="text-sm"><span className="font-semibold">Target:</span> {cat.targetCustomerGroup}</p>
-                                        <p className="text-sm mt-1"><span className="font-semibold">Concept:</span> {cat.concept}</p>
-                                    </div>
-                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('categories', cat.id)} className="flex-shrink-0 ml-4">
+                                <div key={cat.id} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
+                                    <span className="font-medium">{cat.name}</span>
+                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('categories', cat.id)}>
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                 </div>
@@ -181,13 +150,14 @@ export default function CategoriesPage() {
                         <CardTitle className="flex items-center gap-2"><BookOpen /> Themes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                         <Form {...themeForm}>
-                            <form onSubmit={themeForm.handleSubmit(onThemeSubmit)} className="flex items-center gap-4">
+                        <Form {...themeForm}>
+                            <form onSubmit={themeForm.handleSubmit(onThemeSubmit)} className="space-y-4">
                                 <FormField
                                     control={themeForm.control}
                                     name="name"
                                     render={({ field }) => (
-                                        <FormItem className="flex-1">
+                                        <FormItem>
+                                            <FormLabel>Theme Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="e.g., Indian Culture" {...field} />
                                             </FormControl>
@@ -195,16 +165,46 @@ export default function CategoriesPage() {
                                         </FormItem>
                                     )}
                                 />
+                                 <FormField
+                                    control={themeForm.control}
+                                    name="targetCustomerGroup"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Target Customer Group</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Ages 5-8" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={themeForm.control}
+                                    name="concept"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Concept</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Describe the concept..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                 <Button type="submit" disabled={themeForm.formState.isSubmitting}>
-                                     {themeForm.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+                                    {themeForm.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Theme'}
                                 </Button>
                             </form>
                         </Form>
                          <div className="mt-6 space-y-2">
                             {themes.map(theme => (
-                                <div key={theme.id} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
-                                    <span className="font-medium">{theme.name}</span>
-                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('themes', theme.id)}>
+                                <div key={theme.id} className="flex items-start justify-between p-3 rounded-lg bg-secondary/30">
+                                    <div className="flex-1">
+                                        <p className="font-bold text-primary">{theme.name}</p>
+                                        <p className="text-sm"><span className="font-semibold">Target:</span> {theme.targetCustomerGroup}</p>
+                                        <p className="text-sm mt-1"><span className="font-semibold">Concept:</span> {theme.concept}</p>
+                                    </div>
+                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('themes', theme.id)} className="flex-shrink-0 ml-4">
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                 </div>
@@ -217,5 +217,3 @@ export default function CategoriesPage() {
         </div>
     )
 }
-
-    
