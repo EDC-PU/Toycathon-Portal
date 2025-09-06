@@ -25,51 +25,23 @@ import {
   Users,
   Wrench,
   Star,
-  BarChart
+  BarChart,
+  Tag
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { SVGProps } from 'react';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, orderBy, query, DocumentData } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const themes = [
-  {
-    icon: <Puzzle className="h-8 w-8" />,
-    title: 'Indian Culture & Heritage',
-    description: 'Toys based on Indian traditions, folklore, and history.',
-    color: 'text-primary',
-  },
-  {
-    icon: <Lightbulb className="h-8 w-8" />,
-    title: 'STEM & Innovation',
-    description: 'Educational toys focusing on science, tech, engineering, and math.',
-    color: 'text-accent',
-  },
-  {
-    icon: <Rocket className="h-8 w-8" />,
-    title: 'Divyang Friendly',
-    description: 'Toys designed for specially-abled children.',
-    color: 'text-destructive',
-  },
-  {
-    icon: <Users className="h-8 w-8" />,
-    title: 'Social & Human Values',
-    description: 'Toys that teach empathy, cooperation, and responsibility.',
-    color: 'text-primary',
-  },
-  {
-    icon: <Palette className="h-8 w-8" />,
-    title: 'Arts & Crafts',
-    description: 'DIY kits and toys that encourage artistic expression.',
-    color: 'text-accent',
-  },
-  {
-    icon: <BookOpen className="h-8 w-8" />,
-    title: 'Environment',
-    description: 'Eco-friendly toys and games about sustainability.',
-    color: 'text-destructive',
-  },
-];
+interface Theme extends DocumentData {
+    id: string;
+    name: string;
+}
+
 
 const timelineEvents = [
   {
@@ -378,30 +350,71 @@ function SupportersSection() {
 
 
 function ThemesSection() {
-  return (
-    <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
-       <PlayfulShapes className="absolute top-20 right-10 opacity-10 transform rotate-45 scale-150" />
-      <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="mx-auto max-w-4xl text-center">
-            <SectionHeading color="primary">Event Themes</SectionHeading>
-          <p className="mt-4 text-muted-foreground text-center">
-            Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
-          </p>
-        </div>
-        <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {themes.map((theme, index) => (
-            <Card key={index} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
-              <div className={`mb-4 transition-colors duration-300 ${theme.color}`}>
-                {theme.icon}
-              </div>
-              <h3 className="text-xl font-bold text-foreground">{theme.title}</h3>
-              <p className="mt-2 text-muted-foreground text-justify">{theme.description}</p>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+    const [themes, setThemes] = useState<Theme[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchThemes = async () => {
+            setIsLoading(true);
+            const q = query(collection(db, "themes"), orderBy("name"));
+            const querySnapshot = await getDocs(q);
+            const fetched = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Theme));
+            setThemes(fetched);
+            setIsLoading(false);
+        };
+
+        fetchThemes();
+    }, []);
+
+    const themeIcons = [
+        <Puzzle className="h-8 w-8" />,
+        <Lightbulb className="h-8 w-8" />,
+        <Rocket className="h-8 w-8" />,
+        <Users className="h-8 w-8" />,
+        <Palette className="h-8 w-8" />,
+        <BookOpen className="h-8 w-8" />,
+        <Star className="h-8 w-8" />,
+        <Tag className="h-8 w-8" />
+    ];
+    
+    const themeColors = ['text-primary', 'text-accent', 'text-destructive'];
+
+    return (
+        <section id="themes" className="w-full bg-secondary/20 py-12 md:py-24 relative overflow-hidden">
+            <PlayfulShapes className="absolute top-20 right-10 opacity-10 transform rotate-45 scale-150" />
+            <div className="container mx-auto max-w-7xl px-4 md:px-6">
+                <div className="mx-auto max-w-4xl text-center">
+                    <SectionHeading color="primary">Event Themes</SectionHeading>
+                    <p className="mt-4 text-muted-foreground text-center">
+                        Your creations should be based on one of the following themes, reflecting the diversity and richness of Indian ethos.
+                    </p>
+                </div>
+                <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                    {isLoading ? (
+                         Array.from({ length: 6 }).map((_, index) => (
+                            <Card key={index} className="p-6 bg-background/50">
+                                <Skeleton className="h-8 w-8 mb-4 rounded-full" />
+                                <Skeleton className="h-6 w-3/4 mb-2" />
+                                <Skeleton className="h-4 w-full" />
+                                 <Skeleton className="h-4 w-2/3 mt-1" />
+                            </Card>
+                        ))
+                    ) : themes.length > 0 ? (
+                        themes.map((theme, index) => (
+                            <Card key={theme.id} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
+                                <div className={`mb-4 transition-colors duration-300 ${themeColors[index % themeColors.length]}`}>
+                                    {themeIcons[index % themeIcons.length]}
+                                </div>
+                                <h3 className="text-xl font-bold text-foreground">{theme.name}</h3>
+                            </Card>
+                        ))
+                    ) : (
+                         <p className="col-span-full text-center text-muted-foreground">No themes have been added yet. Please check back later.</p>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
 }
 
 function TimelineSection() {
