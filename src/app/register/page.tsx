@@ -3,6 +3,7 @@
 
 import AuthForm from '@/components/auth-form';
 import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 
 function RegisterContent() {
     return (
@@ -21,7 +22,7 @@ function RegisterContent() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2" /> Loading...</div>}>
       <RegisterContent />
     </Suspense>
   );
