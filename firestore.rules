@@ -1,47 +1,72 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Users:
-    // - Authenticated users can create their own user document.
-    // - Users can only read/update their own document.
-    match /users/{userId} {
-      allow read, update: if request.auth.uid == userId;
-      allow create: if request.auth.uid != null;
-    }
-
-    // Teams:
-    // - Authenticated users can create teams.
-    // - The creator of the team can read, update, and delete it.
-    // - Any authenticated user can read team details (to see members, etc.).
-    match /teams/{teamId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth.uid == resource.data.creatorUid;
-    }
-
-    // Submissions:
-    // - Users can only create/update their own submission.
-    match /submissions/{userId} {
-        allow read, create, update: if request.auth.uid == userId;
+  
+    // Helper function to check for admin role
+    function isAdmin(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+             get(/databases/$(database)/documents/users/$(userId)).data.isAdmin == true;
     }
     
-    // Announcements:
-    // - All authenticated users can read announcements.
-    // - Only admins can write announcements.
-    match /announcements/{announcementId} {
-        allow read: if request.auth != null;
-        allow write: if request.auth.token.admin == true;
+    // Helper function to check if a user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Users Collection
+    match /users/{userId} {
+      // A user can create their own document
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // A user can read/update their own document, admins can read/write any
+      allow read, update: if isAuthenticated() && (request.auth.uid == userId || isAdmin(request.auth.uid));
+      // Only admins can delete a user document (except their own)
+      allow delete: if isAdmin(request.auth.uid) && request.auth.uid != userId;
     }
 
-    // Counters:
-    // - Authenticated users can read and write to the counters collection.
-    //   This is needed for the transaction that generates serial team IDs.
-    match /counters/{counterId} {
-        allow read, write: if request.auth != null;
+    // Teams Collection
+    match /teams/{teamId} {
+        // Any authenticated user can create a team
+        allow create: if isAuthenticated();
+        // The creator or an admin can read/update the team
+        allow read, update: if isAuthenticated() && (resource.data.creatorUid == request.auth.uid || isAdmin(request.auth.uid));
+        // The creator or an admin can delete the team
+        allow delete: if isAuthenticated() && (resource.data.creatorUid == request.auth.uid || isAdmin(request.auth.uid));
     }
+    
+    // Submissions Collection
+    match /submissions/{teamId} {
+        // The userId on the submission must match the authenticated user
+        allow create, update: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+        // Allow read if user is on the team (need to check team doc) or is admin
+        allow read: if isAuthenticated(); // Simplified for now, would need function to check team members
+         // Admins can manage any submission
+        allow read, write, delete: if isAdmin(request.auth.uid);
+    }
+    
+    // Announcements Collection
+    match /announcements/{announcementId} {
+        // Anyone authenticated can read announcements
+        allow read: if isAuthenticated();
+        // Only admins can create, update, or delete announcements
+        allow write: if isAdmin(request.auth.uid);
+    }
+    
+    // Categories and Themes Collections
+    match /{collection}/{docId} where collection in ['categories', 'themes'] {
+       // Anyone authenticated can read
+       allow read: if isAuthenticated();
+       // Only admins can write
+       allow write: if isAdmin(request.auth.uid);
+    }
+
+    // Counters Collection (for generating team IDs)
+    match /counters/{counterId} {
+        // Only authenticated users can interact with counters (as part of team creation)
+        allow read, write: if isAuthenticated();
+        // Admins can manage them if needed
+        allow read, write: if isAdmin(request.auth.uid);
+    }
+    
   }
 }
-
-    
