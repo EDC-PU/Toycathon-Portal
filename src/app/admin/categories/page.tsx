@@ -10,12 +10,15 @@ import * as z from "zod";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, Tag, BookOpen } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const categorySchema = z.object({
   name: z.string().min(3, "Category name must be at least 3 characters."),
+  targetCustomerGroup: z.string().min(3, "Target customer group is required."),
+  concept: z.string().min(10, "Concept description is required."),
 });
 
 const themeSchema = z.object({
@@ -25,6 +28,8 @@ const themeSchema = z.object({
 interface FirestoreDocument extends DocumentData {
     id: string;
     name: string;
+    targetCustomerGroup?: string;
+    concept?: string;
 }
 
 export default function CategoriesPage() {
@@ -34,7 +39,7 @@ export default function CategoriesPage() {
 
     const categoryForm = useForm<z.infer<typeof categorySchema>>({
         resolver: zodResolver(categorySchema),
-        defaultValues: { name: "" },
+        defaultValues: { name: "", targetCustomerGroup: "", concept: "" },
     });
 
     const themeForm = useForm<z.infer<typeof themeSchema>>({
@@ -109,12 +114,13 @@ export default function CategoriesPage() {
                     </CardHeader>
                     <CardContent>
                         <Form {...categoryForm}>
-                            <form onSubmit={categoryForm.handleSubmit(onCategorySubmit)} className="flex items-center gap-4">
+                            <form onSubmit={categoryForm.handleSubmit(onCategorySubmit)} className="space-y-4">
                                 <FormField
                                     control={categoryForm.control}
                                     name="name"
                                     render={({ field }) => (
-                                        <FormItem className="flex-1">
+                                        <FormItem>
+                                            <FormLabel>Category Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="e.g., Physical Toy" {...field} />
                                             </FormControl>
@@ -122,16 +128,46 @@ export default function CategoriesPage() {
                                         </FormItem>
                                     )}
                                 />
+                                 <FormField
+                                    control={categoryForm.control}
+                                    name="targetCustomerGroup"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Target Customer Group</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Ages 5-8" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={categoryForm.control}
+                                    name="concept"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Concept</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Describe the concept..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                 <Button type="submit" disabled={categoryForm.formState.isSubmitting}>
-                                    {categoryForm.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+                                    {categoryForm.formState.isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Category'}
                                 </Button>
                             </form>
                         </Form>
                          <div className="mt-6 space-y-2">
                             {categories.map(cat => (
-                                <div key={cat.id} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
-                                    <span className="font-medium">{cat.name}</span>
-                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('categories', cat.id)}>
+                                <div key={cat.id} className="flex items-start justify-between p-3 rounded-lg bg-secondary/30">
+                                    <div className="flex-1">
+                                        <p className="font-bold text-primary">{cat.name}</p>
+                                        <p className="text-sm"><span className="font-semibold">Target:</span> {cat.targetCustomerGroup}</p>
+                                        <p className="text-sm mt-1"><span className="font-semibold">Concept:</span> {cat.concept}</p>
+                                    </div>
+                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('categories', cat.id)} className="flex-shrink-0 ml-4">
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                 </div>
@@ -181,3 +217,5 @@ export default function CategoriesPage() {
         </div>
     )
 }
+
+    
