@@ -12,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Tag, BookOpen } from 'lucide-react';
+import { Loader2, Trash2, Tag, BookOpen, Edit } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import Link from 'next/link';
 
 const themeSchema = z.object({
   name: z.string().min(3, "Theme name must be at least 3 characters."),
@@ -204,9 +205,14 @@ export default function CategoriesPage() {
                                         <p className="text-sm"><span className="font-semibold">Target:</span> {theme.targetCustomerGroup}</p>
                                         <p className="text-sm mt-1"><span className="font-semibold">Concept:</span> {theme.concept}</p>
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={() => deleteItem('themes', theme.id)} className="flex-shrink-0 ml-4">
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
+                                    <div className="flex-shrink-0 ml-4 flex items-center gap-1">
+                                        <Button asChild variant="ghost" size="icon">
+                                            <Link href={`/admin/themes/edit/${theme.id}`}><Edit className="h-4 w-4" /></Link>
+                                        </Button>
+                                        <Button variant="ghost" size="icon" onClick={() => deleteItem('themes', theme.id)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
