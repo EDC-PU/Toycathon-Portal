@@ -26,7 +26,8 @@ import {
   Wrench,
   Star,
   BarChart,
-  Tag
+  Tag,
+  Users2
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,6 +41,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface Theme extends DocumentData {
     id: string;
     name: string;
+}
+interface Category extends DocumentData {
+    id: string;
+    name: string;
+    targetCustomerGroup: string;
+    concept: string;
 }
 
 
@@ -349,6 +356,89 @@ function SupportersSection() {
 }
 
 
+function CategoriesSection() {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            setIsLoading(true);
+            try {
+                const q = query(collection(db, "categories"), orderBy("name"));
+                const querySnapshot = await getDocs(q);
+                const fetched = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+                setCategories(fetched);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    const categoryColors = ['border-primary', 'border-accent', 'border-destructive'];
+
+    return (
+        <section id="categories" className="w-full bg-background py-12 md:py-24">
+            <div className="container mx-auto max-w-7xl px-4 md:px-6">
+                <div className="mx-auto max-w-4xl text-center">
+                    <SectionHeading color="accent">Event Categories</SectionHeading>
+                    <p className="mt-4 text-muted-foreground">
+                        Select a category that best fits your innovative toy or game idea.
+                    </p>
+                </div>
+                <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                    {isLoading ? (
+                        Array.from({ length: 3 }).map((_, index) => (
+                            <Card key={index} className="p-6">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <Skeleton className="h-10 w-10 rounded-full" />
+                                    <Skeleton className="h-6 w-3/4" />
+                                </div>
+                                <Skeleton className="h-4 w-1/2 mb-2" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-5/6 mt-1" />
+                            </Card>
+                        ))
+                    ) : categories.length > 0 ? (
+                        categories.map((category, index) => (
+                            <Card key={category.id} className={`group flex flex-col p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 bg-secondary/30 border-l-4 ${categoryColors[index % categoryColors.length]}`}>
+                                <CardHeader className="p-0 flex-row gap-4 items-center mb-4">
+                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                        <Tag className="h-5 w-5" />
+                                    </div>
+                                    <CardTitle className="text-xl font-bold text-foreground">{category.name}</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0 flex-grow">
+                                    <div className="mb-3">
+                                        <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                                            <Users2 className="h-4 w-4" />
+                                            Target Group
+                                        </p>
+                                        <p className="text-muted-foreground text-sm">{category.targetCustomerGroup}</p>
+                                    </div>
+                                    <div>
+                                         <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                                             <Lightbulb className="h-4 w-4" />
+                                             Concept
+                                        </p>
+                                        <p className="text-muted-foreground text-sm">{category.concept}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        <p className="col-span-full text-center text-muted-foreground">No categories have been added yet. Please check back later.</p>
+                    )}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+
 function ThemesSection() {
     const [themes, setThemes] = useState<Theme[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -356,11 +446,16 @@ function ThemesSection() {
     useEffect(() => {
         const fetchThemes = async () => {
             setIsLoading(true);
-            const q = query(collection(db, "themes"), orderBy("name"));
-            const querySnapshot = await getDocs(q);
-            const fetched = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Theme));
-            setThemes(fetched);
-            setIsLoading(false);
+            try {
+                const q = query(collection(db, "themes"), orderBy("name"));
+                const querySnapshot = await getDocs(q);
+                const fetched = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Theme));
+                setThemes(fetched);
+            } catch (error) {
+                console.error("Error fetching themes:", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
         fetchThemes();
@@ -393,17 +488,17 @@ function ThemesSection() {
                     {isLoading ? (
                          Array.from({ length: 6 }).map((_, index) => (
                             <Card key={index} className="p-6 bg-background/50">
-                                <Skeleton className="h-8 w-8 mb-4 rounded-full" />
-                                <Skeleton className="h-6 w-3/4 mb-2" />
-                                <Skeleton className="h-4 w-full" />
-                                 <Skeleton className="h-4 w-2/3 mt-1" />
+                                <div className="flex items-center gap-4">
+                                     <Skeleton className="h-8 w-8 rounded-full" />
+                                     <Skeleton className="h-6 w-3/4" />
+                                </div>
                             </Card>
                         ))
                     ) : themes.length > 0 ? (
                         themes.map((theme, index) => (
-                            <Card key={theme.id} className="group flex flex-col p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
-                                <div className={`mb-4 transition-colors duration-300 ${themeColors[index % themeColors.length]}`}>
-                                    {themeIcons[index % themeIcons.length]}
+                            <Card key={theme.id} className="group flex items-center gap-4 p-6 transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-2 bg-background border-transparent">
+                                <div className={`transition-colors duration-300 ${themeColors[index % themeColors.length]}`}>
+                                    {React.cloneElement(themeIcons[index % themeIcons.length], { className: "h-8 w-8" })}
                                 </div>
                                 <h3 className="text-xl font-bold text-foreground">{theme.name}</h3>
                             </Card>
@@ -722,6 +817,7 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <SupportersSection />
+      <CategoriesSection />
       <ThemesSection />
       <TimelineSection />
       <RulesAndEligibilitySection />
@@ -731,11 +827,3 @@ export default function Home() {
     </>
   );
 }
-
-    
-
-    
-
-    
-
-    
