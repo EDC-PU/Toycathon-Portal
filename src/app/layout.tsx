@@ -17,12 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isDashboard = pathname.startsWith('/dashboard');
+  const isAppPage = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/profile');
   const pageTitle = "Vadodara Toycathon 2025 - India's Premier Toy Design Challenge";
   const pageDescription = "Join the Vadodara Toycathon 2025! A national-level competition for school, college, and university students in Vadodara, Gujarat, to design and build innovative toys and games. Unleash your creativity and win exciting prizes.";
 
 
-  if (isDashboard) {
+  if (isAppPage) {
     return (
        <html lang="en" suppressHydrationWarning>
         <head>
