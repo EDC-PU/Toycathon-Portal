@@ -3,48 +3,33 @@ import { MetadataRoute } from 'next'
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://toycathon.pierc.org';
 
-  return [
-    {
-      url: `${baseUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-        url: `${baseUrl}/dashboard`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.5
-    },
-    {
-        url: `${baseUrl}/profile`,
-        lastModified: new Date(),
-        changeFrequency: 'yearly',
-        priority: 0.5
-    },
-    {
-      url: `${baseUrl}/terms-of-service`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    }
-  ]
+  const staticPages = [
+    '/',
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/dashboard',
+    '/dashboard/profile',
+    '/dashboard/teams',
+    '/dashboard/teams/create',
+    '/dashboard/submission',
+    '/admin',
+    '/admin/announcements',
+    '/admin/categories',
+    '/admin/health',
+    '/admin/profile',
+    '/admin/teams',
+    '/admin/users',
+    '/privacy-policy',
+    '/terms-of-service',
+  ];
+
+  const sitemapEntries: MetadataRoute.Sitemap = staticPages.map((path) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: path === '/' ? 1 : 0.8,
+  }));
+
+  return sitemapEntries;
 }
