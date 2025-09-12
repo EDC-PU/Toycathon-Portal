@@ -27,7 +27,8 @@ import {
   Star,
   BarChart,
   Tag,
-  Users2
+  Users2,
+  Download
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -244,7 +245,9 @@ function HeroSection() {
                         </motion.div>
                         <motion.div variants={textItem} whileHover={{ scale: 1.05 }}>
                             <Button asChild size="lg" variant="outline">
-                                <Link href="#rules">View Rules</Link>
+                                <Link href="https://drive.google.com/file/d/1hgpUZnELkyHBr-bNsTQJmnVbDVX3XERr/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+                                   <Download className="mr-2 h-4 w-4" /> Download Brochure
+                                </Link>
                             </Button>
                         </motion.div>
                     </motion.div>
