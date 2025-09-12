@@ -1,3 +1,4 @@
+
 // This file uses server-side code.
 'use server';
 
@@ -62,7 +63,7 @@ const prompt = ai.definePrompt({
   - Environment (Eco-friendly toys)
 
   **4. Important Dates (Timeline):**
-  - **Registration Opens:** August 15, 2025
+  - **Registration Opens:** September 15, 2025
   - **Registration Closes & Idea Submission Deadline:** September 30, 2025
   - **Phase 1 (Idea Presentation):** October 2-4, 2025
   - **Grand Finale:** October 7-8, 2025
@@ -114,3 +115,5 @@ const chatbotAssistantFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

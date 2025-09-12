@@ -53,7 +53,7 @@ interface Theme extends DocumentData {
 
 const timelineEvents = [
   {
-    date: 'August 15, 2025',
+    date: 'September 15, 2025',
     title: 'Registration Opens',
     description: 'Teams can start registering for the Toycathon.',
     icon: <Flag className="h-8 w-8" />,
@@ -830,3 +830,5 @@ export default function Home() {
     </>
   );
 }
+
+    
