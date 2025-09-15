@@ -26,7 +26,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const formSchema = z.object({
-  // teamName: z.string().min(2, "Team name must be at least 2 characters."),
   leaderName: z.string().min(2, "Your name must be at least 2 characters."),
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   college: z.string().min(3, "Institution name is required."),
@@ -94,44 +93,44 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
 
         setIsLoading(true);
         try {
-
-             if (teamId) {
-                const teamDocRef = doc(db, "teams", teamId);
-                const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
-                
-                const membersSnapshot = await getDocs(membersQuery);
-                if (membersSnapshot.size >= 4) {
-                    toast({
-                        title: "Team Full",
-                        description: "This team has already reached the maximum of 4 members (1 leader + 3 members).",
-                        variant: "destructive",
-                    });
-                    setIsLoading(false);
-                    return;
-                }
-            }
-
             await updateProfile(user, {
               displayName: values.leaderName
             });
 
             const tokenResult = await user.getIdTokenResult();
             const isAdmin = !!tokenResult.claims.admin;
-
             const userRef = doc(db, "users", user.uid);
-            const userData: any = {
-                ...values,
-                email: user.email,
-                uid: user.uid,
-                displayName: values.leaderName,
-                role: isAdmin ? 'admin' : 'member',
-            }
 
-            if(teamId) {
-                userData.teamId = teamId;
-            }
+            await runTransaction(db, async (transaction) => {
+                const userData: any = {
+                    ...values,
+                    email: user.email,
+                    uid: user.uid,
+                    displayName: values.leaderName,
+                    role: isAdmin ? 'admin' : 'member',
+                };
 
-            await setDoc(userRef, userData, { merge: true });
+                if (teamId) {
+                    const teamDocRef = doc(db, "teams", teamId);
+                    const teamDoc = await transaction.get(teamDocRef);
+
+                    if (!teamDoc.exists()) {
+                        throw new Error("This team does not exist. Please check the joining link.");
+                    }
+
+                    const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
+                    const membersSnapshot = await getDocs(membersQuery);
+                    
+                    if (membersSnapshot.size >= 4) {
+                        throw new Error("This team is already full and cannot accept new members.");
+                    }
+                    
+                    userData.teamId = teamId;
+                }
+                
+                transaction.set(userRef, userData, { merge: true });
+            });
+
 
             toast({
                 title: "Profile Updated!",
@@ -144,10 +143,10 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                 router.push('/dashboard/profile');
             }
 
-        } catch (error) {
+        } catch (error: any) {
              toast({
                 title: "Error",
-                description: "Failed to update profile.",
+                description: error.message || "Failed to update profile. Please try again.",
                 variant: "destructive",
             });
         } finally {

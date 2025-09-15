@@ -94,7 +94,7 @@ const prompt = ai.definePrompt({
     - Manish Jain: 9131445130
     - Kartik Ram: 9594355271
     - Smitha Reddy: 8121734431
-  - **Email:** pierc@paruluniversity.ac.in
+  - **Email:** entrepreneurshipclub@paruluniversity.ac.in
   - **Address:** Parul Innovation and Entrepreneurship Research Centre, BBA building, ground floor, Parul University, P.O. Limda, Ta. Waghodia, Dist. Vadodara-391760, Gujarat, India.
   - **Website:** https://www.pierc.org/
 

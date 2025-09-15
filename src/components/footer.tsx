@@ -38,7 +38,7 @@ export default function Footer() {
                     <p><Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>
                      <div className="flex items-center justify-center gap-2 pt-2">
                         <Mail className="h-4 w-4" />
-                        <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
+                        <a href="mailto:entrepreneurshipclub@paruluniversity.ac.in" className="hover:text-primary">entrepreneurshipclub@paruluniversity.ac.in</a>
                     </div>
                 </div>
             </div>

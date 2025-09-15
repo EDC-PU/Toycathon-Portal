@@ -252,7 +252,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Mail className="h-4 w-4" />
-                                <a href="mailto:pierc@paruluniversity.ac.in" className="hover:text-primary">pierc@paruluniversity.ac.in</a>
+                                <a href="mailto:entrepreneurshipclub@paruluniversity.ac.in" className="hover:text-primary">entrepreneurshipclub@paruluniversity.ac.in</a>
                             </div>
                         </div>
                     </div>

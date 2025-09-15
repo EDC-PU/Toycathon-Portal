@@ -49,7 +49,7 @@ export default function TermsOfServicePage() {
            <div className="space-y-2">
             <h2 className="text-xl font-semibold text-foreground">7. Contact Us</h2>
             <p>
-              If you have any questions about these Terms, please contact us at: pierc@paruluniversity.ac.in
+              If you have any questions about these Terms, please contact us at: entrepreneurshipclub@paruluniversity.ac.in
             </p>
           </div>
         </CardContent>
