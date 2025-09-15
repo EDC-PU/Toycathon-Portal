@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState, useEffect } from "react";
 import { auth, db } from "@/lib/firebase";
-import { addDoc, collection, serverTimestamp, doc, runTransaction, setDoc, getDoc } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, doc, runTransaction, setDoc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -101,10 +101,17 @@ export default function CreateTeamPage() {
         try {
             const counterRef = doc(db, "counters", "teamIds");
             const teamsCollectionRef = collection(db, "teams");
+            
+            await runTransaction(db, async (transaction) => {
+                // 1. Check for unique team name
+                const teamNameQuery = query(teamsCollectionRef, where("teamName", "==", values.teamName));
+                const teamNameSnapshot = await getDocs(teamNameQuery);
+                if (!teamNameSnapshot.empty) {
+                    throw new Error("This team name is already taken. Please choose another one.");
+                }
 
-            const newTeamRef = await runTransaction(db, async (transaction) => {
+                // 2. Get the next sequential ID
                 const counterDoc = await transaction.get(counterRef);
-                
                 const instituteTypeKey = values.instituteType.toLowerCase();
                 let newCount = 1;
 
@@ -115,8 +122,10 @@ export default function CreateTeamPage() {
                 const paddedCount = String(newCount).padStart(3, '0');
                 const teamId = `VT/${values.instituteType}/${paddedCount}`;
 
+                // 3. Update the counter
                 transaction.set(counterRef, { [instituteTypeKey]: newCount }, { merge: true });
                 
+                // 4. Create the new team
                 const newTeamDocRef = doc(teamsCollectionRef);
                 transaction.set(newTeamDocRef, {
                     teamName: values.teamName,
@@ -130,13 +139,11 @@ export default function CreateTeamPage() {
                     createdAt: serverTimestamp(),
                 });
 
-                // If creator is the leader, add them to the users collection with the teamId
+                // 5. If creator is the leader, update their user document
                 if (values.isLeader) {
                     const userRef = doc(db, "users", user.uid);
                     transaction.set(userRef, { teamId: newTeamDocRef.id }, { merge: true });
                 }
-
-                return newTeamDocRef;
             });
 
             toast({
@@ -145,11 +152,11 @@ export default function CreateTeamPage() {
             });
             router.push('/dashboard/teams');
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error creating team:", error);
             toast({
-                title: 'Error',
-                description: 'Failed to create the team. Please try again.',
+                title: 'Error Creating Team',
+                description: error.message || 'An unexpected error occurred. Please try again.',
                 variant: 'destructive',
             });
         } finally {
@@ -168,7 +175,7 @@ export default function CreateTeamPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Team Information</CardTitle>
-                    <CardDescription>Enter the details for the team and its leader.</CardDescription>
+                    <CardDescription>Enter the details for the team and its leader. Team names must be unique.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>

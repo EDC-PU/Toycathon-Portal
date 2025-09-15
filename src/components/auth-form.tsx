@@ -21,7 +21,6 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 
 const emailSchema = z.object({
-    name: z.string().optional(),
     email: z.string().email("Please enter a valid email."),
     password: z.string().min(6, "Password must be at least 6 characters.").optional().or(z.literal('')),
 });
@@ -32,7 +31,6 @@ const phoneSchema = z.object({
 
 const otpSchema = z.object({
     otp: z.string().min(6, "OTP must be 6 digits."),
-    name: z.string().min(2, "Name is required for registration."),
 });
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -64,7 +62,7 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
 
     const emailForm = useForm<z.infer<typeof emailSchema>>({
         resolver: zodResolver(emailSchema),
-        defaultValues: { name: "", email: "", password: "" },
+        defaultValues: { email: "", password: "" },
     });
 
     const phoneForm = useForm<z.infer<typeof phoneSchema>>({
@@ -74,7 +72,7 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
 
     const otpForm = useForm<z.infer<typeof otpSchema>>({
         resolver: zodResolver(otpSchema),
-        defaultValues: { otp: "", name: "" },
+        defaultValues: { otp: "" },
     });
     
     useEffect(() => {
@@ -103,11 +101,6 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
     async function onEmailSubmit(values: z.infer<typeof emailSchema>) {
         setIsLoading(true);
         if (isRegisterPage) { // REGISTRATION
-            if (!values.name) {
-                emailForm.setError("name", { type: "manual", message: "Name is required for registration." });
-                setIsLoading(false);
-                return;
-            }
             if (!values.password) {
                  emailForm.setError("password", { type: "manual", message: "Password is required for registration." });
                  setIsLoading(false);
@@ -116,11 +109,11 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
                 const user = userCredential.user;
-                await updateProfile(user, { displayName: values.name });
+                // Don't update profile with name here, it will be done on profile completion page
                 await setDoc(doc(db, "users", user.uid), {
                     uid: user.uid,
-                    displayName: values.name,
                     email: user.email,
+                    displayName: user.email, // Use email as a placeholder
                     createdAt: serverTimestamp(),
                     isAdmin: false,
                 });
@@ -176,7 +169,6 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
         try {
             const userCredential = await confirmationResult.confirm(values.otp);
             const user = userCredential.user;
-            await updateProfile(user, { displayName: values.name });
             
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
@@ -184,8 +176,8 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
             if (!userDocSnap.exists()) {
                 const userData: any = {
                     uid: user.uid,
-                    displayName: values.name,
                     phoneNumber: user.phoneNumber,
+                    displayName: user.phoneNumber, // Use phone number as placeholder
                     createdAt: serverTimestamp(),
                     isAdmin: false, 
                 };
@@ -245,19 +237,6 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                     <TabsContent value="email">
                         <Form {...emailForm}>
                             <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6 mt-4">
-                                {isRegisterPage && (
-                                    <FormField
-                                        control={emailForm.control}
-                                        name="name"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Full Name</FormLabel>
-                                                <FormControl><Input placeholder="John Doe" {...field} disabled={isLoading} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                )}
                                 <FormField
                                     control={emailForm.control}
                                     name="email"
@@ -324,19 +303,6 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
                         ) : (
                              <Form {...otpForm}>
                                 <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-6 mt-4">
-                                    {isRegisterPage && (
-                                         <FormField
-                                            control={otpForm.control}
-                                            name="name"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Full Name</FormLabel>
-                                                    <FormControl><Input placeholder="John Doe" {...field} disabled={isLoading} /></FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    )}
                                     <FormField
                                         control={otpForm.control}
                                         name="otp"
