@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2, LinkIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { addMemberToTeam } from '@/ai/flows/add-member-to-team-flow';
 
 interface UserProfile {
     displayName: string;
@@ -84,42 +85,23 @@ export default function DashboardPage() {
         e.preventDefault();
         if (!user || !joinLink) return;
 
-        const teamIdMatch = joinLink.match(/teamId=([^&]+)/);
-        if (!teamIdMatch || !teamIdMatch[1]) {
-            toast({ title: "Invalid Link", description: "The link format is incorrect. Please use the full invitation link.", variant: "destructive" });
+        const urlParts = joinLink.split('/');
+        const teamId = urlParts[urlParts.length - 1];
+
+        if (!teamId) {
+            toast({ title: "Invalid Link", description: "Could not find a team ID in the provided link.", variant: "destructive" });
             return;
         }
-        const teamId = teamIdMatch[1];
         
         setIsJoining(true);
-        try {
-            const userRef = doc(db, "users", user.uid);
-            await runTransaction(db, async (transaction) => {
-                 const teamDocRef = doc(db, "teams", teamId);
-                 const teamDoc = await transaction.get(teamDocRef);
-
-                 if (!teamDoc.exists()) {
-                    throw new Error("This team does not exist. Please check the joining link.");
-                 }
-
-                 const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
-                 const membersSnapshot = await getDocs(membersQuery);
-                 
-                 if (membersSnapshot.size >= 4) {
-                     throw new Error("This team is already full and cannot accept new members.");
-                 }
-
-                 transaction.update(userRef, { teamId: teamId });
-            });
-
-            toast({ title: "Success!", description: "You have successfully joined the team." });
+        const result = await addMemberToTeam({ teamId: teamId, userId: user.uid });
+        if (result.success) {
+            toast({ title: "Success!", description: `You have successfully joined ${result.teamName}!` });
             setProfile(prev => prev ? { ...prev, teamId: teamId } : null);
-
-        } catch (error: any) {
-            toast({ title: "Failed to Join Team", description: error.message, variant: "destructive" });
-        } finally {
-            setIsJoining(false);
+        } else {
+            toast({ title: "Failed to Join Team", description: result.message, variant: "destructive" });
         }
+        setIsJoining(false);
     }
 
 
