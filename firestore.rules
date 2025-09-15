@@ -3,69 +3,71 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /users/{userId} {
-      // Allow users to read their own document or if they are in the same team
-      allow read: if request.auth.uid == userId || 
-                  (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == get(/databases/$(database)/documents/users/$(userId)).data.teamId);
-
-      // Allow users to create their own document
-      allow create: if request.auth.uid == userId;
-      
-      // Allow users to update their own document.
-      allow update: if request.auth.uid == userId;
+    // Helper function to check if a user is a member of a team
+    function isTeamMember(teamId, userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)) &&
+             get(/databases/$(database)/documents/users/$(userId)).data.teamId == teamId;
     }
 
-    match /teams/{teamId} {
-      // Allow read if user is the creator or a member of the team.
-      allow read: if request.auth.uid == resource.data.creatorUid ||
-                  (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId);
-                  
-      // Allow team creation for any authenticated user.
-      allow create: if request.auth != null;
-      
-      // Allow team update if user is the creator or a member of the team.
-      allow update: if request.auth.uid == resource.data.creatorUid ||
-                  (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId);
-
-      // Allow team deletion only for the creator.
-      allow delete: if request.auth.uid == resource.data.creatorUid;
-    }
-
-    match /counters/{counter} {
-      // Allow read/write for any authenticated user to handle team ID generation.
-      allow read, write: if request.auth != null;
-    }
-
-    match /announcements/{announcementId} {
-      // Anyone can read announcements.
-      allow read: true;
-      // Only admins can create, update, or delete announcements.
-      allow write: if exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    // Helper function to check if a user is the creator of a team
+    function isTeamCreator(teamId, userId) {
+      return get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == userId;
     }
     
-    match /categories/{categoryId} {
-        // Anyone can read categories
-        allow read: true;
-        // Only admins can write to categories
-        allow write: if exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId || 
+                   (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId != null &&
+                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == get(/databases/$(database)/documents/users/$(userId)).data.teamId);
+      
+      allow create: if request.auth.uid == userId;
+
+      allow update: if request.auth.uid == userId;
+      
+      allow delete: if false; // Generally, don't let users delete themselves. This should be an admin action.
     }
 
-    match /themes/{themeId} {
-        // Anyone can read themes
-        allow read: true;
-        // Only admins can write to themes
-        allow write: if exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    // Teams collection
+    match /teams/{teamId} {
+      // Allow read if user created the team OR is a member of the team
+      allow read: if isTeamCreator(teamId, request.auth.uid) || isTeamMember(teamId, request.auth.uid);
+      
+      // Allow create if user is logged in
+      allow create: if request.auth.uid != null;
+      
+      // Allow update if user created the team OR is a member of the team
+      allow update: if isTeamCreator(teamId, request.auth.uid) || isTeamMember(teamId, request.auth.uid);
+      
+      // Only allow delete if the user is the creator of the team
+      allow delete: if isTeamCreator(teamId, request.auth.uid);
     }
 
+    // Submissions collection
     match /submissions/{submissionId} {
-      // Allow read/write only by the user who created the submission
-      allow read, write: if request.auth.uid == resource.data.userId;
+      // submissionId should be the same as teamId
+      allow read, write: if isTeamCreator(submissionId, request.auth.uid) || isTeamMember(submissionId, request.auth.uid);
+    }
+    
+    // Categories, Themes, and Announcements are public read
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false; // Should be managed by admin
+    }
+    
+    match /themes/{themeId} {
+      allow read: if true;
+      allow write: if false; // Should be managed by admin
+    }
+    
+     match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if false; // Should be managed by admin
+    }
+
+    // Counter for team IDs
+    match /counters/{counterId} {
+      allow read, write: if request.auth.uid != null; // Allow logged-in users to read/write for transactions
     }
   }
 }
