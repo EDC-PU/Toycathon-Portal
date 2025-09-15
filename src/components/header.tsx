@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -10,7 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Image from 'next/image';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
@@ -33,14 +32,20 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      
+      const teamId = searchParams.get('teamId');
+      if (currentUser && teamId) {
+          router.push(`/dashboard?teamId=${teamId}`);
+      }
     });
     return () => unsubscribe();
-  }, []);
+  }, [router, searchParams]);
 
   const handleLogout = async () => {
     try {
@@ -197,4 +202,3 @@ export default function Header() {
     </header>
   );
 }
-
