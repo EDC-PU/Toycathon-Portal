@@ -7,6 +7,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid;
     }
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
     function isTeamMember(teamId) {
         return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
     }
@@ -30,7 +34,7 @@ service cloud.firestore {
     match /teams/{teamId} {
       allow create: if request.auth.uid != null;
       allow read: if request.auth.uid != null; // Allow any authenticated user to read team data for joining
-      allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
+      allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin()) ||  isSignedIn();
       allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
     }
 
