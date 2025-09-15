@@ -2,79 +2,82 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    function isAuth() {
-      return request.auth != null;
+
+    // Helper function to check if a user is an admin
+    function isAdmin(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.isAdmin == true;
     }
 
-    // Helper function to check for admin role from the user's document in Firestore
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    // Helper function to check if a user is a member of a given team
+    function isTeamMember(teamId, userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.teamId == teamId;
     }
 
-    // Helper function to get the requesting user's data
-    function getMyUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
-    // By default, deny all reads and writes
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Rules for the 'users' collection
+    // Rules for the users collection
     match /users/{userId} {
-      // A user can read another user's document if they are in the same team
-      function inSameTeam() {
-        let myData = getMyUserData();
-        let theirData = get(/databases/$(database)/documents/users/$(userId)).data;
-        // Check if both users have a teamId and if they are the same
-        return myData.teamId != null && myData.teamId == theirData.teamId;
-      }
+      // Allow users to create their own user document
+      allow create: if request.auth != null;
+      // Allow users to read their own document, or if they are in the same team
+      allow read: if request.auth.uid == userId || isTeamMember(get(/databases/$(database)/documents/users/$(userId)).data.teamId, request.auth.uid);
       
-      // Admins can read any user doc.
-      // A user can read their own doc.
-      // A user can read the doc of a teammate.
-      allow read: if isAdmin() || request.auth.uid == userId || inSameTeam();
+      // Allow users to update their own document.
+      // They can change any field except 'teamId' unless it's a new team join.
+      // They cannot make themselves an admin.
+      allow update: if request.auth.uid == userId
+                    && request.resource.data.isAdmin == resource.data.isAdmin
+                    && (
+                      // Case 1: Joining a team for the first time
+                      (resource.data.teamId == null && request.resource.data.teamId != null)
+                      ||
+                      // Case 2: Not changing teamId
+                      request.resource.data.teamId == resource.data.teamId
+                    );
 
-      // Admins can write to any user doc.
-      // A user can create/update their own doc.
-      allow write: if isAdmin() || request.auth.uid == userId;
+      // Disallow deleting user documents for now
+      allow delete: if false;
     }
 
-    // Rules for the 'teams' collection
+    // Rules for the teams collection
     match /teams/{teamId} {
-        // A user can read a team if they are the creator OR if their user doc's teamId matches
-        allow read: if isAdmin() || request.auth.uid == resource.data.creatorUid || getMyUserData().teamId == teamId;
-        // A user can update a team if they are the creator OR if their user doc's teamId matches
-        allow update: if isAdmin() || request.auth.uid == resource.data.creatorUid || getMyUserData().teamId == teamId;
-        // Only authenticated users can create teams
-        allow create: if isAuth();
-        // Admins or team creators can delete a team
-        allow delete: if isAdmin() || request.auth.uid == resource.data.creatorUid;
+      // Allow authenticated users to create teams
+      allow create: if request.auth != null;
+      // Allow read if user is the creator or a member of the team
+      allow read: if request.auth != null && (get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid || isTeamMember(teamId, request.auth.uid));
+      // Allow update if user is the creator or a member of the team
+      allow update: if request.auth != null && (get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid || isTeamMember(teamId, request.auth.uid));
+      // Only the creator can delete the team
+      allow delete: if request.auth != null && get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid;
     }
 
-    // Rules for 'submissions'
+    // Rules for submissions
     match /submissions/{teamId} {
-      // A user can read/write a submission if they are the creator or member of that team
-      allow read, write: if isAdmin() || getMyUserData().teamId == teamId;
+       // Allow read/write if the user is a member of the team
+      allow read, write: if request.auth != null && isTeamMember(teamId, request.auth.uid);
+    }
+    
+    // Default admin-only access for sensitive collections
+    match /announcements/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin(request.auth.uid);
+    }
+    
+    match /categories/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin(request.auth.uid);
+    }
+    
+    match /themes/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin(request.auth.uid);
     }
 
-    // Rules for public collections
-    match /announcements/{docId} {
-      allow read: if isAuth();
-      allow write: if isAdmin();
-    }
-    match /categories/{docId} {
-      allow read: if isAuth();
-      allow write: if isAdmin();
-    }
-    match /themes/{docId} {
-      allow read: if isAuth();
-      allow write: if isAdmin();
-    }
     match /counters/{docId} {
-      allow read, write: if isAuth(); // Allow any authenticated user to read/write for team ID generation
+        allow read, write: if request.auth != null;
+    }
+
+    // Admin access to all documents for management
+    match /{document=**} {
+      allow read, write: if isAdmin(request.auth.uid);
     }
   }
 }
