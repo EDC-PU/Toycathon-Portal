@@ -128,7 +128,7 @@ export default function TeamPage() {
     const getJoiningLink = (teamId: string) => {
         if (!teamId) return '';
         const origin = 'https://toycathon.pierc.org';
-        return `${origin}?teamId=${teamId}`;
+        return `${origin}/join/${teamId}`;
     };
 
      const copyJoiningLink = (teamId: string) => {

@@ -4,7 +4,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { doc, setDoc, getDoc, collection, query, where, getDocs, runTransaction } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, User, updateProfile } from "firebase/auth";
-import { useRouter, useSearchParams } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 const formSchema = z.object({
@@ -42,11 +41,8 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
     const { toast } = useToast();
-    const router = useRouter();
-    const searchParams = useSearchParams();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const teamId = searchParams.get('teamId');
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -101,43 +97,22 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
         try {
             const userRef = doc(db, "users", user.uid);
             
-            await runTransaction(db, async (transaction) => {
-                await updateProfile(user, {
-                  displayName: values.leaderName
-                });
-
-                const userDoc = await transaction.get(userRef);
-
-                const userData: any = {
-                    ...values,
-                    email: user.email,
-                    uid: user.uid,
-                    displayName: values.leaderName,
-                    isAdmin: userDoc.exists() ? userDoc.data().isAdmin || false : false,
-                };
-                
-                // If user is trying to join a team via URL param
-                if (teamId && (!userDoc.exists() || !userDoc.data().teamId)) {
-                    const teamDocRef = doc(db, "teams", teamId);
-                    const teamDoc = await transaction.get(teamDocRef);
-
-                    if (!teamDoc.exists()) {
-                        throw new Error("This team does not exist. Please check the joining link.");
-                    }
-
-                    const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
-                    // We need to get members outside the transaction for query to work
-                    const membersSnapshot = await getDocs(membersQuery);
-                    
-                    if (membersSnapshot.size >= 4) {
-                        throw new Error("This team is already full and cannot accept new members.");
-                    }
-                    
-                    userData.teamId = teamId;
-                }
-                
-                transaction.set(userRef, userData, { merge: true });
+            await updateProfile(user, {
+                displayName: values.leaderName
             });
+
+            const userDoc = await getDoc(userRef);
+
+            const userData: any = {
+                ...values,
+                email: user.email,
+                uid: user.uid,
+                displayName: values.leaderName,
+                photoURL: user.photoURL,
+                isAdmin: userDoc.exists() ? userDoc.data().isAdmin || false : false,
+            };
+            
+            await setDoc(userRef, userData, { merge: true });
 
 
             toast({
@@ -147,9 +122,6 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
             
             if (onProfileComplete) {
                 onProfileComplete();
-            } else {
-                router.push('/dashboard/profile');
-                 router.refresh();
             }
 
         } catch (error: any) {
@@ -321,7 +293,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                         </div>
 
                         <Button type="submit" className="w-full" size="lg" disabled={isLoading || !user}>
-                           {isLoading ? "Saving..." : "Save Information"}
+                           {isLoading ? "Saving..." : "Save and Continue"}
                         </Button>
                     </form>
                 </Form>
