@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Trash2, Edit, Search, XCircle } from 'lucide-react';
+import { Loader2, Trash2, Edit, Search, XCircle, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 interface Team extends DocumentData {
@@ -128,6 +128,9 @@ export default function AdminTeamsPage() {
                                         <TableCell>{team.leaderName}</TableCell>
                                         <TableCell>{team.instituteName}</TableCell>
                                         <TableCell className="text-right space-x-2">
+                                            <Button asChild variant="outline" size="icon">
+                                                <Link href={`/admin/teams/view/${team.id}`}><Eye className="h-4 w-4" /></Link>
+                                            </Button>
                                             <Button asChild variant="outline" size="icon">
                                                 <Link href={`/admin/teams/edit/${team.id}`}><Edit className="h-4 w-4" /></Link>
                                             </Button>
