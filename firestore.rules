@@ -1,4 +1,5 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -7,82 +8,82 @@ service cloud.firestore {
     }
 
     function isTeamMember(teamId) {
-      // Check if the requesting user's document has a teamId that matches.
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
     }
     
-    function isJoiningTeam(userId) {
-      // Allow if the user document did not have a teamId before this request.
-      // This is for the very first time a user joins a team.
-      return !('teamId' in resource.data);
-    }
-
     function isAdmin() {
-      // Check if the user has the isAdmin flag in their own user document.
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      // Check for the existence of the user document and the isAdmin field.
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
     match /users/{userId} {
-      allow create: if request.auth.uid != null;
-      
-      // Allow reads if user is reading their own doc, is an admin, or is a member of the same team.
-      allow read: if request.auth.uid != null && (
-        request.auth.uid == userId || 
-        isAdmin() ||
-        (
-          resource.data.teamId != null &&
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == resource.data.teamId
-        )
-      );
-      
-      // Allow updates on a user's own document, but with conditions.
-      allow update: if request.auth.uid != null && request.auth.uid == userId &&
-                      // Prevent users from making themselves admins.
-                      (request.resource.data.isAdmin == resource.data.isAdmin || !request.resource.data.isAdmin) &&
-                      // Allow if teamId is not changing OR if user is joining a team for the first time.
-                      (request.resource.data.teamId == resource.data.teamId || isJoiningTeam(userId));
+      // READ: Allow users to read their own profile, admins to read any profile,
+      // and team members to read profiles of others in the same team.
+      allow read: if request.auth.uid != null && 
+                    (request.auth.uid == userId || 
+                     isAdmin() || 
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId != null && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == get(/databases/$(database)/documents/users/$(userId)).data.teamId));
 
-      allow delete: if isAdmin();
+      // LIST: Only admins can list all users.
+      allow list: if request.auth.uid != null && isAdmin();
       
-      // Allow admins to list all users.
-      allow list: if isAdmin();
+      // CREATE: Allow any authenticated user to create their own user document.
+      allow create: if request.auth.uid == userId;
+      
+      // UPDATE: Allow users to update their own profile, but not change their team if they are already in one.
+      // This rule is critical for joining a team.
+      allow update: if request.auth.uid == userId &&
+                       request.resource.data.isAdmin == resource.data.isAdmin && // Prevent self-admin promotion
+                       (request.resource.data.teamId == resource.data.teamId || // Cannot change team
+                        !('teamId' in resource.data) || resource.data.teamId == null); // Can set teamId if not set
+
+      // DELETE: Allow admins to delete users, but not themselves.
+      allow delete: if request.auth.uid != null && isAdmin() && request.auth.uid != userId;
     }
 
     match /teams/{teamId} {
+      // CREATE: Any authenticated user can create a team.
       allow create: if request.auth.uid != null;
       
-      // Allow read if user created team, is a member, or is an admin.
-      allow read: if request.auth.uid != null && (isTeamCreator(teamId) || isTeamMember(teamId) || isAdmin());
+      // READ: Any authenticated user can read team details. This is necessary for the join flow.
+      allow read: if request.auth.uid != null;
       
-      // Allow updates/deletes if user is the creator or an admin.
-      allow update, delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
+      // UPDATE: Only the team creator or an admin can update a team.
+      allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
       
-      // Allow admins to list all teams.
-      allow list: if isAdmin();
+      // DELETE: Only the team creator or an admin can delete a team.
+      allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
     }
-    
+
     match /submissions/{submissionId} {
-      allow read, create, update: if request.auth.uid != null && (isTeamCreator(submissionId) || isAdmin());
-      allow delete: if isAdmin();
+      // Allow read/write if user is creator of the team for which submission is being made, or is an admin.
+      allow read, write: if request.auth.uid != null && 
+                          (get(/databases/$(database)/documents/teams/$(submissionId)).data.creatorUid == request.auth.uid || isAdmin());
     }
 
     match /announcements/{announcementId} {
-      allow list, read: if request.auth.uid != null;
-      allow create, update, delete: if isAdmin();
+      // Allow read for anyone (even unauthenticated users)
+      allow read: if true;
+      // Allow write/delete only for admins
+      allow write, delete: if request.auth.uid != null && isAdmin();
+    }
+    
+    match /categories/{categoryId} {
+        allow read: if true;
+        allow write, delete: if request.auth.uid != null && isAdmin();
     }
 
-    match /categories/{categoryId} {
-      allow list, read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-    
     match /themes/{themeId} {
-       allow list, read: if true;
-       allow create, update, delete: if isAdmin();
+        allow read: if true;
+        allow write, delete: if request.auth.uid != null && isAdmin();
     }
-    
+
     match /counters/{counterId} {
-      allow read, write: if request.auth.uid != null; // Should be locked down in production
+      // Allow read for admins, allow write for any authenticated user (needed for team creation transaction).
+      allow read: if request.auth.uid != null && isAdmin();
+      allow write: if request.auth.uid != null;
     }
   }
 }
