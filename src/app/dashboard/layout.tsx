@@ -39,7 +39,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
             if (userData?.teamId) {
                 // User is already in a team, no need to do anything.
-                // We can choose to show a toast, but for now we'll just ignore.
+                toast({ title: "Already in a Team", description: "You are already a member of a team." });
                 return;
             }
 

@@ -38,8 +38,7 @@ export default function DashboardPage() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [joinLink, setJoinLink] = useState('');
     const [isJoining, setIsJoining] = useState(false);
-    const [isMemberOfTeam, setIsMemberOfTeam] = useState(false);
-
+    
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
@@ -56,9 +55,8 @@ export default function DashboardPage() {
                         return;
                     }
                     
-                    const userProfile = { ...profileData } as UserProfile;
+                    const userProfile = { uid: docSnap.id, ...profileData } as UserProfile;
                     setProfile(userProfile);
-                    setIsMemberOfTeam(!!userProfile.teamId);
                     
                     fetchAnnouncements();
 
@@ -115,7 +113,6 @@ export default function DashboardPage() {
             });
 
             toast({ title: "Success!", description: "You have successfully joined the team." });
-            setIsMemberOfTeam(true); // Update UI state
             setProfile(prev => prev ? { ...prev, teamId: teamId } : null);
 
         } catch (error: any) {
@@ -236,7 +233,7 @@ export default function DashboardPage() {
                 </Card>
             </div>
             
-             {!isMemberOfTeam && (
+             {!profile.teamId && (
                 <Card>
                     <CardHeader>
                         <CardTitle>Join a Team</CardTitle>
