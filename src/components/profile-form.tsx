@@ -69,7 +69,13 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    form.reset(docSnap.data());
+                    const existingData = docSnap.data();
+                     // Only reset if leaderName exists, to avoid overwriting display name from provider
+                    if(existingData.leaderName) {
+                        form.reset(existingData);
+                    } else {
+                        form.setValue('leaderName', currentUser.displayName || '');
+                    }
                 } else {
                     if (currentUser.displayName) {
                         form.setValue('leaderName', currentUser.displayName);
@@ -93,24 +99,25 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
 
         setIsLoading(true);
         try {
-            await updateProfile(user, {
-              displayName: values.leaderName
-            });
-
-            const tokenResult = await user.getIdTokenResult();
-            const isAdmin = !!tokenResult.claims.admin;
             const userRef = doc(db, "users", user.uid);
-
+            
             await runTransaction(db, async (transaction) => {
+                await updateProfile(user, {
+                  displayName: values.leaderName
+                });
+
+                const userDoc = await transaction.get(userRef);
+
                 const userData: any = {
                     ...values,
                     email: user.email,
                     uid: user.uid,
                     displayName: values.leaderName,
-                    role: isAdmin ? 'admin' : 'member',
+                    isAdmin: userDoc.exists() ? userDoc.data().isAdmin || false : false,
                 };
-
-                if (teamId) {
+                
+                // If user is trying to join a team via URL param
+                if (teamId && (!userDoc.exists() || !userDoc.data().teamId)) {
                     const teamDocRef = doc(db, "teams", teamId);
                     const teamDoc = await transaction.get(teamDocRef);
 
@@ -119,6 +126,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                     }
 
                     const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
+                    // We need to get members outside the transaction for query to work
                     const membersSnapshot = await getDocs(membersQuery);
                     
                     if (membersSnapshot.size >= 4) {
@@ -141,6 +149,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                 onProfileComplete();
             } else {
                 router.push('/dashboard/profile');
+                 router.refresh();
             }
 
         } catch (error: any) {
