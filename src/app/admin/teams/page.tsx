@@ -3,13 +3,13 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Trash2, Edit, Search, XCircle, Eye } from 'lucide-react';
+import { Loader2, Trash2, Edit, Search, XCircle, Eye, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface Team extends DocumentData {
@@ -18,6 +18,7 @@ interface Team extends DocumentData {
     leaderName: string;
     teamId: string;
     instituteName: string;
+    memberCount?: number;
 }
 
 export default function AdminTeamsPage() {
@@ -33,10 +34,18 @@ export default function AdminTeamsPage() {
     const fetchTeams = async () => {
         setLoading(true);
         try {
-            const q = query(collection(db, "teams"), orderBy("createdAt", "desc"));
-            const querySnapshot = await getDocs(q);
-            const fetchedTeams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
-            setTeams(fetchedTeams);
+            const teamsQuery = query(collection(db, "teams"), orderBy("createdAt", "desc"));
+            const teamsSnapshot = await getDocs(teamsQuery);
+            const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
+
+            // Fetch member counts for each team
+            const teamsWithCounts = await Promise.all(fetchedTeams.map(async (team) => {
+                const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
+                const membersSnapshot = await getDocs(membersQuery);
+                return { ...team, memberCount: membersSnapshot.size };
+            }));
+
+            setTeams(teamsWithCounts);
         } catch (error) {
             console.error("Error fetching teams:", error);
             toast({ title: 'Error', description: 'Failed to fetch teams.', variant: 'destructive' });
@@ -117,6 +126,7 @@ export default function AdminTeamsPage() {
                                     <TableHead>Team ID</TableHead>
                                     <TableHead>Leader Name</TableHead>
                                     <TableHead>Institute</TableHead>
+                                    <TableHead>Members</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -127,6 +137,12 @@ export default function AdminTeamsPage() {
                                         <TableCell>{team.teamId || 'N/A'}</TableCell>
                                         <TableCell>{team.leaderName}</TableCell>
                                         <TableCell>{team.instituteName}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Users className="h-4 w-4 text-muted-foreground" />
+                                                <span>{team.memberCount} / 4</span>
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="text-right space-x-2">
                                             <Button asChild variant="outline" size="icon">
                                                 <Link href={`/admin/teams/view/${team.id}`}><Eye className="h-4 w-4" /></Link>
@@ -141,7 +157,7 @@ export default function AdminTeamsPage() {
                                     </TableRow>
                                 )) : (
                                      <TableRow>
-                                        <TableCell colSpan={5} className="text-center h-24">
+                                        <TableCell colSpan={6} className="text-center h-24">
                                             No teams found.
                                         </TableCell>
                                     </TableRow>
