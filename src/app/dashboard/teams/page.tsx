@@ -68,7 +68,7 @@ export default function TeamPage() {
             setTeamMembers(membersMap);
         } catch (error) {
             console.error("Error fetching teams:", error);
-            toast({ title: "Error", description: "Could not fetch teams. Please check your Firestore security rules.", variant: "destructive" });
+            toast({ title: "Error", description: "Could not load your teams. Please try again later.", variant: "destructive" });
         } finally {
             setLoading(false);
         }
