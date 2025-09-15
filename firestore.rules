@@ -1,63 +1,57 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    function isTeamCreator(teamId) {
-      return get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid;
-    }
-
-    function isTeamMember(teamId) {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
+    function isSignedIn() {
+      return request.auth != null;
     }
     
     function isAdmin() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
     match /users/{userId} {
-      allow read: if request.auth.uid != null && (request.auth.uid == userId || isAdmin() || (isTeamMember(resource.data.teamId) && resource.data.teamId != null));
-      allow list: if request.auth.uid != null && isAdmin();
+      allow read: if isSignedIn();
+      allow list: if isAdmin() || request.query.where.get('teamId') != null;
       allow create: if request.auth.uid == userId;
       allow update: if request.auth.uid == userId && 
                        request.resource.data.isAdmin == resource.data.isAdmin &&
                        (request.resource.data.teamId == resource.data.teamId || !('teamId' in resource.data));
-      allow delete: if request.auth.uid != null && isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /teams/{teamId} {
-      allow create: if request.auth.uid != null;
-      allow read: if request.auth.uid != null; // Allow any authenticated user to read team data
-      allow update: if isSignedIn(); // Allow any signed-in user to update team documents
-      allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
+      allow create: if isSignedIn();
+      allow read: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
     }
 
     match /submissions/{submissionId} {
-      allow read, write: if request.auth.uid != null && (isTeamCreator(submissionId) || isAdmin());
+      function isTeamCreator() {
+         return get(/databases/$(database)/documents/teams/$(submissionId)).data.creatorUid == request.auth.uid;
+      }
+      allow read, write: if isSignedIn() && (isTeamCreator() || isAdmin());
     }
     
     match /announcements/{announcementId} {
         allow read: if true;
-        allow create, update, delete: if request.auth.uid != null && isAdmin();
+        allow create, update, delete: if isSignedIn() && isAdmin();
     }
 
     match /categories/{categoryId} {
         allow read: if true;
-        allow create, update, delete: if request.auth.uid != null && isAdmin();
+        allow create, update, delete: if isSignedIn() && isAdmin();
     }
     
     match /themes/{themeId} {
         allow read: if true;
-        allow create, update, delete: if request.auth.uid != null && isAdmin();
+        allow create, update, delete: if isSignedIn() && isAdmin();
     }
     
     match /counters/{counterId} {
-        allow read, write: if request.auth.uid != null; // For transactions
+        allow read, write: if isSignedIn();
     }
   }
 }
