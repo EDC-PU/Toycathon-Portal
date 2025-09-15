@@ -2,89 +2,79 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check if the user is an admin
-    function isAdmin(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-             get(/databases/$(database)/documents/users/$(userId)).data.isAdmin == true;
-    }
     
-    // Helper function to check if the user is the owner of a document
-    function isOwner(userId) {
-        return request.auth.uid == userId;
+    function isAuth() {
+      return request.auth != null;
     }
 
-    // USERS collection
+    // Helper function to check for admin role from the user's document in Firestore
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Helper function to get the requesting user's data
+    function getMyUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // By default, deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Rules for the 'users' collection
     match /users/{userId} {
-      // Admins can read and write any user document
-      allow read, write: if isAdmin(request.auth.uid);
+      // A user can read another user's document if they are in the same team
+      function inSameTeam() {
+        let myData = getMyUserData();
+        let theirData = get(/databases/$(database)/documents/users/$(userId)).data;
+        // Check if both users have a teamId and if they are the same
+        return myData.teamId != null && myData.teamId == theirData.teamId;
+      }
       
-      // A user can create their own document, and read/update it.
-      // They cannot delete their own user document through the client.
-      allow create, read, update: if isOwner(userId);
-      allow delete: if false; // Deletion should be an admin action
+      // Admins can read any user doc.
+      // A user can read their own doc.
+      // A user can read the doc of a teammate.
+      allow read: if isAdmin() || request.auth.uid == userId || inSameTeam();
+
+      // Admins can write to any user doc.
+      // A user can create/update their own doc.
+      allow write: if isAdmin() || request.auth.uid == userId;
     }
 
-    // TEAMS collection
+    // Rules for the 'teams' collection
     match /teams/{teamId} {
-        // Admins can manage all teams
-        allow read, write, delete: if isAdmin(request.auth.uid);
-        
-        // Any authenticated user can read any team's data (e.g., for joining)
-        allow read: if request.auth != null;
-        
-        // An authenticated user can create a team
-        allow create: if request.auth != null;
-        
-        // A user can update a team if they are the creator OR a member of that team
-        allow update: if request.auth.uid == resource.data.creatorUid || 
-                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
-
-        // Only the creator can delete their team
-        allow delete: if request.auth.uid == resource.data.creatorUid;
+        // A user can read a team if they are the creator OR if their user doc's teamId matches
+        allow read: if isAdmin() || request.auth.uid == resource.data.creatorUid || getMyUserData().teamId == teamId;
+        // A user can update a team if they are the creator OR if their user doc's teamId matches
+        allow update: if isAdmin() || request.auth.uid == resource.data.creatorUid || getMyUserData().teamId == teamId;
+        // Only authenticated users can create teams
+        allow create: if isAuth();
+        // Admins or team creators can delete a team
+        allow delete: if isAdmin() || request.auth.uid == resource.data.creatorUid;
     }
-    
-    // SUBMISSIONS collection
+
+    // Rules for 'submissions'
     match /submissions/{teamId} {
-        // Admins can read/write any submission
-        allow read, write: if isAdmin(request.auth.uid);
-        
-        // A user can read a submission if they are the creator of the corresponding team
-        // or a member of that team.
-        allow read: if get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid ||
-                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
-
-        // A user can create/update a submission if they are the creator of the team
-        // or a member of that team.
-        allow create, update: if get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid ||
-                                get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
-
-        // Submissions can't be deleted by users.
-        allow delete: if false;
+      // A user can read/write a submission if they are the creator or member of that team
+      allow read, write: if isAdmin() || getMyUserData().teamId == teamId;
     }
 
-    // Public collections (Announcements, Categories, Themes)
-    match /announcements/{announcementId} {
-      allow read: if true;
-      allow write: if isAdmin(request.auth.uid); // Only admins can create/update/delete
+    // Rules for public collections
+    match /announcements/{docId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
     }
-
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if isAdmin(request.auth.uid);
+    match /categories/{docId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
     }
-
-    match /themes/{themeId} {
-       allow read: if true;
-       allow write: if isAdmin(request.auth.uid);
+    match /themes/{docId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
     }
-
-    // COUNTERS collection for generating team IDs
-    match /counters/{counterId} {
-        // Should only be accessible from a trusted server environment (e.g., Cloud Functions)
-        // For this prototype, we'll allow admin writes.
-        allow read: if true;
-        allow write: if isAdmin(request.auth.uid);
+    match /counters/{docId} {
+      allow read, write: if isAuth(); // Allow any authenticated user to read/write for team ID generation
     }
   }
 }
