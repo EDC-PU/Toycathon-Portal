@@ -3,81 +3,56 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
-    function isAuth() {
-      return request.auth != null;
-    }
-    
-    function isUser(userId) {
-      return isAuth() && request.auth.uid == userId;
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    function isJoiningTeam() {
-      // Check if user is adding teamId for the first time
-      return resource.data.teamId == null && request.resource.data.teamId != null;
-    }
-
-    function isUpdatingOwnProfile() {
-      // List of fields a user can update on their own profile
-      let allowedFields = ['displayName', 'leaderName', 'leaderPhone', 'college', 'instituteType', 'rollNumber', 'yearOfStudy', 'age', 'gender', 'email', 'uid', 'role'];
-      
-      // If joining a team, teamId is also allowed
-      if (isJoiningTeam()) {
-        allowedFields.add('teamId');
-      }
-      
-      // Ensure no other fields are being changed
-      return request.resource.data.keys().hasOnly(allowedFields);
-    }
-    
-    function userIsInTeam(teamId) {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
-    }
-    
-    function isTeamCreator(teamId) {
-      return get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid;
-    }
-
-    // Collection: users
     match /users/{userId} {
-      allow read: if isAuth() && (isUser(userId) || userIsInTeam(get(/databases/$(database)/documents/users/$(userId)).data.teamId));
-      allow create: if isAuth();
-      allow update: if isAuth() && isUser(userId) && isUpdatingOwnProfile();
-      allow delete: if false; // Users should not delete their own accounts from the client
+      allow read: if request.auth.uid == userId 
+              || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) 
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId != null 
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == get(/databases/$(database)/documents/users/$(userId)).data.teamId)
+              || isAdmin();
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+      allow delete: if isAdmin();
     }
 
-    // Collection: teams
     match /teams/{teamId} {
-      allow read: if isAuth() && (userIsInTeam(teamId) || isTeamCreator(teamId));
-      allow create: if isAuth();
-      allow update: if isAuth() && (isTeamCreator(teamId) || userIsInTeam(teamId));
-      allow delete: if isAuth() && isTeamCreator(teamId);
+      allow read: if request.auth.uid == resource.data.creatorUid 
+                  || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) 
+                      && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId)
+                  || isAdmin();
+      allow create: if request.auth.uid != null;
+      allow update: if request.auth.uid == resource.data.creatorUid 
+                    || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId)
+                    || isAdmin();
+      allow delete: if request.auth.uid == resource.data.creatorUid || isAdmin();
     }
     
-    // Collection: submissions
     match /submissions/{submissionId} {
-       allow read, write: if isAuth() && (userIsInTeam(submissionId) || isTeamCreator(submissionId));
+      allow read, update: if get(/databases/$(database)/documents/teams/$(submissionId)).data.creatorUid == request.auth.uid || isAdmin();
+      allow create: if request.auth.uid != null;
+      allow delete: if isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
     
-    // Collection: counters
-    match /counters/{counterId} {
-      allow read, write: if false; // Client should not directly access counters
-    }
-
-    // Collections for general data (read-only for authenticated users)
-    match /announcements/{announcementId} {
-      allow get: if isAuth();
-      allow list, create, update, delete: if false;
-    }
-
     match /categories/{categoryId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
     }
 
     match /themes/{themeId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+    }
+
+    match /counters/{counterId} {
+      allow read, write: if request.auth.uid != null; 
     }
   }
 }
