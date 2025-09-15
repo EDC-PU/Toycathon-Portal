@@ -1,76 +1,73 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
+
     function isTeamCreator(teamId) {
       return get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid;
     }
-
-    function isTeamMember(teamId) {
-      let userTeamId = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId;
-      return userTeamId == teamId;
-    }
     
-    function isUserInTeam(teamId) {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
+    function isTeamMember(teamId) {
+      return getUserData(request.auth.uid).teamId == teamId;
     }
 
     function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return getUserData(request.auth.uid).isAdmin == true;
     }
-
+    
     match /users/{userId} {
+      allow read: if request.auth.uid != null && (request.auth.uid == userId || isAdmin() || getUserData(userId).teamId == getUserData(request.auth.uid).teamId);
+      allow list: if request.auth.uid != null && (isAdmin() || (request.query.where.keys().hasOnly(['teamId']) && request.query.where.teamId == getUserData(request.auth.uid).teamId));
       allow create: if request.auth.uid == userId;
       
-      allow read: if request.auth.uid == userId 
-                  || isAdmin()
-                  || (resource.data.teamId != null && isUserInTeam(resource.data.teamId));
-
+      // Allow a user to update their own document.
+      // - They can join a team if they aren't already in one.
+      // - They can update their profile info, but cannot change their teamId once set (only a leader can remove them).
       allow update: if request.auth.uid == userId && (
-                    // Case 1: Updating profile info, but not teamId
-                    !('teamId' in request.resource.data.diff(resource.data).affectedKeys()) ||
-                    // Case 2: Joining a team for the first time
-                    (!('teamId' in resource.data) && 'teamId' in request.resource.data)
-                  );
+          (
+            'teamId' in request.resource.data && 
+            !('teamId' in resource.data)
+          ) ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'leaderName', 'leaderPhone', 'college', 'instituteType', 'rollNumber', 'yearOfStudy', 'age', 'gender', 'displayName', 'photoURL'
+          ])
+      );
       
-      allow delete: if isAdmin();
+      allow delete: if request.auth.uid != null && isAdmin();
     }
 
     match /teams/{teamId} {
       allow create: if request.auth.uid != null;
-      
-      allow read: if request.auth.uid != null && (isTeamCreator(teamId) || isTeamMember(teamId) || isAdmin());
-      
+      allow read: if request.auth.uid != null;
       allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
-      
       allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
     }
 
     match /submissions/{submissionId} {
-      allow read, write: if request.auth.uid != null;
+        allow read, write: if request.auth.uid != null && (get(/databases/$(database)/documents/teams/$(submissionId)).data.creatorUid == request.auth.uid || isAdmin());
     }
-    
-    match /categories/{categoryId} {
+
+    match /announcements/{announcementId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if request.auth.uid != null && isAdmin();
+    }
+
+    match /categories/{categoryId} {
+        allow read: if true;
+        allow write: if request.auth.uid != null && isAdmin();
     }
 
     match /themes/{themeId} {
         allow read: if true;
-        allow write: if isAdmin();
-    }
-    
-    match /announcements/{announcementId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    match /counters/{counterId} {
-      allow read, write: if request.auth.uid != null; // Should be more restrictive in production, e.g. Cloud Function only
+        allow write: if request.auth.uid != null && isAdmin();
     }
 
-    match /{document=**} {
-      allow read, write: if false;
+    match /counters/{counterId} {
+      allow read, write: if request.auth.uid != null;
     }
   }
 }
