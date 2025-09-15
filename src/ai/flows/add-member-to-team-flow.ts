@@ -12,13 +12,13 @@ import { z } from 'genkit';
 import { db } from '@/lib/firebase';
 import { collection, doc, getDoc, getDocs, query, runTransaction, where } from 'firebase/firestore';
 
-export const AddMemberInputSchema = z.object({
+const AddMemberInputSchema = z.object({
   teamId: z.string().describe('The ID of the team to join.'),
   userId: z.string().describe('The ID of the user joining the team.'),
 });
 export type AddMemberInput = z.infer<typeof AddMemberInputSchema>;
 
-export const AddMemberOutputSchema = z.object({
+const AddMemberOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   teamName: z.string().optional(),
