@@ -1,25 +1,13 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { Menu, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, LogOut, LayoutDashboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Image from 'next/image';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import HeaderAuth from './header-auth';
 
 
 const navLinks = [
@@ -30,41 +18,7 @@ const navLinks = [
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast({
-        title: 'Logged Out',
-        description: 'You have been successfully logged out.',
-      });
-      router.push('/');
-    } catch (error: any) {
-      toast({
-        title: 'Logout Failed',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const getInitials = (name?: string | null) => {
-    if (!name) return 'U';
-    return name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
-  };
-
-
+  
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between">
@@ -86,57 +40,9 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          {user ? (
-             <div className="flex items-center gap-4">
-                <Button asChild>
-                    <Link href="/dashboard">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard
-                    </Link>
-                </Button>
-                <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
-                        <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
-                    </Avatar>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                        </p>
-                    </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                    <Link href="/dashboard/profile">Profile</Link>
-                    </DropdownMenuItem>
-                     <DropdownMenuItem asChild>
-                    <Link href="/dashboard/teams">My Teams</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-          ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Register</Link>
-              </Button>
-            </>
-          )}
+            <Suspense fallback={<Loader2 className="animate-spin" />}>
+                <HeaderAuth />
+            </Suspense>
         </div>
 
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -158,29 +64,9 @@ export default function Header() {
                     ))}
                 </nav>
                 <div className="mt-auto flex flex-col gap-4">
-                    {user ? (
-                      <>
-                        <Button variant="outline" asChild>
-                           <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                           <LayoutDashboard className="mr-2 h-4 w-4" />
-                            Dashboard
-                           </Link>
-                        </Button>
-                         <Button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}>
-                          <LogOut className="mr-2 h-4 w-4" />
-                          Logout
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button variant="outline" asChild>
-                            <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-                        </Button>
-                        <Button asChild>
-                            <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>Register</Link>
-                        </Button>
-                      </>
-                    )}
+                    <Suspense fallback={<Loader2 className="animate-spin" />}>
+                        <HeaderAuth isMobile={true} onLinkClick={() => setIsMobileMenuOpen(false)} />
+                    </Suspense>
                     <div className="flex items-center justify-center gap-4 pt-4">
                         <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
                             <Image src="https://paruluniversity.ac.in/pu-web/images/logo.png" alt="Parul University Logo" width={140} height={32} className="h-8 w-auto object-contain" />

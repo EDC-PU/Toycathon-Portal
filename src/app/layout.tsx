@@ -11,36 +11,31 @@ import ChatbotWidget from '@/components/chatbot-widget';
 import { usePathname } from 'next/navigation';
 import Head from 'next/head';
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAppPage = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/profile');
+  const isAppPage = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/profile') || pathname.startsWith('/join');
   const pageTitle = "Vadodara Toycathon 2025 - India's Premier Toy Design Challenge";
   const pageDescription = "Join the Vadodara Toycathon 2025! A national-level competition for school, college, and university students in Vadodara, Gujarat, to design and build innovative toys and games. Unleash your creativity and win exciting prizes.";
 
-
   if (isAppPage) {
     return (
-       <html lang="en" suppressHydrationWarning>
-        <head>
+      <>
+        <Head>
            <title>Vadodara Toycathon 2025 - Dashboard</title>
            <meta name="description" content="Manage your teams, submissions, and profile for the Vadodara Toycathon 2025." />
            <link rel="icon" href="https://mnaignsupdlayf72.public.blob.vercel-storage.com/favicon.ico" />
-        </head>
+        </Head>
         <body className={cn('min-h-screen bg-background font-body antialiased')}>
             {children}
             <ChatbotWidget />
             <Toaster />
         </body>
-      </html>
+      </>
     )
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <>
       <Head>
         <title>{pageTitle}</title>
         <link rel="icon" href="https://mnaignsupdlayf72.public.blob.vercel-storage.com/favicon.ico" />
@@ -110,6 +105,19 @@ export default function RootLayout({
         <ChatbotWidget />
         <Toaster />
       </body>
+    </>
+  );
+}
+
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <RootLayoutContent>{children}</RootLayoutContent>
     </html>
   );
 }
