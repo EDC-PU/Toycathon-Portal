@@ -1,3 +1,4 @@
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -15,6 +16,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
     match /users/{userId} {
       allow read: if request.auth.uid != null && (request.auth.uid == userId || isAdmin() || (isTeamMember(resource.data.teamId) && resource.data.teamId != null));
       allow list: if request.auth.uid != null && isAdmin();
@@ -28,7 +33,7 @@ service cloud.firestore {
     match /teams/{teamId} {
       allow create: if request.auth.uid != null;
       allow read: if request.auth.uid != null; // Allow any authenticated user to read team data
-      allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
+      allow update: if isSignedIn(); // Allow any signed-in user to update team documents
       allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
     }
 
