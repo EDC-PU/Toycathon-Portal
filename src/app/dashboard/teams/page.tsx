@@ -2,7 +2,7 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, DocumentData, deleteDoc, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, DocumentData, deleteDoc, writeBatch, updateDoc } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -18,6 +18,7 @@ interface Team extends DocumentData {
     teamName: string;
     leaderName: string;
     teamId: string; // The new serial team ID
+    creatorUid: string;
 }
 
 interface TeamMember {
@@ -74,20 +75,40 @@ export default function TeamPage() {
         }
     }
 
+    const removeMember = async (memberId: string) => {
+        if (!confirm("Are you sure you want to remove this member from the team?")) return;
+
+        try {
+            const memberDocRef = doc(db, 'users', memberId);
+            await updateDoc(memberDocRef, { teamId: null });
+            toast({ title: "Member Removed", description: "The member has been successfully removed from the team." });
+            if (user) fetchTeams(user.uid);
+        } catch (error) {
+            console.error("Error removing member:", error);
+            toast({ title: "Error", description: "Failed to remove member.", variant: "destructive" });
+        }
+    }
+
     const deleteTeam = async (team: Team) => {
-        if (!confirm(`Are you sure you want to delete the team "${team.teamName}"? This action cannot be undone.`)) return;
+        if (!confirm(`Are you sure you want to delete the team "${team.teamName}"? This action cannot be undone and will unlink all members.`)) return;
 
         setLoading(true);
         try {
             const teamRef = doc(db, "teams", team.id);
-            
-            // Note: We are not unlinking members here as it would require a backend function
-            // for security reasons. The app should handle stale teamId references gracefully.
-            await deleteDoc(teamRef);
+            const members = teamMembers[team.id] || [];
+            const batch = writeBatch(db);
+
+            members.forEach(member => {
+                const memberRef = doc(db, "users", member.uid);
+                batch.update(memberRef, { teamId: null });
+            });
+            batch.delete(teamRef);
+
+            await batch.commit();
             
             toast({
                 title: "Team Deleted",
-                description: `"${team.teamName}" has been successfully deleted.`,
+                description: `"${team.teamName}" and all its members have been unlinked.`,
             });
 
             if(user) {
@@ -96,7 +117,7 @@ export default function TeamPage() {
 
         } catch (error) {
             console.error("Error deleting team:", error);
-            toast({ title: "Error", description: "Failed to delete team. Please check your Firestore rules.", variant: "destructive" });
+            toast({ title: "Error", description: "Failed to delete team.", variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -105,8 +126,8 @@ export default function TeamPage() {
 
     const getJoiningLink = (teamId: string) => {
         if (!teamId) return '';
-        const baseUrl = 'https://toycathon.pierc.org';
-        return `${baseUrl}/register?teamId=${teamId}`;
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        return `${origin}/register?teamId=${teamId}`;
     };
 
      const copyJoiningLink = (teamId: string) => {
@@ -191,6 +212,11 @@ export default function TeamPage() {
                                                     <p className="text-sm text-muted-foreground">{member.email}</p>
                                                 </div>
                                             </div>
+                                            {user?.uid === team.creatorUid && user?.uid !== member.uid && (
+                                                <Button variant="ghost" size="icon" onClick={() => removeMember(member.uid)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive"/>
+                                                </Button>
+                                            )}
                                         </div>
                                     ))}
                                     </div>

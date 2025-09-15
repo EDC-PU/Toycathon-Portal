@@ -122,7 +122,7 @@ export default function Header() {
                     <Link href="/dashboard/profile">Profile</Link>
                     </DropdownMenuItem>
                      <DropdownMenuItem asChild>
-                    <Link href="/dashboard/team">Team</Link>
+                    <Link href="/dashboard/teams">My Teams</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
