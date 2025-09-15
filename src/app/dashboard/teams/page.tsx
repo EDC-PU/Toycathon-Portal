@@ -1,3 +1,4 @@
+
 "use client";
 
 import { auth, db } from '@/lib/firebase';
@@ -69,7 +70,7 @@ export default function TeamPage() {
             setTeamMembers(membersMap);
         } catch (error) {
             console.error("Error fetching teams:", error);
-            toast({ title: "Error", description: "Could not load your teams. Please try again later.", variant: "destructive" });
+            toast({ title: "Error", description: "There was a problem loading your teams. Please try again later.", variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -126,7 +127,7 @@ export default function TeamPage() {
 
     const getJoiningLink = (teamId: string) => {
         if (!teamId) return '';
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const origin = 'https://toycathon.pierc.org';
         return `${origin}/register?teamId=${teamId}`;
     };
 
