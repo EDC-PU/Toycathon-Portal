@@ -3,18 +3,21 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, runTransaction } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2, LinkIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
     displayName: string;
     email: string;
     uid: string;
+    teamId?: string;
     instituteType?: 'school' | 'university';
     isAdmin?: boolean;
 }
@@ -28,10 +31,14 @@ interface Announcement {
 
 export default function DashboardPage() {
     const router = useRouter();
+    const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [joinLink, setJoinLink] = useState('');
+    const [isJoining, setIsJoining] = useState(false);
+    const [isMemberOfTeam, setIsMemberOfTeam] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -44,16 +51,19 @@ export default function DashboardPage() {
                     const profileData = docSnap.data();
                     const userIsAdmin = profileData.isAdmin === true;
 
-                    // This is a safeguard. The layout should already handle this,
-                    // but this ensures an admin never sees the participant dashboard.
                     if (userIsAdmin) {
-                        router.push('/dashboard/admin');
-                        return; // Stop further processing
+                        router.push('/admin');
+                        return;
                     }
-                    setProfile({ ...profileData } as UserProfile);
+                    
+                    const userProfile = { ...profileData } as UserProfile;
+                    setProfile(userProfile);
+                    setIsMemberOfTeam(!!userProfile.teamId);
+                    
                     fetchAnnouncements();
+
                 } else {
-                     router.push('/profile'); // if no profile, force creation
+                     router.push('/profile');
                 }
                 
             } else {
@@ -71,6 +81,49 @@ export default function DashboardPage() {
         const fetchedAnnouncements = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Announcement));
         setAnnouncements(fetchedAnnouncements);
     }
+    
+    const handleJoinTeam = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user || !joinLink) return;
+
+        const teamIdMatch = joinLink.match(/teamId=([^&]+)/);
+        if (!teamIdMatch || !teamIdMatch[1]) {
+            toast({ title: "Invalid Link", description: "The link format is incorrect. Please use the full invitation link.", variant: "destructive" });
+            return;
+        }
+        const teamId = teamIdMatch[1];
+        
+        setIsJoining(true);
+        try {
+            const userRef = doc(db, "users", user.uid);
+            await runTransaction(db, async (transaction) => {
+                 const teamDocRef = doc(db, "teams", teamId);
+                 const teamDoc = await transaction.get(teamDocRef);
+
+                 if (!teamDoc.exists()) {
+                    throw new Error("This team does not exist. Please check the joining link.");
+                 }
+
+                 const membersQuery = query(collection(db, "users"), where("teamId", "==", teamId));
+                 const membersSnapshot = await getDocs(membersQuery);
+                 
+                 if (membersSnapshot.size >= 4) {
+                     throw new Error("This team is already full and cannot accept new members.");
+                 }
+
+                 transaction.update(userRef, { teamId: teamId });
+            });
+
+            toast({ title: "Success!", description: "You have successfully joined the team." });
+            setIsMemberOfTeam(true); // Update UI state
+            setProfile(prev => prev ? { ...prev, teamId: teamId } : null);
+
+        } catch (error: any) {
+            toast({ title: "Failed to Join Team", description: error.message, variant: "destructive" });
+        } finally {
+            setIsJoining(false);
+        }
+    }
 
 
     if (loading) {
@@ -78,7 +131,6 @@ export default function DashboardPage() {
     }
 
     if (!profile) {
-        // This can happen briefly during redirects
         return <div className="flex h-screen items-center justify-center">Verifying user session...</div>;
     }
 
@@ -184,6 +236,34 @@ export default function DashboardPage() {
                 </Card>
             </div>
             
+             {!isMemberOfTeam && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Join a Team</CardTitle>
+                        <CardDescription>Have an invitation link? Paste it below to join your team.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <form onSubmit={handleJoinTeam} className="flex items-center gap-4">
+                            <div className="relative flex-grow">
+                               <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                               <Input
+                                    type="text"
+                                    placeholder="Paste team invitation link here..."
+                                    className="pl-10"
+                                    value={joinLink}
+                                    onChange={(e) => setJoinLink(e.target.value)}
+                                    disabled={isJoining}
+                                />
+                            </div>
+                           <Button type="submit" disabled={isJoining || !joinLink}>
+                                {isJoining ? <Loader2 className="animate-spin" /> : "Join Team"}
+                           </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            )}
+
+
              <Card>
                 <CardHeader>
                     <CardTitle>Create a New Team</CardTitle>
