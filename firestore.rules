@@ -1,90 +1,58 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isUserAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isUserProfileOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    function getUserData(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data;
-    }
     
     function isTeamCreator(teamId) {
       return get(/databases/$(database)/documents/teams/$(teamId)).data.creatorUid == request.auth.uid;
     }
 
     function isTeamMember(teamId) {
-        return getUserData(request.auth.uid).teamId == teamId;
+      let userTeamId = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId;
+      return userTeamId == teamId;
+    }
+    
+    function isUserInTeam(teamId) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
     }
 
     function isAdmin() {
-      return isUserAuthenticated() && getUserData(request.auth.uid).isAdmin == true;
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
     match /users/{userId} {
-      // Create: Anyone can create their own user document during sign-up.
-      allow create: if isUserAuthenticated() && isUserProfileOwner(userId);
-
-      // Read: Users can read their own profile.
-      // Users can read profiles of others if they are on the same team.
-      // Admins can read any profile.
-      allow get: if isUserAuthenticated() && (isUserProfileOwner(userId) || isTeamMember(resource.data.teamId) || isAdmin());
+      allow create: if request.auth.uid == userId;
       
-      // List: Users can list members of their own team. Admins can list all users.
-      allow list: if isUserAuthenticated() && (isAdmin() || (request.query.where.keys().hasOnly(['teamId']) && request.query.where.teamId == getUserData(request.auth.uid).teamId));
+      allow read: if request.auth.uid == userId 
+                  || isAdmin()
+                  || (resource.data.teamId != null && isUserInTeam(resource.data.teamId));
 
-      // Update: Users can update their own profile.
-      // A user can join a team (add teamId) but cannot switch teams on their own.
-      // A team leader can remove a member by setting their teamId to null.
-      allow update: if isUserAuthenticated() && isUserProfileOwner(userId) &&
-                       // Condition 1: General profile update (cannot change teamId)
-                       (request.resource.data.teamId == resource.data.teamId) ||
-                       // Condition 2: Joining a team for the first time
-                       (!('teamId' in resource.data));
-                       
-      // Allow a team creator to remove a member (set teamId to null).
-      allow update: if isUserAuthenticated() && isTeamCreator(resource.data.teamId) && request.resource.data.teamId == null;
-
-      // Delete: Admins can delete users, but not themselves.
-      allow delete: if isAdmin() && request.auth.uid != userId;
+      allow update: if request.auth.uid == userId && (
+                    // Case 1: Updating profile info, but not teamId
+                    !('teamId' in request.resource.data.diff(resource.data).affectedKeys()) ||
+                    // Case 2: Joining a team for the first time
+                    (!('teamId' in resource.data) && 'teamId' in request.resource.data)
+                  );
+      
+      allow delete: if isAdmin();
     }
 
     match /teams/{teamId} {
-      // Create: Any authenticated user can create a team.
-      allow create: if isUserAuthenticated();
-
-      // Read: Users can read teams they created or are a member of. Admins can read any team.
-      allow get: if isUserAuthenticated() && (isTeamCreator(teamId) || isTeamMember(teamId) || isAdmin());
-      allow list: if isUserAuthenticated() && (isAdmin() || (request.query.where.keys().hasOnly(['creatorUid']) && request.query.where.creatorUid == request.auth.uid));
-
-      // Update: Only the creator of the team can update it. Admins can also update any team.
-      allow update: if isUserAuthenticated() && (isTeamCreator(teamId) || isAdmin());
-
-      // Delete: Only the creator or an admin can delete a team.
-      allow delete: if isUserAuthenticated() && (isTeamCreator(teamId) || isAdmin());
+      allow create: if request.auth.uid != null;
+      
+      allow read: if request.auth.uid != null && (isTeamCreator(teamId) || isTeamMember(teamId) || isAdmin());
+      
+      allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
+      
+      allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
     }
 
     match /submissions/{submissionId} {
-      // Create/Update: A user can create/update a submission if they are the creator of the team for that submission.
-      allow write: if isUserAuthenticated() && isTeamCreator(submissionId);
-      // Read: The creator or an admin can read the submission.
-      allow get: if isUserAuthenticated() && (isTeamCreator(submissionId) || isAdmin());
-    }
-    
-    match /announcements/{announcementId} {
-      allow read: if isUserAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if request.auth.uid != null;
     }
     
     match /categories/{categoryId} {
-       allow read: if true;
-       allow write: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     match /themes/{themeId} {
@@ -92,8 +60,17 @@ service cloud.firestore {
         allow write: if isAdmin();
     }
     
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
     match /counters/{counterId} {
-      allow read, write: if isUserAuthenticated();
+      allow read, write: if request.auth.uid != null; // Should be more restrictive in production, e.g. Cloud Function only
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

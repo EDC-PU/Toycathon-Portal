@@ -38,14 +38,9 @@ export default function Header() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      
-      const teamId = searchParams.get('teamId');
-      if (currentUser && teamId) {
-          router.push(`/dashboard?teamId=${teamId}`);
-      }
     });
     return () => unsubscribe();
-  }, [router, searchParams]);
+  }, []);
 
   const handleLogout = async () => {
     try {
