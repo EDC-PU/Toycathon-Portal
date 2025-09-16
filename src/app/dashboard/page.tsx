@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2, LinkIcon, LogOut } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2, LinkIcon, LogOut, Lightbulb, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { addMemberToTeam } from '@/ai/flows/add-member-to-team-flow';
@@ -26,6 +26,7 @@ interface UserProfile {
 interface Team extends DocumentData {
     id: string;
     teamName: string;
+    creatorUid: string;
 }
 
 interface Announcement {
@@ -35,12 +36,19 @@ interface Announcement {
     createdAt: any;
 }
 
+interface Submission extends DocumentData {
+    ideaTitle: string;
+    ideaDescription: string;
+}
+
 export default function DashboardPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [team, setTeam] = useState<Team | null>(null);
+    const [isLeader, setIsLeader] = useState(false);
+    const [submission, setSubmission] = useState<Submission | null>(null);
     const [loading, setLoading] = useState(true);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [joinLink, setJoinLink] = useState('');
@@ -69,7 +77,18 @@ export default function DashboardPage() {
                         const teamDocRef = doc(db, "teams", userProfile.teamId);
                         const teamDocSnap = await getDoc(teamDocRef);
                         if (teamDocSnap.exists()) {
-                            setTeam({ id: teamDocSnap.id, ...teamDocSnap.data() } as Team);
+                            const teamData = { id: teamDocSnap.id, ...teamDocSnap.data() } as Team;
+                            setTeam(teamData);
+
+                            const leaderStatus = teamData.creatorUid === currentUser.uid;
+                            setIsLeader(leaderStatus);
+
+                            // Fetch submission details for the team
+                            const submissionDocRef = doc(db, "submissions", teamData.id);
+                            const submissionDocSnap = await getDoc(submissionDocRef);
+                            if (submissionDocSnap.exists()) {
+                                setSubmission(submissionDocSnap.data() as Submission);
+                            }
                         }
                     }
 
@@ -111,9 +130,16 @@ export default function DashboardPage() {
         const result = await addMemberToTeam({ teamId: teamId, userId: user.uid });
         if (result.success) {
             toast({ title: "Success!", description: `You have successfully joined ${result.teamName}!` });
+            // Manually update local state to reflect the change immediately
             setProfile(prev => prev ? { ...prev, teamId: teamId } : null);
              if (result.teamName) {
-                setTeam({ id: teamId, teamName: result.teamName });
+                const teamDocRef = doc(db, "teams", teamId);
+                const teamDocSnap = await getDoc(teamDocRef);
+                 if (teamDocSnap.exists()) {
+                    const teamData = { id: teamDocSnap.id, ...teamDocSnap.data() } as Team;
+                    setTeam(teamData);
+                    setIsLeader(teamData.creatorUid === user.uid);
+                }
             }
         } else {
             toast({ title: "Failed to Join Team", description: result.message, variant: "destructive" });
@@ -131,6 +157,8 @@ export default function DashboardPage() {
             toast({ title: "You have left the team." });
             setProfile(prev => prev ? { ...prev, teamId: undefined } : null);
             setTeam(null);
+            setIsLeader(false);
+            setSubmission(null);
         } catch (error) {
             console.error("Error leaving team:", error);
             toast({ title: "Error", description: "Failed to leave the team. Please try again.", variant: "destructive" });
@@ -308,20 +336,46 @@ export default function DashboardPage() {
                 </>
             )}
 
+            {isLeader && team && (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Submit Your Idea</CardTitle>
+                        <CardDescription>Ready to submit your toy idea? The portal is open!</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                           <Link href="/dashboard/submission">
+                                {submission ? 'Edit' : 'Go to'} Submission <ArrowRight className="ml-2" />
+                           </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
 
-             <Card>
-                <CardHeader>
-                    <CardTitle>Submit Your Idea</CardTitle>
-                    <CardDescription>Ready to submit your toy idea? The portal is open!</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild>
-                       <Link href="/dashboard/submission">
-                            Go to Submission <ArrowRight className="ml-2" />
-                       </Link>
-                    </Button>
-                </CardContent>
-            </Card>
+            {!isLeader && team && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-primary">
+                            <FileText /> Team's Submitted Idea
+                        </CardTitle>
+                        <CardDescription>This is the idea submitted by your team leader.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {submission ? (
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                                       <Lightbulb /> {submission.ideaTitle}
+                                    </h3>
+                                </div>
+                                <p className="text-muted-foreground text-sm">{submission.ideaDescription}</p>
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground text-center py-4">Your team leader has not submitted an idea yet. Check back soon!</p>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
              <Card>
                 <CardHeader>
