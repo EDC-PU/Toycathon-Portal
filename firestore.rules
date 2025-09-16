@@ -25,16 +25,15 @@ service cloud.firestore {
       allow read: if request.auth.uid != null && (request.auth.uid == userId || isAdmin() || (isTeamMember(resource.data.teamId) && resource.data.teamId != null));
       allow list: if request.auth.uid != null && (isAdmin() || request.query.where.size() == 1 && 'teamId' in request.query.where);
       allow create: if request.auth.uid == userId;
-      allow update: if request.auth.uid == userId && 
-                       request.resource.data.isAdmin == resource.data.isAdmin &&
-                       (request.resource.data.teamId == resource.data.teamId || !('teamId' in resource.data));
+      allow update: if request.auth.uid == userId &&
+                       request.resource.data.isAdmin == resource.data.isAdmin;
       allow delete: if request.auth.uid != null && isAdmin();
     }
 
     match /teams/{teamId} {
       allow create: if request.auth.uid != null;
       allow read: if request.auth.uid != null; // Allow any authenticated user to read team data for joining
-      allow update: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin()) ||  isSignedIn();
+      allow update: if request.auth.uid != null; // Allow any signed-in user to update team (join team)
       allow delete: if request.auth.uid != null && (isTeamCreator(teamId) || isAdmin());
     }
 
