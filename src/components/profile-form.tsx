@@ -66,16 +66,12 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const existingData = docSnap.data();
-                     // Only reset if leaderName exists, to avoid overwriting display name from provider
-                    if(existingData.leaderName) {
-                        form.reset(existingData);
-                    } else {
-                        form.setValue('leaderName', currentUser.displayName || '');
-                    }
-                } else {
-                    if (currentUser.displayName) {
-                        form.setValue('leaderName', currentUser.displayName);
-                    }
+                    form.reset(existingData); // This populates all fields, including radio groups
+                }
+                
+                // Set the name from auth profile if not already in the form
+                if (!form.getValues('leaderName')) {
+                    form.setValue('leaderName', currentUser.displayName || '');
                 }
             }
         });
@@ -195,7 +191,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                                     <FormControl>
                                     <RadioGroup
                                         onValueChange={field.onChange}
-                                        defaultValue={field.value}
+                                        value={field.value}
                                         className="flex space-x-4"
                                     >
                                         <FormItem className="flex items-center space-x-2 space-y-0">
@@ -228,7 +224,7 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                                     <FormControl>
                                     <RadioGroup
                                         onValueChange={field.onChange}
-                                        defaultValue={field.value}
+                                        value={field.value}
                                         className="flex space-x-4"
                                     >
                                         <FormItem className="flex items-center space-x-2 space-y-0">
