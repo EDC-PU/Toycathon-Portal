@@ -3,7 +3,7 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, DocumentData, deleteDoc, writeBatch, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, DocumentData, deleteDoc, writeBatch, updateDoc, deleteField } from 'firebase/firestore';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -118,7 +118,7 @@ export default function TeamPage() {
         setLoading(true);
         try {
             const userDocRef = doc(db, 'users', user.uid);
-            await updateDoc(userDocRef, { teamId: null });
+            await updateDoc(userDocRef, { teamId: deleteField() });
             toast({ title: "You have left the team." });
             setJoinedTeam(null);
             setUserProfile(prev => prev ? { ...prev, teamId: undefined } : null);
@@ -136,7 +136,7 @@ export default function TeamPage() {
 
         try {
             const memberDocRef = doc(db, 'users', memberId);
-            await updateDoc(memberDocRef, { teamId: null });
+            await updateDoc(memberDocRef, { teamId: deleteField() });
             toast({ title: "Member Removed", description: "The member has been successfully removed from the team." });
             if (user) fetchData(user.uid);
         } catch (error) {

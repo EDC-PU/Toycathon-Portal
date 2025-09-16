@@ -3,7 +3,7 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, runTransaction, orderBy, DocumentData } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, runTransaction, orderBy, DocumentData, deleteField } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
         try {
             const userDocRef = doc(db, 'users', user.uid);
-            await updateDoc(userDocRef, { teamId: null });
+            await updateDoc(userDocRef, { teamId: deleteField() });
             toast({ title: "You have left the team." });
             setProfile(prev => prev ? { ...prev, teamId: undefined } : null);
             setTeam(null);
