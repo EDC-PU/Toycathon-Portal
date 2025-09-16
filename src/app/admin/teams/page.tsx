@@ -17,8 +17,11 @@ interface Team extends DocumentData {
     id: string;
     teamName: string;
     leaderName: string;
+    leaderEmail: string;
+    leaderPhone: string;
     teamId: string;
     instituteName: string;
+    creatorUid: string;
     memberCount?: number;
 }
 
