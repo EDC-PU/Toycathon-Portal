@@ -18,7 +18,7 @@ interface Team extends DocumentData {
     id: string;
     teamName: string;
     leaderName: string;
-    teamId: string; // The new serial team ID
+    teamId: string;
     creatorUid: string;
 }
 
@@ -29,10 +29,18 @@ interface TeamMember {
     photoURL?: string;
 }
 
+interface UserProfile {
+    teamId?: string;
+    [key: string]: any;
+}
+
+
 export default function TeamPage() {
     const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
-    const [teams, setTeams] = useState<Team[]>([]);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [createdTeams, setCreatedTeams] = useState<Team[]>([]);
+    const [joinedTeam, setJoinedTeam] = useState<Team | null>(null);
     const [teamMembers, setTeamMembers] = useState<{ [key: string]: TeamMember[] }>({});
     const [loading, setLoading] = useState(true);
 
@@ -43,7 +51,7 @@ export default function TeamPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                await fetchTeams(currentUser.uid);
+                await fetchData(currentUser.uid);
             } else {
                  setLoading(false);
             }
@@ -53,24 +61,49 @@ export default function TeamPage() {
         return () => unsubscribe();
     }, []);
 
-    const fetchTeams = async (creatorId: string) => {
+    const fetchData = async (uid: string) => {
         setLoading(true);
         try {
-            const q = query(collection(db, "teams"), where("creatorUid", "==", creatorId));
-            const querySnapshot = await getDocs(q);
-            const fetchedTeams = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
-            setTeams(fetchedTeams);
+            // 1. Fetch user profile
+            const userDocRef = doc(db, "users", uid);
+            const userDocSnap = await getDoc(userDocRef);
+            const profile = userDocSnap.exists() ? userDocSnap.data() as UserProfile : null;
+            setUserProfile(profile);
 
+            // 2. Fetch teams created by the user
+            const createdTeamsQuery = query(collection(db, "teams"), where("creatorUid", "==", uid));
+            const createdTeamsSnapshot = await getDocs(createdTeamsQuery);
+            const fetchedCreatedTeams = createdTeamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
+            setCreatedTeams(fetchedCreatedTeams);
+
+            // 3. If user has a teamId, fetch that team's details (if they didn't create it)
+            let finalJoinedTeam = null;
+            if (profile?.teamId) {
+                const joinedTeamRef = doc(db, "teams", profile.teamId);
+                const joinedTeamSnap = await getDoc(joinedTeamRef);
+                if (joinedTeamSnap.exists()) {
+                    finalJoinedTeam = { id: joinedTeamSnap.id, ...joinedTeamSnap.data() } as Team;
+                    setJoinedTeam(finalJoinedTeam);
+                }
+            }
+            
+            // 4. Fetch members for all relevant teams
+            const allTeams = [...fetchedCreatedTeams];
+            if (finalJoinedTeam && !allTeams.some(t => t.id === finalJoinedTeam!.id)) {
+                 allTeams.push(finalJoinedTeam);
+            }
+            
             const membersMap: { [key: string]: TeamMember[] } = {};
-            for (const team of fetchedTeams) {
+            for (const team of allTeams) {
                 const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
                 const membersSnapshot = await getDocs(membersQuery);
-                membersMap[team.id] = membersSnapshot.docs.map(doc => doc.data() as TeamMember);
+                membersMap[team.id] = membersSnapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() as TeamMember }));
             }
             setTeamMembers(membersMap);
+
         } catch (error) {
-            console.error("Error fetching teams:", error);
-            toast({ title: "Error", description: "There was a problem loading your teams. Please try again later.", variant: "destructive" });
+            console.error("Error fetching teams data:", error);
+            toast({ title: "Error", description: "There was a problem loading team data. Please try again later.", variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -83,7 +116,7 @@ export default function TeamPage() {
             const memberDocRef = doc(db, 'users', memberId);
             await updateDoc(memberDocRef, { teamId: null });
             toast({ title: "Member Removed", description: "The member has been successfully removed from the team." });
-            if (user) fetchTeams(user.uid);
+            if (user) fetchData(user.uid);
         } catch (error) {
             console.error("Error removing member:", error);
             toast({ title: "Error", description: "Failed to remove member.", variant: "destructive" });
@@ -113,7 +146,7 @@ export default function TeamPage() {
             });
 
             if(user) {
-                fetchTeams(user.uid);
+                fetchData(user.uid);
             }
 
         } catch (error) {
@@ -146,35 +179,40 @@ export default function TeamPage() {
     };
 
     if (loading) {
-        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Loading your teams...</div>;
+        return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Loading your team information...</div>;
     }
+
+    const hasNoTeam = createdTeams.length === 0 && !joinedTeam;
+    const isOnlyMember = joinedTeam && createdTeams.length === 0;
 
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary">Manage Your Teams</h1>
-                    <p className="text-muted-foreground">View your created teams and invite members.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-primary">Manage Your Team</h1>
+                    <p className="text-muted-foreground">{isOnlyMember ? "View your team details and members." : "View your created teams and invite members."}</p>
                 </div>
-                <Button asChild>
-                    <Link href="/dashboard/teams/create">
-                        <PlusCircle className="mr-2 h-4 w-4" /> Create New Team
-                    </Link>
-                </Button>
+                {!userProfile?.teamId && (
+                    <Button asChild>
+                        <Link href="/dashboard/teams/create">
+                            <PlusCircle className="mr-2 h-4 w-4" /> Create New Team
+                        </Link>
+                    </Button>
+                )}
             </div>
             
-            {teams.length === 0 ? (
+            {hasNoTeam ? (
                 <Card className="text-center p-8 border-dashed">
                     <Users className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-semibold">No teams created yet</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">Get started by creating a new team for your students.</p>
-                    <Button asChild className="mt-4">
+                    <h3 className="mt-4 text-lg font-semibold">You are not part of any team yet</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">Get started by creating a new team or join one with an invite link.</p>
+                     <Button asChild className="mt-4">
                          <Link href="/dashboard/teams/create">Create New Team</Link>
                     </Button>
                 </Card>
             ) : (
                 <div className="grid gap-8">
-                    {teams.map(team => (
+                    {(isOnlyMember ? [joinedTeam] : createdTeams).map(team => team && (
                         <Card key={team.id}>
                             <CardHeader className="flex flex-row justify-between items-start">
                                 <div>
@@ -187,6 +225,7 @@ export default function TeamPage() {
                                     </CardTitle>
                                     <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
                                 </div>
+                                {user?.uid === team.creatorUid && (
                                 <div className="flex items-center gap-2">
                                      <Button asChild variant="outline" size="icon" disabled={!canEdit} title={canEdit ? 'Edit Team' : 'Editing is disabled after the deadline'}>
                                         <Link href={`/dashboard/teams/edit/${team.id}`}>
@@ -197,6 +236,7 @@ export default function TeamPage() {
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
+                                )}
                             </CardHeader>
                             <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (
@@ -225,6 +265,7 @@ export default function TeamPage() {
                                     <p className="text-sm text-center py-4 text-muted-foreground">No members have joined this team yet. Share the link below!</p>
                                 )}
                             </CardContent>
+                            {user?.uid === team.creatorUid && (
                              <CardFooter className="flex-col sm:flex-row items-center gap-4 border-t pt-6 bg-secondary/20 rounded-b-lg">
                                 <Input type="text" readOnly value={getJoiningLink(team.id)} aria-label="Team joining link" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" />
                                 <Button onClick={() => copyJoiningLink(team.id)} className="w-full sm:w-auto flex-shrink-0">
@@ -232,6 +273,7 @@ export default function TeamPage() {
                                     Copy Joining Link
                                 </Button>
                             </CardFooter>
+                            )}
                         </Card>
                     ))}
                 </div>
