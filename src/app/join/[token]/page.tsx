@@ -1,13 +1,13 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { runTransaction, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-
+import { runTransaction, doc, getDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
+import { addMemberToTeam } from '@/ai/flows/add-member-to-team-flow';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
