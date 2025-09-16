@@ -29,7 +29,7 @@ const formSchema = z.object({
   leaderPhone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   college: z.string().min(3, "Institution name is required."),
   instituteType: z.enum(["school", "university"], { required_error: "Please select an institute type." }),
-  rollNumber: z.string().min(1, "Roll number is required."),
+  rollNumber: z.string().min(1, "This ID number is required."),
   yearOfStudy: z.string().min(1, "Year of study/standard is required."),
   age: z.coerce.number().min(1, "Age is required.").positive("Age must be a positive number."),
   gender: z.enum(["male", "female"], { required_error: "Please select your gender." }),
@@ -57,22 +57,22 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
             instituteType: undefined,
         },
     });
+    
+    const instituteType = form.watch("instituteType");
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            setUser(currentUser);
             if (currentUser) {
+                setUser(currentUser);
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const existingData = docSnap.data();
-                    form.reset(existingData); // This populates all fields, including radio groups
-                }
                 
-                // Set the name from auth profile if not already in the form
-                if (!form.getValues('leaderName')) {
-                    form.setValue('leaderName', currentUser.displayName || '');
-                }
+                let dataToSet = {
+                    leaderName: currentUser.displayName || '',
+                    ...docSnap.data(),
+                };
+
+                form.reset(dataToSet);
             }
         });
         return () => unsubscribe();
@@ -264,9 +264,14 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                                     name="rollNumber"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Roll Number</FormLabel>
+                                            <FormLabel>
+                                                 {instituteType === 'university' ? 'Enrollment Number' : 'Roll Number'}
+                                            </FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Your roll number" {...field} />
+                                                <Input 
+                                                    placeholder={instituteType === 'university' ? 'Your enrollment number' : 'Your roll number'}
+                                                    {...field} 
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
