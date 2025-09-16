@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Copy, PlusCircle, Users, Tag, Trash2, Edit, Mail, Phone } from 'lucide-react';
+import { Copy, PlusCircle, Users, Tag, Trash2, Edit, Mail, Phone, LogOut } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -78,7 +78,7 @@ export default function TeamPage() {
             const fetchedCreatedTeams = createdTeamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
             setCreatedTeams(fetchedCreatedTeams);
 
-            // 3. If user has a teamId, fetch that team's details (if they didn't create it)
+            // 3. If user has a teamId, fetch that team's details
             let finalJoinedTeam = null;
             if (profile?.teamId) {
                 const joinedTeamRef = doc(db, "teams", profile.teamId);
@@ -106,6 +106,26 @@ export default function TeamPage() {
         } catch (error) {
             console.error("Error fetching teams data:", error);
             toast({ title: "Error", description: "There was a problem loading team data. Please try again later.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    const handleLeaveTeam = async () => {
+        if (!user || !userProfile?.teamId) return;
+        if (!confirm("Are you sure you want to leave this team? This action cannot be undone.")) return;
+
+        setLoading(true);
+        try {
+            const userDocRef = doc(db, 'users', user.uid);
+            await updateDoc(userDocRef, { teamId: null });
+            toast({ title: "You have left the team." });
+            setJoinedTeam(null);
+            setUserProfile(prev => prev ? { ...prev, teamId: undefined } : null);
+            await fetchData(user.uid);
+        } catch (error) {
+            console.error("Error leaving team:", error);
+            toast({ title: "Error", description: "Failed to leave the team. Please try again.", variant: "destructive" });
         } finally {
             setLoading(false);
         }
@@ -187,6 +207,8 @@ export default function TeamPage() {
     const hasNoTeam = createdTeams.length === 0 && !joinedTeam;
     const isOnlyMember = joinedTeam && createdTeams.length === 0;
 
+    const currentTeam = isOnlyMember ? joinedTeam : (createdTeams.length > 0 ? createdTeams[0] : null);
+
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
@@ -241,18 +263,26 @@ export default function TeamPage() {
                                         </div>
                                     </div>
                                 </div>
-                                {user?.uid === team.creatorUid && (
                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                     <Button asChild variant="outline" size="icon" disabled={!canEdit} title={canEdit ? 'Edit Team' : 'Editing is disabled after the deadline'}>
-                                        <Link href={`/dashboard/teams/edit/${team.id}`}>
-                                            <Edit className="h-4 w-4" />
-                                        </Link>
-                                    </Button>
-                                    <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                     {user?.uid === team.creatorUid && (
+                                         <>
+                                            <Button asChild variant="outline" size="icon" disabled={!canEdit} title={canEdit ? 'Edit Team' : 'Editing is disabled after the deadline'}>
+                                                <Link href={`/dashboard/teams/edit/${team.id}`}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                            <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                         </>
+                                     )}
+                                     {isOnlyMember && (
+                                         <Button variant="destructive" size="sm" onClick={handleLeaveTeam}>
+                                             <LogOut className="mr-2 h-4 w-4"/>
+                                             Leave Team
+                                         </Button>
+                                     )}
                                 </div>
-                                )}
                             </CardHeader>
                             <CardContent>
                                 {teamMembers[team.id]?.length > 0 ? (

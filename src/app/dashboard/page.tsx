@@ -3,13 +3,13 @@
 
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, runTransaction, orderBy } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, runTransaction, orderBy, DocumentData } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2, LinkIcon } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Users, Megaphone, PlusCircle, CalendarDays, Video, Phone, Mail, Pin, Loader2, LinkIcon, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { addMemberToTeam } from '@/ai/flows/add-member-to-team-flow';
@@ -21,6 +21,11 @@ interface UserProfile {
     teamId?: string;
     instituteType?: 'school' | 'university';
     isAdmin?: boolean;
+}
+
+interface Team extends DocumentData {
+    id: string;
+    teamName: string;
 }
 
 interface Announcement {
@@ -35,6 +40,7 @@ export default function DashboardPage() {
     const { toast } = useToast();
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [team, setTeam] = useState<Team | null>(null);
     const [loading, setLoading] = useState(true);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [joinLink, setJoinLink] = useState('');
@@ -59,6 +65,14 @@ export default function DashboardPage() {
                     const userProfile = { uid: docSnap.id, ...profileData } as UserProfile;
                     setProfile(userProfile);
                     
+                    if (userProfile.teamId) {
+                        const teamDocRef = doc(db, "teams", userProfile.teamId);
+                        const teamDocSnap = await getDoc(teamDocRef);
+                        if (teamDocSnap.exists()) {
+                            setTeam({ id: teamDocSnap.id, ...teamDocSnap.data() } as Team);
+                        }
+                    }
+
                     fetchAnnouncements();
 
                 } else {
@@ -98,11 +112,30 @@ export default function DashboardPage() {
         if (result.success) {
             toast({ title: "Success!", description: `You have successfully joined ${result.teamName}!` });
             setProfile(prev => prev ? { ...prev, teamId: teamId } : null);
+             if (result.teamName) {
+                setTeam({ id: teamId, teamName: result.teamName });
+            }
         } else {
             toast({ title: "Failed to Join Team", description: result.message, variant: "destructive" });
         }
         setIsJoining(false);
     }
+    
+    const handleLeaveTeam = async () => {
+        if (!user || !profile?.teamId) return;
+        if (!confirm("Are you sure you want to leave this team? This action cannot be undone.")) return;
+
+        try {
+            const userDocRef = doc(db, 'users', user.uid);
+            await updateDoc(userDocRef, { teamId: null });
+            toast({ title: "You have left the team." });
+            setProfile(prev => prev ? { ...prev, teamId: undefined } : null);
+            setTeam(null);
+        } catch (error) {
+            console.error("Error leaving team:", error);
+            toast({ title: "Error", description: "Failed to leave the team. Please try again.", variant: "destructive" });
+        }
+    };
 
 
     if (loading) {
@@ -119,6 +152,24 @@ export default function DashboardPage() {
                 <h1 className="text-4xl font-bold tracking-tight text-primary">Welcome, {profile.displayName}!</h1>
                 <p className="mt-2 text-muted-foreground">This is your command center for the Toycathon.</p>
             </div>
+            
+            {team && (
+                 <Card className="bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Users className="w-8 h-8 text-green-600 dark:text-green-400"/>
+                            <div>
+                                <CardTitle className="text-green-800 dark:text-green-200">You are on Team: {team.teamName}</CardTitle>
+                                <CardDescription className="text-green-700 dark:text-green-300">Your team information can be viewed on the Teams page.</CardDescription>
+                            </div>
+                        </div>
+                         <Button variant="destructive" size="sm" onClick={handleLeaveTeam}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Leave Team
+                        </Button>
+                    </CardHeader>
+                </Card>
+            )}
             
             <Card>
                 <CardHeader className="flex flex-row items-center gap-4">
@@ -216,6 +267,7 @@ export default function DashboardPage() {
             </div>
             
              {!profile.teamId && (
+                <>
                 <Card>
                     <CardHeader>
                         <CardTitle>Join a Team</CardTitle>
@@ -240,22 +292,22 @@ export default function DashboardPage() {
                         </form>
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Create a New Team</CardTitle>
+                        <CardDescription>Click here to register a new team for the competition.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                           <Link href="/dashboard/teams/create">
+                                <PlusCircle className="mr-2" /> Create Team
+                           </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+                </>
             )}
 
-
-             <Card>
-                <CardHeader>
-                    <CardTitle>Create a New Team</CardTitle>
-                    <CardDescription>Click here to register a new team for the competition.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild>
-                       <Link href="/dashboard/teams/create">
-                            <PlusCircle className="mr-2" /> Create Team
-                       </Link>
-                    </Button>
-                </CardContent>
-            </Card>
 
              <Card>
                 <CardHeader>
@@ -321,5 +373,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-
-    
