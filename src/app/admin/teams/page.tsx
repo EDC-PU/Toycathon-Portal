@@ -130,7 +130,7 @@ export default function AdminTeamsPage() {
                         'Team Name': team.teamName,
                         'Team ID': team.teamId,
                         'Team Institute': team.instituteName,
-                        'Is Leader': 'Yes',
+                        'Role': 'Leader',
                         'Member Name': team.leaderName,
                         'Member Email': team.leaderEmail,
                         'Member Phone': team.leaderPhone,
@@ -144,7 +144,7 @@ export default function AdminTeamsPage() {
                             'Team Name': team.teamName,
                             'Team ID': team.teamId,
                             'Team Institute': team.instituteName,
-                            'Is Leader': member.uid === team.creatorUid ? 'Yes' : 'No',
+                            'Role': member.uid === team.creatorUid ? 'Leader' : 'Member',
                             'Member Name': member.displayName,
                             'Member Email': member.email,
                             'Member Phone': member.leaderPhone,
@@ -269,3 +269,5 @@ export default function AdminTeamsPage() {
         </div>
     )
 }
+
+    
