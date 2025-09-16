@@ -122,7 +122,7 @@ export default function TeamPage() {
             const userDocRef = doc(db, 'users', user.uid);
             await updateDoc(userDocRef, { teamId: deleteField() });
             toast({ title: "You have left the team." });
-            await fetchData(user.uid); // Re-fetch all data
+            await fetchData(user.uid);
         } catch (error) {
             console.error("Error leaving team:", error);
             toast({ title: "Error", description: "Failed to leave the team. Please try again.", variant: "destructive" });
@@ -182,7 +182,7 @@ export default function TeamPage() {
 
     const getJoiningLink = (teamId: string) => {
         if (!teamId) return '';
-        const origin = 'https://toycathon.pierc.org';
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://toycathon.pierc.org';
         return `${origin}/join/${teamId}`;
     };
 
@@ -206,8 +206,6 @@ export default function TeamPage() {
 
     const hasNoTeam = createdTeams.length === 0 && !joinedTeam;
     const isOnlyMember = joinedTeam && createdTeams.length === 0;
-
-    const currentTeam = isOnlyMember ? joinedTeam : (createdTeams.length > 0 ? createdTeams[0] : null);
 
     return (
         <div>

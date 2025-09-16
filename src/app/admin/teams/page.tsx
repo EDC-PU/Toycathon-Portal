@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, DocumentData, doc, deleteDoc, where, writeBatch, deleteField } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,10 @@ interface Team extends DocumentData {
     teamId: string;
     instituteName: string;
     memberCount?: number;
+}
+
+interface TeamMember {
+    uid: string;
 }
 
 export default function AdminTeamsPage() {
@@ -38,7 +42,6 @@ export default function AdminTeamsPage() {
             const teamsSnapshot = await getDocs(teamsQuery);
             const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
 
-            // Fetch member counts for each team
             const teamsWithCounts = await Promise.all(fetchedTeams.map(async (team) => {
                 const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
                 const membersSnapshot = await getDocs(membersQuery);
@@ -55,17 +58,29 @@ export default function AdminTeamsPage() {
     };
 
     const deleteTeam = async (team: Team) => {
-        if (!confirm(`Are you sure you want to delete the team "${team.teamName}"? This will unlink all its members.`)) return;
+        if (!confirm(`Are you sure you want to delete the team "${team.teamName}"? This action cannot be undone and will unlink all members.`)) return;
 
+        setLoading(true);
         try {
             const teamRef = doc(db, "teams", team.id);
-            // In a real-world scenario, unlinking users might require a Cloud Function for security.
-            // For this prototype, we'll just delete the team document.
-            await deleteDoc(teamRef);
+            
+            const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
+            const membersSnapshot = await getDocs(membersQuery);
+            const members = membersSnapshot.docs.map(doc => ({ uid: doc.id } as TeamMember));
+            
+            const batch = writeBatch(db);
+
+            members.forEach(member => {
+                const memberRef = doc(db, "users", member.uid);
+                batch.update(memberRef, { teamId: deleteField() });
+            });
+            batch.delete(teamRef);
+
+            await batch.commit();
             
             toast({
                 title: "Team Deleted",
-                description: `"${team.teamName}" has been removed.`,
+                description: `"${team.teamName}" and all its members have been unlinked.`,
             });
 
             fetchTeams();
@@ -73,6 +88,8 @@ export default function AdminTeamsPage() {
         } catch (error) {
             console.error("Error deleting team:", error);
             toast({ title: "Error", description: "Failed to delete team.", variant: "destructive" });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -150,7 +167,7 @@ export default function AdminTeamsPage() {
                                             <Button asChild variant="outline" size="icon">
                                                 <Link href={`/admin/teams/edit/${team.id}`}><Edit className="h-4 w-4" /></Link>
                                             </Button>
-                                            <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)}>
+                                            <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </TableCell>
