@@ -155,10 +155,7 @@ export default function DashboardPage() {
             const userDocRef = doc(db, 'users', user.uid);
             await updateDoc(userDocRef, { teamId: deleteField() });
             toast({ title: "You have left the team." });
-            setProfile(prev => prev ? { ...prev, teamId: undefined } : null);
-            setTeam(null);
-            setIsLeader(false);
-            setSubmission(null);
+            window.location.reload(); // Reload the page to reflect changes
         } catch (error) {
             console.error("Error leaving team:", error);
             toast({ title: "Error", description: "Failed to leave the team. Please try again.", variant: "destructive" });

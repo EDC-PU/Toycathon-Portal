@@ -87,6 +87,8 @@ export default function TeamPage() {
                     finalJoinedTeam = { id: joinedTeamSnap.id, ...joinedTeamSnap.data() } as Team;
                     setJoinedTeam(finalJoinedTeam);
                 }
+            } else {
+                setJoinedTeam(null);
             }
             
             // 4. Fetch members for all relevant teams
@@ -120,9 +122,7 @@ export default function TeamPage() {
             const userDocRef = doc(db, 'users', user.uid);
             await updateDoc(userDocRef, { teamId: deleteField() });
             toast({ title: "You have left the team." });
-            setJoinedTeam(null);
-            setUserProfile(prev => prev ? { ...prev, teamId: undefined } : null);
-            await fetchData(user.uid);
+            await fetchData(user.uid); // Re-fetch all data
         } catch (error) {
             console.error("Error leaving team:", error);
             toast({ title: "Error", description: "Failed to leave the team. Please try again.", variant: "destructive" });
@@ -156,7 +156,7 @@ export default function TeamPage() {
 
             members.forEach(member => {
                 const memberRef = doc(db, "users", member.uid);
-                batch.update(memberRef, { teamId: null });
+                batch.update(memberRef, { teamId: deleteField() });
             });
             batch.delete(teamRef);
 
