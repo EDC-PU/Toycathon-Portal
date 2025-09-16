@@ -5,7 +5,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, DocumentData } from 'firebase/firestore';
 import DashboardSidebar from '@/components/dashboard-sidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [teamInfo, setTeamInfo] = useState<{ teamName: string; teamId: string } | null>(null);
 
   const isProfileSufficient = (profileData: any) => {
     return profileData && (profileData.leaderPhone || profileData.teamId);
@@ -47,6 +48,14 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
            return; 
         } else {
             setIsAdmin(false);
+            if (profileData?.teamId) {
+                const teamDocRef = doc(db, 'teams', profileData.teamId);
+                const teamDocSnap = await getDoc(teamDocRef);
+                if (teamDocSnap.exists()) {
+                    const teamData = teamDocSnap.data();
+                    setTeamInfo({ teamName: teamData.teamName, teamId: teamData.teamId });
+                }
+            }
             if (!isProfileSufficient(profileData)) {
               router.push('/profile');
               return;
@@ -78,7 +87,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-secondary/20">
       <div className="hidden md:flex">
-         <DashboardSidebar isAdmin={isAdmin} />
+         <DashboardSidebar isAdmin={isAdmin} teamInfo={teamInfo} />
       </div>
        <div className="flex flex-1 flex-col overflow-hidden">
         <header className="md:hidden flex h-16 items-center justify-between border-b bg-background px-4">
@@ -92,7 +101,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0">
-                  <DashboardSidebar isAdmin={isAdmin} onLinkClick={() => setMobileMenuOpen(false)} />
+                  <DashboardSidebar isAdmin={isAdmin} teamInfo={teamInfo} onLinkClick={() => setMobileMenuOpen(false)} />
               </SheetContent>
             </Sheet>
         </header>

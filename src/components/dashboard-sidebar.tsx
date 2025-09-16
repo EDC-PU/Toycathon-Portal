@@ -30,10 +30,11 @@ const adminNavLinks = [
 
 interface DashboardSidebarProps {
     isAdmin: boolean;
+    teamInfo?: { teamName: string; teamId: string } | null;
     onLinkClick?: () => void;
 }
 
-export default function DashboardSidebar({ isAdmin, onLinkClick }: DashboardSidebarProps) {
+export default function DashboardSidebar({ isAdmin, teamInfo, onLinkClick }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -81,7 +82,13 @@ export default function DashboardSidebar({ isAdmin, onLinkClick }: DashboardSide
           );
         })}
       </nav>
-      <div className="px-4 py-4 border-t flex-shrink-0">
+      <div className="px-4 py-4 border-t flex-shrink-0 space-y-2">
+         {teamInfo && !isAdmin && (
+            <div className="p-3 rounded-md bg-secondary text-secondary-foreground text-xs">
+                <p className="font-bold truncate">{teamInfo.teamName}</p>
+                <p className="font-mono text-muted-foreground">{teamInfo.teamId}</p>
+            </div>
+         )}
          <Button
             variant={'ghost'}
             className="w-full justify-start"
