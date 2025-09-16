@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Copy, PlusCircle, Users, Tag, Trash2, Edit } from 'lucide-react';
+import { Copy, PlusCircle, Users, Tag, Trash2, Edit, Mail, Phone } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -18,6 +18,8 @@ interface Team extends DocumentData {
     id: string;
     teamName: string;
     leaderName: string;
+    leaderEmail: string;
+    leaderPhone: string;
     teamId: string;
     creatorUid: string;
 }
@@ -214,19 +216,33 @@ export default function TeamPage() {
                 <div className="grid gap-8">
                     {(isOnlyMember ? [joinedTeam] : createdTeams).map(team => team && (
                         <Card key={team.id}>
-                            <CardHeader className="flex flex-row justify-between items-start">
-                                <div>
-                                    <CardTitle className="flex items-center gap-4">
+                            <CardHeader className="flex flex-col md:flex-row justify-between items-start gap-4">
+                                <div className="flex-1">
+                                    <CardTitle className="flex items-center flex-wrap gap-4">
                                         <span className="text-primary">{team.teamName}</span>
                                          <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground bg-secondary px-2 py-1 rounded-md">
                                             <Tag className="h-4 w-4" />
                                             <span>{team.teamId}</span>
                                          </div>
                                     </CardTitle>
-                                    <CardDescription>Leader: {team.leaderName} | Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
+                                    <CardDescription>Members Joined: {teamMembers[team.id]?.length || 0} / 4</CardDescription>
+                                    
+                                    <div className="mt-3 text-sm space-y-2 text-muted-foreground">
+                                        <p><span className="font-semibold text-foreground">Leader:</span> {team.leaderName}</p>
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <Mail className="h-4 w-4"/>
+                                                <a href={`mailto:${team.leaderEmail}`} className="hover:text-primary">{team.leaderEmail}</a>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Phone className="h-4 w-4"/>
+                                                <span>{team.leaderPhone}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 {user?.uid === team.creatorUid && (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-shrink-0">
                                      <Button asChild variant="outline" size="icon" disabled={!canEdit} title={canEdit ? 'Edit Team' : 'Editing is disabled after the deadline'}>
                                         <Link href={`/dashboard/teams/edit/${team.id}`}>
                                             <Edit className="h-4 w-4" />
