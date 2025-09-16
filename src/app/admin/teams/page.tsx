@@ -24,11 +24,18 @@ interface Team extends DocumentData {
 
 interface TeamMember {
     uid: string;
+    displayName: string;
+    email: string;
+    leaderPhone: string;
+    college: string;
+    yearOfStudy: string;
+    rollNumber: string;
 }
 
 export default function AdminTeamsPage() {
     const { toast } = useToast();
     const [loading, setLoading] = useState(true);
+    const [exporting, setExporting] = useState(false);
     const [teams, setTeams] = useState<Team[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -67,7 +74,7 @@ export default function AdminTeamsPage() {
             
             const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
             const membersSnapshot = await getDocs(membersQuery);
-            const members = membersSnapshot.docs.map(doc => ({ uid: doc.id } as TeamMember));
+            const members = membersSnapshot.docs.map(doc => ({ uid: doc.id } as { uid: string }));
             
             const batch = writeBatch(db);
 
@@ -103,22 +110,64 @@ export default function AdminTeamsPage() {
         );
     }, [teams, searchTerm]);
     
-    const handleExport = () => {
-        const dataToExport = filteredTeams.map(team => ({
-            'Team Name': team.teamName,
-            'Team ID': team.teamId,
-            'Leader Name': team.leaderName,
-            'Leader Email': team.leaderEmail,
-            'Leader Phone': team.leaderPhone,
-            'Institute': team.instituteName,
-            'Members': `${team.memberCount} / 4`,
-        }));
+    const handleExport = async () => {
+        setExporting(true);
+        toast({ title: "Exporting...", description: "Preparing team and member data for export." });
 
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Teams");
-        XLSX.writeFile(workbook, "ToycathonTeams.xlsx");
+        try {
+            const dataToExport = [];
+
+            for (const team of filteredTeams) {
+                const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
+                const membersSnapshot = await getDocs(membersQuery);
+                const members = membersSnapshot.docs.map(doc => ({ ...doc.data() } as TeamMember));
+
+                if (members.length === 0) {
+                     dataToExport.push({
+                        'Team Name': team.teamName,
+                        'Team ID': team.teamId,
+                        'Team Institute': team.instituteName,
+                        'Is Leader': 'Yes',
+                        'Member Name': team.leaderName,
+                        'Member Email': team.leaderEmail,
+                        'Member Phone': team.leaderPhone,
+                        'Member Institute': team.instituteName,
+                        'Year of Study': 'N/A',
+                        'Roll Number': 'N/A',
+                    });
+                } else {
+                    for (const member of members) {
+                         dataToExport.push({
+                            'Team Name': team.teamName,
+                            'Team ID': team.teamId,
+                            'Team Institute': team.instituteName,
+                            'Is Leader': member.uid === team.creatorUid ? 'Yes' : 'No',
+                            'Member Name': member.displayName,
+                            'Member Email': member.email,
+                            'Member Phone': member.leaderPhone,
+                            'Member Institute': member.college,
+                            'Year of Study': member.yearOfStudy,
+                            'Roll Number': member.rollNumber,
+                        });
+                    }
+                }
+            }
+            
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "TeamsWithMembers");
+            XLSX.writeFile(workbook, "ToycathonTeams_Detailed.xlsx");
+
+            toast({ title: "Export Complete!", description: "The detailed team and member list has been downloaded." });
+
+        } catch (error) {
+            console.error("Error exporting data:", error);
+            toast({ title: 'Export Failed', description: 'Could not generate the Excel file.', variant: 'destructive' });
+        } finally {
+            setExporting(false);
+        }
     };
+
 
     if (loading) {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching all teams...</div>;
@@ -152,8 +201,8 @@ export default function AdminTeamsPage() {
                                 </Button>
                             )}
                         </div>
-                         <Button onClick={handleExport} disabled={filteredTeams.length === 0}>
-                            <FileDown className="mr-2 h-4 w-4" />
+                         <Button onClick={handleExport} disabled={filteredTeams.length === 0 || exporting}>
+                            {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                             Export to Excel
                         </Button>
                     </div>
