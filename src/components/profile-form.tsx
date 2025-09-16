@@ -30,7 +30,7 @@ const formSchema = z.object({
   college: z.string().min(3, "Institution name is required."),
   instituteType: z.enum(["school", "university"], { required_error: "Please select an institute type." }),
   rollNumber: z.string().min(1, "This ID number is required."),
-  yearOfStudy: z.string().min(1, "Year of study/standard is required."),
+  yearOfStudy: z.string().min(1, "This field is required."),
   age: z.coerce.number().min(1, "Age is required.").positive("Age must be a positive number."),
   gender: z.enum(["male", "female"], { required_error: "Please select your gender." }),
 });
@@ -282,9 +282,14 @@ export default function ProfileForm({ onProfileComplete }: ProfileFormProps) {
                                     name="yearOfStudy"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Year of Study / Standard</FormLabel>
+                                            <FormLabel>
+                                                {instituteType === 'school' ? 'Standard' : 'Year of Study'}
+                                            </FormLabel>
                                             <FormControl>
-                                                <Input placeholder="e.g. 2nd Year or 12th Standard" {...field} />
+                                                <Input 
+                                                    placeholder={instituteType === 'school' ? 'e.g., 12th Standard' : 'e.g., 2nd Year'}
+                                                    {...field} 
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
