@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Trash2, Edit, Search, XCircle, Eye, Users } from 'lucide-react';
+import { Loader2, Trash2, Edit, Search, XCircle, Eye, Users, FileDown } from 'lucide-react';
 import Link from 'next/link';
+import * as XLSX from 'xlsx';
 
 interface Team extends DocumentData {
     id: string;
@@ -101,6 +102,23 @@ export default function AdminTeamsPage() {
             (team.instituteName && team.instituteName.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }, [teams, searchTerm]);
+    
+    const handleExport = () => {
+        const dataToExport = filteredTeams.map(team => ({
+            'Team Name': team.teamName,
+            'Team ID': team.teamId,
+            'Leader Name': team.leaderName,
+            'Leader Email': team.leaderEmail,
+            'Leader Phone': team.leaderPhone,
+            'Institute': team.instituteName,
+            'Members': `${team.memberCount} / 4`,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Teams");
+        XLSX.writeFile(workbook, "ToycathonTeams.xlsx");
+    };
 
     if (loading) {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching all teams...</div>;
@@ -119,19 +137,25 @@ export default function AdminTeamsPage() {
                     <CardDescription>Found {filteredTeams.length} out of {teams.length} total teams.</CardDescription>
                 </CardHeader>
                  <CardContent>
-                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            placeholder="Filter by name, leader, ID, or institute..." 
-                            className="pl-10"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                         {searchTerm && (
-                            <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6" onClick={() => setSearchTerm('')}>
-                                <XCircle className="h-4 w-4" />
-                            </Button>
-                        )}
+                     <div className="flex items-center gap-4">
+                        <div className="relative flex-grow">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Filter by name, leader, ID, or institute..." 
+                                className="pl-10"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            {searchTerm && (
+                                <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6" onClick={() => setSearchTerm('')}>
+                                    <XCircle className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
+                         <Button onClick={handleExport} disabled={filteredTeams.length === 0}>
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Export to Excel
+                        </Button>
                     </div>
                 </CardContent>
                 <CardContent>

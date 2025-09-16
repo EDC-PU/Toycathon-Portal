@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Trash2, Search, XCircle, Crown } from 'lucide-react';
+import { Loader2, Trash2, Search, XCircle, Crown, FileDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import * as XLSX from 'xlsx';
 
 
 interface PortalUser extends DocumentData {
@@ -121,6 +122,21 @@ export default function AdminUsersPage() {
             (u.college && u.college.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }, [users, searchTerm]);
+    
+    const handleExport = () => {
+        const dataToExport = filteredUsers.map(user => ({
+            Name: user.displayName,
+            Email: user.email,
+            Institute: user.college,
+            'Institute Type': user.instituteType,
+            'Is Admin': user.isAdmin ? 'Yes' : 'No',
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+        XLSX.writeFile(workbook, "ToycathonUsers.xlsx");
+    };
 
     if (loading) {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching all users...</div>;
@@ -139,19 +155,25 @@ export default function AdminUsersPage() {
                     <CardDescription>Found {filteredUsers.length} out of {users.length} total users.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            placeholder="Filter by name, email, or institute..." 
-                            className="pl-10"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                         {searchTerm && (
-                            <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6" onClick={() => setSearchTerm('')}>
-                                <XCircle className="h-4 w-4" />
-                            </Button>
-                        )}
+                     <div className="flex items-center gap-4">
+                        <div className="relative flex-grow">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Filter by name, email, or institute..." 
+                                className="pl-10"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            {searchTerm && (
+                                <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6" onClick={() => setSearchTerm('')}>
+                                    <XCircle className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
+                        <Button onClick={handleExport} disabled={filteredUsers.length === 0}>
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Export to Excel
+                        </Button>
                     </div>
                 </CardContent>
                 <CardContent>
