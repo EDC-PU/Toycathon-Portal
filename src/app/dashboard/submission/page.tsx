@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldAlert } from 'lucide-react';
 import { useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp, getDoc, collection, query, where, getDocs, DocumentData, orderBy } from "firebase/firestore";
@@ -50,6 +50,7 @@ export default function SubmissionPage() {
     const [categories, setCategories] = useState<FirestoreDocument[]>([]);
     const [themes, setThemes] = useState<FirestoreDocument[]>([]);
     const [isFetching, setIsFetching] = useState(true);
+    const [isLeader, setIsLeader] = useState(false);
 
 
     const form = useForm<z.infer<typeof submissionSchema>>({
@@ -71,6 +72,25 @@ export default function SubmissionPage() {
                 
                 const teamsQuery = query(collection(db, "teams"), where("creatorUid", "==", currentUser.uid));
                 const teamsSnapshot = await getDocs(teamsQuery);
+                
+                if (teamsSnapshot.empty) {
+                    // This user is not a leader of any team
+                    setIsLeader(false);
+                    // If they are not a leader, they shouldn't be here.
+                    const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                    if (userDoc.exists() && userDoc.data().teamId) { // Check if they are a member of another team
+                         toast({
+                            title: 'Access Denied',
+                            description: 'Only team leaders can submit or edit ideas.',
+                            variant: 'destructive'
+                        });
+                        router.push('/dashboard');
+                        return;
+                    }
+                } else {
+                     setIsLeader(true);
+                }
+
                 const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
                 setTeams(fetchedTeams);
                 
@@ -93,7 +113,7 @@ export default function SubmissionPage() {
         });
 
         return () => unsubscribe();
-    }, [router, form]);
+    }, [router, form, toast]);
 
     useEffect(() => {
         const fetchSubmission = async () => {
@@ -153,14 +173,14 @@ export default function SubmissionPage() {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching data...</div>;
     }
     
-    if (teams.length === 0) {
+    if (!isLeader) {
         return (
              <div className="space-y-8 text-center flex flex-col items-center justify-center h-full">
                 <Card className="max-w-lg">
                     <CardHeader>
                         <CardTitle className="text-primary">No Teams Found</CardTitle>
                         <CardDescription>
-                            You need to create a team before you can submit an idea.
+                            You must be a team leader to submit an idea. Please create a team first.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
