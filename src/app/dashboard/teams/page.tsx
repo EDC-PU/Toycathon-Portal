@@ -204,15 +204,18 @@ export default function TeamPage() {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Loading your team information...</div>;
     }
 
-    const hasNoTeam = createdTeams.length === 0 && !joinedTeam;
-    const isOnlyMember = joinedTeam && createdTeams.length === 0;
+    const isMemberOnly = joinedTeam && createdTeams.length === 0;
+    const teamsToShow = createdTeams.length > 0 ? createdTeams : (joinedTeam ? [joinedTeam] : []);
+    const hasNoTeam = teamsToShow.length === 0;
 
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary">Manage Your Team</h1>
-                    <p className="text-muted-foreground">{isOnlyMember ? "View your team details and members." : "View your created teams and invite members."}</p>
+                    <p className="text-muted-foreground">
+                        {createdTeams.length > 0 ? "View your created teams and invite members." : isMemberOnly ? "View your team details and members." : "Create or join a team to get started."}
+                    </p>
                 </div>
                 {!userProfile?.teamId && (
                     <Button asChild>
@@ -234,7 +237,7 @@ export default function TeamPage() {
                 </Card>
             ) : (
                 <div className="grid gap-8">
-                    {(isOnlyMember ? [joinedTeam] : createdTeams).map(team => team && (
+                    {teamsToShow.map(team => team && (
                         <Card key={team.id}>
                             <CardHeader className="flex flex-col md:flex-row justify-between items-start gap-4">
                                 <div className="flex-1">
@@ -262,20 +265,19 @@ export default function TeamPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                     {user?.uid === team.creatorUid && (
+                                     {user?.uid === team.creatorUid ? (
                                          <>
                                             <Button asChild variant="outline" size="icon" disabled={!canEdit} title={canEdit ? 'Edit Team' : 'Editing is disabled after the deadline'}>
                                                 <Link href={`/dashboard/teams/edit/${team.id}`}>
                                                     <Edit className="h-4 w-4" />
                                                 </Link>
                                             </Button>
-                                            <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading}>
+                                            <Button variant="destructive" size="icon" onClick={() => deleteTeam(team)} disabled={loading} title="Delete Team">
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                          </>
-                                     )}
-                                     {isOnlyMember && (
-                                         <Button variant="destructive" size="sm" onClick={handleLeaveTeam}>
+                                     ) : (
+                                         <Button variant="destructive" size="sm" onClick={handleLeaveTeam} title="Leave Team">
                                              <LogOut className="mr-2 h-4 w-4"/>
                                              Leave Team
                                          </Button>
@@ -298,7 +300,7 @@ export default function TeamPage() {
                                                 </div>
                                             </div>
                                             {user?.uid === team.creatorUid && user?.uid !== member.uid && (
-                                                <Button variant="ghost" size="icon" onClick={() => removeMember(member.uid)}>
+                                                <Button variant="ghost" size="icon" onClick={() => removeMember(member.uid)} title="Remove Member">
                                                     <Trash2 className="h-4 w-4 text-destructive"/>
                                                 </Button>
                                             )}
@@ -325,3 +327,5 @@ export default function TeamPage() {
         </div>
     );
 }
+
+    
