@@ -6,7 +6,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ArrowLeft, Users, User, Phone, Mail, GraduationCap, Building, Hash } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, User, Phone, Mail, GraduationCap, Building, Hash, Lightbulb, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,6 +33,12 @@ interface Member extends DocumentData {
     leaderPhone: string;
 }
 
+interface Submission extends DocumentData {
+    ideaTitle: string;
+    ideaDescription: string;
+    videoLink?: string;
+}
+
 export default function ViewTeamPage() {
     const params = useParams();
     const router = useRouter();
@@ -40,6 +46,7 @@ export default function ViewTeamPage() {
     
     const [team, setTeam] = useState<Team | null>(null);
     const [members, setMembers] = useState<Member[]>([]);
+    const [submission, setSubmission] = useState<Submission | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -66,6 +73,15 @@ export default function ViewTeamPage() {
                 const membersSnapshot = await getDocs(membersQuery);
                 const fetchedMembers = membersSnapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as Member));
                 setMembers(fetchedMembers);
+
+                // Fetch submission details
+                const submissionQuery = query(collection(db, "submissions"), where("teamId", "==", teamId));
+                const submissionSnapshot = await getDocs(submissionQuery);
+                if (!submissionSnapshot.empty) {
+                    const submissionData = submissionSnapshot.docs[0].data() as Submission;
+                    setSubmission(submissionData);
+                }
+
 
             } catch (err) {
                 console.error("Error fetching team data:", err);
@@ -147,6 +163,31 @@ export default function ViewTeamPage() {
                     </CardContent>
                 </Card>
             )}
+
+            {submission && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-primary">
+                            <FileText /> Submitted Idea
+                        </CardTitle>
+                        <CardDescription>This is the idea submitted by the team.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Lightbulb /> {submission.ideaTitle}
+                            </h3>
+                        </div>
+                        <p className="text-muted-foreground text-sm whitespace-pre-wrap">{submission.ideaDescription}</p>
+                        {submission.videoLink && (
+                             <div>
+                                <h4 className="font-semibold">Concept Video</h4>
+                                <a href={submission.videoLink} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline break-all">{submission.videoLink}</a>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
             
             <Card>
                 <CardHeader>
@@ -187,3 +228,5 @@ export default function ViewTeamPage() {
         </div>
     )
 }
+
+    

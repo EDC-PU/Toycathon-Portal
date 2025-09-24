@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, Trash2, Edit, Search, XCircle, Eye, Users, FileDown } from 'lucide-react';
 import Link from 'next/link';
 import * as XLSX from 'xlsx';
+import { Badge } from '@/components/ui/badge';
 
 interface Team extends DocumentData {
     id: string;
@@ -23,6 +24,7 @@ interface Team extends DocumentData {
     instituteName: string;
     creatorUid: string;
     memberCount?: number;
+    hasSubmittedIdea?: boolean;
 }
 
 interface TeamMember {
@@ -53,13 +55,21 @@ export default function AdminTeamsPage() {
             const teamsSnapshot = await getDocs(teamsQuery);
             const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
 
-            const teamsWithCounts = await Promise.all(fetchedTeams.map(async (team) => {
+            const teamsWithDetails = await Promise.all(fetchedTeams.map(async (team) => {
                 const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
                 const membersSnapshot = await getDocs(membersQuery);
-                return { ...team, memberCount: membersSnapshot.size };
+                
+                const submissionDocRef = doc(db, "submissions", team.id);
+                const submissionDocSnap = await getDocs(query(collection(db, "submissions"), where("teamId", "==", team.id)));
+
+                return { 
+                    ...team, 
+                    memberCount: membersSnapshot.size,
+                    hasSubmittedIdea: !submissionDocSnap.empty,
+                };
             }));
 
-            setTeams(teamsWithCounts);
+            setTeams(teamsWithDetails);
         } catch (error) {
             console.error("Error fetching teams:", error);
             toast({ title: 'Error', description: 'Failed to fetch teams.', variant: 'destructive' });
@@ -124,12 +134,17 @@ export default function AdminTeamsPage() {
                 const membersQuery = query(collection(db, "users"), where("teamId", "==", team.id));
                 const membersSnapshot = await getDocs(membersQuery);
                 const members = membersSnapshot.docs.map(doc => ({ ...doc.data() } as TeamMember));
+                
+                const submissionQuery = query(collection(db, "submissions"), where("teamId", "==", team.id));
+                const submissionSnapshot = await getDocs(submissionQuery);
+                const hasSubmitted = !submissionSnapshot.empty;
 
                 if (members.length === 0) {
                      dataToExport.push({
                         'Team Name': team.teamName,
                         'Team ID': team.teamId,
                         'Team Institute': team.instituteName,
+                        'Idea Submitted': hasSubmitted ? 'Yes' : 'No',
                         'Role': 'Leader',
                         'Member Name': team.leaderName,
                         'Member Email': team.leaderEmail,
@@ -144,6 +159,7 @@ export default function AdminTeamsPage() {
                             'Team Name': team.teamName,
                             'Team ID': team.teamId,
                             'Team Institute': team.instituteName,
+                            'Idea Submitted': hasSubmitted ? 'Yes' : 'No',
                             'Role': member.uid === team.creatorUid ? 'Leader' : 'Member',
                             'Member Name': member.displayName,
                             'Member Email': member.email,
@@ -218,8 +234,8 @@ export default function AdminTeamsPage() {
                                     <TableHead>Team Name</TableHead>
                                     <TableHead>Team ID</TableHead>
                                     <TableHead>Leader Name</TableHead>
-                                    <TableHead>Institute</TableHead>
                                     <TableHead>Members</TableHead>
+                                    <TableHead>Idea Submitted</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -229,12 +245,16 @@ export default function AdminTeamsPage() {
                                         <TableCell className="font-medium">{team.teamName}</TableCell>
                                         <TableCell>{team.teamId || 'N/A'}</TableCell>
                                         <TableCell>{team.leaderName}</TableCell>
-                                        <TableCell>{team.instituteName}</TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <Users className="h-4 w-4 text-muted-foreground" />
                                                 <span>{team.memberCount} / 4</span>
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant={team.hasSubmittedIdea ? 'default' : 'secondary'}>
+                                                {team.hasSubmittedIdea ? 'Yes' : 'No'}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell className="text-right space-x-2">
                                             <Button asChild variant="outline" size="icon">
