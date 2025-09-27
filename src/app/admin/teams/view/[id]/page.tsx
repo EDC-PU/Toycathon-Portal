@@ -6,11 +6,12 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs, DocumentData } from 'firebase/firestore';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ArrowLeft, Users, User, Phone, Mail, GraduationCap, Building, Hash, Lightbulb, FileText } from 'lucide-react';
+import { Loader2, ArrowLeft, Users, User, Phone, Mail, GraduationCap, Building, Hash, Lightbulb, FileText, Tag, FolderTree } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 interface Team extends DocumentData {
     id: string;
@@ -37,6 +38,8 @@ interface Submission extends DocumentData {
     ideaTitle: string;
     ideaDescription: string;
     videoLink?: string;
+    categoryId: string;
+    themeId: string;
 }
 
 export default function ViewTeamPage() {
@@ -47,6 +50,8 @@ export default function ViewTeamPage() {
     const [team, setTeam] = useState<Team | null>(null);
     const [members, setMembers] = useState<Member[]>([]);
     const [submission, setSubmission] = useState<Submission | null>(null);
+    const [categoryName, setCategoryName] = useState<string | null>(null);
+    const [themeName, setThemeName] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -80,6 +85,16 @@ export default function ViewTeamPage() {
                 if (!submissionSnapshot.empty) {
                     const submissionData = submissionSnapshot.docs[0].data() as Submission;
                     setSubmission(submissionData);
+
+                    // Fetch Category and Theme names
+                    if (submissionData.categoryId) {
+                        const categoryDoc = await getDoc(doc(db, "categories", submissionData.categoryId));
+                        if(categoryDoc.exists()) setCategoryName(categoryDoc.data().name);
+                    }
+                    if (submissionData.themeId) {
+                        const themeDoc = await getDoc(doc(db, "themes", submissionData.themeId));
+                        if(themeDoc.exists()) setThemeName(themeDoc.data().name);
+                    }
                 }
 
 
@@ -164,7 +179,7 @@ export default function ViewTeamPage() {
                 </Card>
             )}
 
-            {submission && (
+            {submission ? (
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-primary">
@@ -177,6 +192,10 @@ export default function ViewTeamPage() {
                             <h3 className="font-semibold text-lg flex items-center gap-2">
                                 <Lightbulb /> {submission.ideaTitle}
                             </h3>
+                            <div className="flex items-center gap-2 mt-2">
+                                {categoryName && <Badge variant="secondary" className="flex items-center gap-1"><FolderTree className="h-3 w-3" />{categoryName}</Badge>}
+                                {themeName && <Badge variant="secondary" className="flex items-center gap-1"><Tag className="h-3 w-3"/>{themeName}</Badge>}
+                            </div>
                         </div>
                         <p className="text-muted-foreground text-sm whitespace-pre-wrap">{submission.ideaDescription}</p>
                         {submission.videoLink && (
@@ -186,6 +205,15 @@ export default function ViewTeamPage() {
                             </div>
                         )}
                     </CardContent>
+                </Card>
+            ) : (
+                 <Card>
+                    <CardHeader>
+                         <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                            <FileText /> No Idea Submitted
+                        </CardTitle>
+                        <CardDescription>This team has not submitted an idea yet.</CardDescription>
+                    </CardHeader>
                 </Card>
             )}
             

@@ -228,9 +228,9 @@ export default function CreateTeamPage() {
                                 name="instituteName"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>School/University Name</FormLabel>
+                                        <FormLabel>School/Institute Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g., Parul University" {...field} />
+                                            <Input placeholder="e.g., Parul Institute of Technology" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
