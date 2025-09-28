@@ -145,6 +145,9 @@ export default function AdminTeamsPage() {
                         'Team ID': team.teamId,
                         'Team Institute': team.instituteName,
                         'Idea Submitted': hasSubmitted ? 'Yes' : 'No',
+                        "Leader's Name": team.leaderName,
+                        "Leader's Email": team.leaderEmail,
+                        "Leader's Phone": team.leaderPhone,
                         'Role': 'Leader',
                         'Member Name': team.leaderName,
                         'Member Email': team.leaderEmail,
@@ -160,6 +163,9 @@ export default function AdminTeamsPage() {
                             'Team ID': team.teamId,
                             'Team Institute': team.instituteName,
                             'Idea Submitted': hasSubmitted ? 'Yes' : 'No',
+                            "Leader's Name": team.leaderName,
+                            "Leader's Email": team.leaderEmail,
+                            "Leader's Phone": team.leaderPhone,
                             'Role': member.uid === team.creatorUid ? 'Leader' : 'Member',
                             'Member Name': member.displayName,
                             'Member Email': member.email,
@@ -289,5 +295,7 @@ export default function AdminTeamsPage() {
         </div>
     )
 }
+
+    
 
     
