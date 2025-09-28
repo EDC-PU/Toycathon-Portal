@@ -138,6 +138,15 @@ export default function AdminTeamsPage() {
                 const submissionQuery = query(collection(db, "submissions"), where("teamId", "==", team.id));
                 const submissionSnapshot = await getDocs(submissionQuery);
                 const hasSubmitted = !submissionSnapshot.empty;
+                let themeName = 'N/A';
+
+                if (hasSubmitted) {
+                    const submissionData = submissionSnapshot.docs[0].data();
+                    if (submissionData.themeId) {
+                        const themeDoc = await getDoc(doc(db, "themes", submissionData.themeId));
+                        if(themeDoc.exists()) themeName = themeDoc.data().name;
+                    }
+                }
 
                 if (members.length === 0) {
                      dataToExport.push({
@@ -145,6 +154,7 @@ export default function AdminTeamsPage() {
                         'Team ID': team.teamId,
                         'Team Institute': team.instituteName,
                         'Idea Submitted': hasSubmitted ? 'Yes' : 'No',
+                        'Theme': themeName,
                         "Leader's Name": team.leaderName,
                         "Leader's Email": team.leaderEmail,
                         "Leader's Phone": team.leaderPhone,
@@ -163,6 +173,7 @@ export default function AdminTeamsPage() {
                             'Team ID': team.teamId,
                             'Team Institute': team.instituteName,
                             'Idea Submitted': hasSubmitted ? 'Yes' : 'No',
+                            'Theme': themeName,
                             "Leader's Name": team.leaderName,
                             "Leader's Email": team.leaderEmail,
                             "Leader's Phone": team.leaderPhone,
