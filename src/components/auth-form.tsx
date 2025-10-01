@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -203,6 +204,23 @@ export default function AuthForm({ isRegisterPage = false }: AuthFormProps) {
             const docSnap = await getDoc(docRef);
 
             if (!docSnap.exists()) {
+                 // Check registration deadline before creating a new user
+                const settingsDoc = await getDoc(doc(db, "settings", "config"));
+                if (settingsDoc.exists()) {
+                    const deadline = settingsDoc.data().registrationCloseDate?.toDate();
+                    if (deadline && new Date() > deadline) {
+                        // This is a new user trying to sign up after the deadline.
+                        await auth.signOut(); // Sign them out immediately
+                        toast({
+                            title: "Registration Closed",
+                            description: "New registrations are not allowed at this time.",
+                            variant: "destructive"
+                        });
+                        setIsGoogleLoading(false);
+                        return;
+                    }
+                }
+
                 const userData: any = {
                     uid: user.uid,
                     displayName: user.displayName,
