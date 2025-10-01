@@ -51,6 +51,7 @@ export default function SubmissionPage() {
     const [themes, setThemes] = useState<FirestoreDocument[]>([]);
     const [isFetching, setIsFetching] = useState(true);
     const [isLeader, setIsLeader] = useState(false);
+    const [canSubmit, setCanSubmit] = useState(true);
 
 
     const form = useForm<z.infer<typeof submissionSchema>>({
@@ -70,23 +71,19 @@ export default function SubmissionPage() {
                 setUser(currentUser);
                 setIsFetching(true);
                 
+                const settingsDoc = await getDoc(doc(db, "settings", "config"));
+                if (settingsDoc.exists()) {
+                    const deadline = settingsDoc.data().ideaSubmissionDeadline?.toDate();
+                    if (deadline && new Date() > deadline) {
+                        setCanSubmit(false);
+                    }
+                }
+
                 const teamsQuery = query(collection(db, "teams"), where("creatorUid", "==", currentUser.uid));
                 const teamsSnapshot = await getDocs(teamsQuery);
                 
                 if (teamsSnapshot.empty) {
-                    // This user is not a leader of any team
                     setIsLeader(false);
-                    // If they are not a leader, they shouldn't be here.
-                    const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-                    if (userDoc.exists() && userDoc.data().teamId) { // Check if they are a member of another team
-                         toast({
-                            title: 'Access Denied',
-                            description: 'Only team leaders can submit or edit ideas.',
-                            variant: 'destructive'
-                        });
-                        router.push('/dashboard');
-                        return;
-                    }
                 } else {
                      setIsLeader(true);
                 }
@@ -113,7 +110,7 @@ export default function SubmissionPage() {
         });
 
         return () => unsubscribe();
-    }, [router, form, toast]);
+    }, [router, form]);
 
     useEffect(() => {
         const fetchSubmission = async () => {
@@ -140,6 +137,11 @@ export default function SubmissionPage() {
     const onSubmit = async (values: z.infer<typeof submissionSchema>) => {
         if (!user) {
             toast({ title: "Error", description: "You must be logged in to submit.", variant: "destructive" });
+            return;
+        }
+
+        if (!canSubmit) {
+            toast({ title: "Deadline Passed", description: "The deadline for idea submissions has passed.", variant: "destructive" });
             return;
         }
 
@@ -173,14 +175,34 @@ export default function SubmissionPage() {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin mr-2"/> Fetching data...</div>;
     }
     
+     if (!canSubmit) {
+        return (
+             <div className="space-y-8 text-center flex flex-col items-center justify-center h-full">
+                <Card className="max-w-lg border-destructive">
+                    <CardHeader>
+                        <CardTitle className="text-destructive">Submissions Closed</CardTitle>
+                        <CardDescription>
+                            The deadline for submitting or editing ideas has passed.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link href="/dashboard">Return to Dashboard</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
+    
     if (!isLeader) {
         return (
              <div className="space-y-8 text-center flex flex-col items-center justify-center h-full">
                 <Card className="max-w-lg">
                     <CardHeader>
-                        <CardTitle className="text-primary">No Teams Found</CardTitle>
+                        <CardTitle className="text-primary">Create a Team to Submit</CardTitle>
                         <CardDescription>
-                            You must be a team leader to submit an idea. Please create a team first.
+                            Only team leaders can submit an idea. Please create a team first.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

@@ -24,6 +24,7 @@ const adminNavLinks = [
     { href: '/admin/teams', label: 'Manage Teams', icon: Shield },
     { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
     { href: '/admin/categories', label: 'Categories & Themes', icon: Tag },
+    { href: '/admin/settings', label: 'Event Settings', icon: Settings },
     { href: '/admin/health', label: 'System Health', icon: HeartPulse },
     { href: '/admin/profile', label: 'Admin Profile', icon: Settings },
 ];

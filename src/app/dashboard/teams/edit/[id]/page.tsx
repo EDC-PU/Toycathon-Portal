@@ -36,10 +36,8 @@ export default function EditTeamPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [canEdit, setCanEdit] = useState(true);
     const teamId = params.id as string;
-    
-    const deadline = new Date('2025-09-30T23:59:59');
-    const canEdit = new Date() < deadline || isAdmin;
 
     const form = useForm<z.infer<typeof editTeamSchema>>({
         resolver: zodResolver(editTeamSchema),
@@ -55,6 +53,14 @@ export default function EditTeamPage() {
                 const userDocSnap = await getDoc(userDocRef);
                 const userIsAdmin = userDocSnap.exists() && userDocSnap.data().isAdmin === true;
                 setIsAdmin(userIsAdmin);
+
+                const settingsDoc = await getDoc(doc(db, "settings", "config"));
+                if (settingsDoc.exists()) {
+                    const deadline = settingsDoc.data().ideaSubmissionDeadline?.toDate();
+                    if (deadline && new Date() > deadline && !userIsAdmin) {
+                        setCanEdit(false);
+                    }
+                }
 
                 if (teamId) {
                     const teamDocRef = doc(db, "teams", teamId);
@@ -107,11 +113,7 @@ export default function EditTeamPage() {
                 description: 'The team details have been successfully updated.',
             });
             
-            if (isAdmin) {
-                router.push('/dashboard/admin/teams');
-            } else {
-                router.push('/dashboard/teams');
-            }
+            router.push(isAdmin ? '/admin/teams' : '/dashboard/teams');
 
         } catch (error) {
             console.error("Error updating team:", error);
@@ -133,8 +135,8 @@ export default function EditTeamPage() {
          return <div className="flex h-screen items-center justify-center text-destructive">{error}</div>;
     }
 
-    if (!canEdit && !isAdmin) {
-         return <div className="flex h-screen items-center justify-center text-destructive">Editing for teams has been closed after September 30th, 2025.</div>;
+    if (!canEdit) {
+         return <div className="flex h-screen items-center justify-center text-destructive p-4 text-center">Editing for teams has been closed after the deadline.</div>;
     }
 
     return (
