@@ -71,46 +71,52 @@ export default function SubmissionPage() {
                 setUser(currentUser);
                 setIsFetching(true);
                 
-                const settingsDoc = await getDoc(doc(db, "settings", "config"));
-                if (settingsDoc.exists()) {
-                    const deadline = settingsDoc.data().ideaSubmissionDeadline?.toDate();
-                    if (deadline && new Date() > deadline) {
-                        setCanSubmit(false);
+                try {
+                    const settingsDoc = await getDoc(doc(db, "settings", "config"));
+                    if (settingsDoc.exists()) {
+                        const deadline = settingsDoc.data().ideaSubmissionDeadline?.toDate();
+                        if (deadline && new Date() > deadline) {
+                            setCanSubmit(false);
+                        }
                     }
+
+                    const teamsQuery = query(collection(db, "teams"), where("creatorUid", "==", currentUser.uid));
+                    const teamsSnapshot = await getDocs(teamsQuery);
+                    
+                    if (teamsSnapshot.empty) {
+                        setIsLeader(false);
+                    } else {
+                        setIsLeader(true);
+                    }
+
+                    const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
+                    setTeams(fetchedTeams);
+                    
+                    if (fetchedTeams.length === 1) {
+                        form.setValue("teamId", fetchedTeams[0].id);
+                    }
+
+                    const categoriesQuery = query(collection(db, "categories"), orderBy("name"));
+                    const categoriesSnapshot = await getDocs(categoriesQuery);
+                    setCategories(categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreDocument)));
+
+                    const themesQuery = query(collection(db, "themes"), orderBy("name"));
+                    const themesSnapshot = await getDocs(themesQuery);
+                    setThemes(themesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreDocument)));
+                } catch (error) {
+                    console.error("Error fetching initial data: ", error);
+                    toast({ title: "Error", description: "Could not load submission data.", variant: "destructive"});
+                } finally {
+                    setIsFetching(false);
                 }
 
-                const teamsQuery = query(collection(db, "teams"), where("creatorUid", "==", currentUser.uid));
-                const teamsSnapshot = await getDocs(teamsQuery);
-                
-                if (teamsSnapshot.empty) {
-                    setIsLeader(false);
-                } else {
-                     setIsLeader(true);
-                }
-
-                const fetchedTeams = teamsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
-                setTeams(fetchedTeams);
-                
-                if (fetchedTeams.length === 1) {
-                    form.setValue("teamId", fetchedTeams[0].id);
-                }
-
-                const categoriesQuery = query(collection(db, "categories"), orderBy("name"));
-                const categoriesSnapshot = await getDocs(categoriesQuery);
-                setCategories(categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreDocument)));
-
-                const themesQuery = query(collection(db, "themes"), orderBy("name"));
-                const themesSnapshot = await getDocs(themesQuery);
-                setThemes(themesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreDocument)));
-
-                setIsFetching(false);
             } else {
                 router.push('/login');
             }
         });
 
         return () => unsubscribe();
-    }, [router, form]);
+    }, [router, form, toast]);
 
     useEffect(() => {
         const fetchSubmission = async () => {
@@ -120,8 +126,10 @@ export default function SubmissionPage() {
                 if (submissionDocSnap.exists()) {
                     form.reset(submissionDocSnap.data());
                 } else {
+                     // Keep teamId but reset the rest of the form
+                    const currentTeamId = form.getValues("teamId");
                     form.reset({
-                        teamId: selectedTeamId,
+                        teamId: currentTeamId,
                         ideaTitle: "",
                         ideaDescription: "",
                         videoLink: "",
@@ -236,7 +244,7 @@ export default function SubmissionPage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Team</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select a team to submit for" />
@@ -262,7 +270,7 @@ export default function SubmissionPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Category</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedTeamId || categories.length === 0}>
+                                            <Select onValueChange={field.onChange} value={field.value} disabled={!selectedTeamId || categories.length === 0}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select a category" />
@@ -286,7 +294,7 @@ export default function SubmissionPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Theme</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedTeamId || themes.length === 0}>
+                                            <Select onValueChange={field.onChange} value={field.value} disabled={!selectedTeamId || themes.length === 0}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select a theme" />
@@ -358,3 +366,5 @@ export default function SubmissionPage() {
         </div>
     )
 }
+
+    

@@ -48,23 +48,24 @@ export default function EditTeamPage() {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
+                setIsFetching(true);
                 
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                const userIsAdmin = userDocSnap.exists() && userDocSnap.data().isAdmin === true;
-                setIsAdmin(userIsAdmin);
+                try {
+                    const userDocRef = doc(db, 'users', currentUser.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    const userIsAdmin = userDocSnap.exists() && userDocSnap.data().isAdmin === true;
+                    setIsAdmin(userIsAdmin);
 
-                const settingsDoc = await getDoc(doc(db, "settings", "config"));
-                if (settingsDoc.exists()) {
-                    const deadline = settingsDoc.data().ideaSubmissionDeadline?.toDate();
-                    if (deadline && new Date() > deadline && !userIsAdmin) {
-                        setCanEdit(false);
+                    const settingsDoc = await getDoc(doc(db, "settings", "config"));
+                    if (settingsDoc.exists()) {
+                        const deadline = settingsDoc.data().ideaSubmissionDeadline?.toDate();
+                        if (deadline && new Date() > deadline && !userIsAdmin) {
+                            setCanEdit(false);
+                        }
                     }
-                }
 
-                if (teamId) {
-                    const teamDocRef = doc(db, "teams", teamId);
-                    try {
+                    if (teamId) {
+                        const teamDocRef = doc(db, "teams", teamId);
                         const teamDocSnap = await getDoc(teamDocRef);
                         if (teamDocSnap.exists()) {
                             const teamData = teamDocSnap.data();
@@ -77,11 +78,11 @@ export default function EditTeamPage() {
                         } else {
                             setError("Team not found.");
                         }
-                    } catch (err) {
-                        setError("Failed to fetch team data.");
-                    } finally {
-                        setIsFetching(false);
                     }
+                } catch (err) {
+                    setError("Failed to fetch data.");
+                } finally {
+                    setIsFetching(false);
                 }
             } else {
                 router.push('/login');
@@ -266,3 +267,5 @@ export default function EditTeamPage() {
         </div>
     )
 }
+
+    

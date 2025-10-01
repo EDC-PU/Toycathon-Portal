@@ -15,16 +15,21 @@ function RegisterContent() {
 
     useEffect(() => {
         const checkDeadline = async () => {
-            const settingsDoc = await getDoc(doc(db, "settings", "config"));
-            if (settingsDoc.exists()) {
-                const deadline = settingsDoc.data().registrationCloseDate?.toDate();
-                if (deadline && new Date() > deadline) {
-                    setRegistrationOpen(false);
+            try {
+                const settingsDoc = await getDoc(doc(db, "settings", "config"));
+                if (settingsDoc.exists()) {
+                    const deadline = settingsDoc.data().registrationCloseDate?.toDate();
+                    if (deadline && new Date() > deadline) {
+                        setRegistrationOpen(false);
+                    } else {
+                        setRegistrationOpen(true);
+                    }
                 } else {
-                    setRegistrationOpen(true);
+                    setRegistrationOpen(true); // If no settings, assume it's open
                 }
-            } else {
-                setRegistrationOpen(true); // If no settings, assume it's open
+            } catch (error) {
+                console.error("Error checking registration deadline:", error);
+                setRegistrationOpen(true); // Fail open
             }
         };
         checkDeadline();
@@ -76,3 +81,5 @@ export default function RegisterPage() {
     </Suspense>
   );
 }
+
+    
