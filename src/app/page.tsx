@@ -240,13 +240,15 @@ function HeroSection() {
                     >
                         <motion.div variants={textItem} whileHover={{ scale: 1.05, boxShadow: "0px 0px 20px hsl(var(--primary))" }}>
                             <Button asChild size="lg">
-                                <Link href="/register">Register Now</Link>
+                                <Link href="https://drive.google.com/file/d/1UgHdQXzvqBVaEYtEd8IpDhFw6snD_aky/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+                                   Institute Category Results
+                                </Link>
                             </Button>
                         </motion.div>
                         <motion.div variants={textItem} whileHover={{ scale: 1.05 }}>
                             <Button asChild size="lg" variant="outline">
-                                <Link href="https://drive.google.com/file/d/1hgpUZnELkyHBr-bNsTQJmnVbDVX3XERr/view?usp=sharing" target="_blank" rel="noopener noreferrer">
-                                   <Download className="mr-2 h-4 w-4" /> Download Brochure
+                                <Link href="https://drive.google.com/file/d/1JGHsH_WdRXZDG0U3wdxXQkOAZKmajb9H/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+                                   School Category Results
                                 </Link>
                             </Button>
                         </motion.div>
